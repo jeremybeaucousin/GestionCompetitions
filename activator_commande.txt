@@ -1,0 +1,5 @@
+activator
+activator -jvm-debug 9999
+run
+compile
+start
