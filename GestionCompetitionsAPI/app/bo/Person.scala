@@ -12,12 +12,13 @@ import org.joda.time.DateTime
 
 case class Person(
   var _id: Option[String],
-  firstName: Option[String],
-  lastName: Option[String],
-  var birthDate: Option[Date],
-  address: Option[Adress])
+  val firstName: Option[String],
+  val lastName: Option[String],
+  val birthDate: Option[Date],
+  val address: Option[Adress])
 
 object Person {
+
   final val _ID: String = "_id"
   final val FIRST_NAME: String = "firstName"
   final val LAST_NAME: String = "lastName"
@@ -53,7 +54,7 @@ object Person {
         val birthDate = (obj \ BIRTH_DATE).asOpt[Date]
         val address = (obj \ ADDRESS).asOpt[Adress]
 
-        JsSuccess(Person(
+        JsSuccess(new Person(
           _id,
           firstName,
           lastName,
