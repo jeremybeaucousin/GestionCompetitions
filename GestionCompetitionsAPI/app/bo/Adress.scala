@@ -6,9 +6,9 @@ import reactivemongo.bson
 import reactivemongo.bson.BSONObjectID
 
 case class Adress(
-  number: Option[Int],
-  streetName: Option[String],
-  postalCode: Option[String])
+  var number: Option[Int],
+  var streetName: Option[String],
+  var postalCode: Option[String])
 
 object Adress {
   final val NUMBER: String = "number"

@@ -9,24 +9,32 @@ import java.util.Formatter.DateTime
 import java.text.DateFormat
 import play.api.data.format.Formats
 import org.joda.time.DateTime
+import scala.concurrent.ExecutionContext
 
-case class Person(
-  var _id: Option[String],
-  val firstName: Option[String],
-  val lastName: Option[String],
-  val birthDate: Option[Date],
-  val address: Option[Adress])
+trait Person {
+  var _id: Option[String]
+  var firstName: Option[String]
+  var lastName: Option[String]
+  var birthDate: Option[Date]
+  var address: Option[Adress]
+}
 
-object Person {
+object Person extends Person {
+
+  var _id: Option[String] = Some(null)
+  var firstName: Option[String]= Some(null)
+  var lastName: Option[String]= Some(null)
+  var birthDate: Option[Date]= Some(null)
+  var address: Option[Adress]= Some(null)
+
+  implicit val jodaDateReads = Reads.jodaDateReads("yyyy-MM-dd'T'HH:mm:ss'Z'")
+  implicit val jodaDateWrites = Writes.jodaDateWrites("yyyy-MM-dd'T'HH:mm:ss'Z'")
 
   final val _ID: String = "_id"
   final val FIRST_NAME: String = "firstName"
   final val LAST_NAME: String = "lastName"
   final val BIRTH_DATE: String = "birthDate"
   final val ADDRESS: String = "Address"
-
-  implicit val jodaDateReads = Reads.jodaDateReads("yyyy-MM-dd'T'HH:mm:ss'Z'")
-  implicit val jodaDateWrites = Writes.jodaDateWrites("yyyy-MM-dd'T'HH:mm:ss'Z'")
 
   implicit object PersonWrites extends Writes[Person] {
     def writes(person: Person): JsObject = {
@@ -48,18 +56,12 @@ object Person {
   implicit object PersonReads extends Reads[Person] {
     def reads(json: JsValue): JsResult[Person] = json match {
       case obj: JsValue => try {
-        val _id = (obj \ _ID).asOpt[String]
-        val firstName = (obj \ FIRST_NAME).asOpt[String]
-        val lastName = (obj \ LAST_NAME).asOpt[String]
-        val birthDate = (obj \ BIRTH_DATE).asOpt[Date]
-        val address = (obj \ ADDRESS).asOpt[Adress]
-
-        JsSuccess(new Person(
-          _id,
-          firstName,
-          lastName,
-          birthDate,
-          address))
+        _id = (obj \ _ID).asOpt[String]
+        firstName = (obj \ FIRST_NAME).asOpt[String]
+        lastName = (obj \ LAST_NAME).asOpt[String]
+        birthDate = (obj \ BIRTH_DATE).asOpt[Date]
+        address = (obj \ ADDRESS).asOpt[Adress]
+        JsSuccess(Person)
 
       } catch {
         case cause: Throwable => JsError(cause.getMessage)
@@ -90,12 +92,12 @@ object Person {
 
   implicit object PersonReader extends BSONDocumentReader[Person] {
     def read(bson: BSONDocument): Person = {
-      new Person(
-        bson.getAs[String](_ID),
-        bson.getAs[String](FIRST_NAME),
-        bson.getAs[String](LAST_NAME),
-        bson.getAs[Date](BIRTH_DATE),
-        bson.getAs[Adress](ADDRESS))
+      _id = bson.getAs[String](_ID)
+      firstName = bson.getAs[String](FIRST_NAME)
+      lastName = bson.getAs[String](LAST_NAME)
+      birthDate = bson.getAs[Date](BIRTH_DATE)
+      address = bson.getAs[Adress](ADDRESS)
+      Person
     }
   }
 }

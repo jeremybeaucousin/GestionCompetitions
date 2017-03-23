@@ -10,16 +10,20 @@ import bo.Person.PersonReads
 import bo.Person.PersonWriter
 import bo.Person.PersonReader
 
-class Taekwondoist(
-  _id: Option[String],
-  firstName: Option[String],
-  lastName: Option[String],
-  birthDate: Option[Date],
-  address: Option[Adress],
-  val passportNumber: Option[Int],
-  val grade: Option[String])
-    extends Person(_id, firstName, lastName, birthDate, address) {
-  
+trait Taekwondoist extends Person {
+  var passportNumber: Option[Int]
+  var grade: Option[String]
+}
+
+object Taekwondoist extends Taekwondoist {
+  var _id: Option[String] = Some(null)
+  var firstName: Option[String] = Some(null)
+  var lastName: Option[String] = Some(null)
+  var birthDate: Option[Date] = Some(null)
+  var address: Option[Adress] = Some(null)
+  var passportNumber: Option[Int] = Some(0)
+  var grade: Option[String] = Some(null)
+
   final val PASSEPORT_NUMBER: String = "passportNumber"
   final val GRADE: String = "grade"
 
@@ -38,16 +42,14 @@ class Taekwondoist(
     def reads(json: JsValue): JsResult[Taekwondoist] = json match {
       case obj: JsValue => try {
         val person = PersonReads.reads(obj).get
-        val number = (obj \ PASSEPORT_NUMBER).asOpt[Int]
-        val streetName = (obj \ GRADE).asOpt[String]
-        JsSuccess(new Taekwondoist(
-          person._id,
-          person.firstName,
-          person.lastName,
-          person.birthDate,
-          person.address,
-          number,
-          streetName))
+        _id = person._id
+        firstName = person.firstName
+        lastName = person.lastName
+        birthDate = person.birthDate
+        address = person.address
+        passportNumber = (obj \ PASSEPORT_NUMBER).asOpt[Int]
+        grade = (obj \ GRADE).asOpt[String]
+        JsSuccess(Taekwondoist)
 
       } catch {
         case cause: Throwable => JsError(cause.getMessage)
@@ -73,14 +75,14 @@ class Taekwondoist(
   implicit object TaekwondoistReader extends BSONDocumentReader[Taekwondoist] {
     def read(bson: BSONDocument): Taekwondoist = {
       val person = PersonReader.read(bson)
-      new Taekwondoist(
-        person._id,
-        person.firstName,
-        person.lastName,
-        person.birthDate,
-        person.address,
-        bson.getAs[Int](PASSEPORT_NUMBER),
-        bson.getAs[String](GRADE))
+      _id = person._id
+      firstName = person.firstName
+      lastName = person.lastName
+      birthDate = person.birthDate
+      address = person.address
+      passportNumber = bson.getAs[Int](PASSEPORT_NUMBER)
+      grade = bson.getAs[String](GRADE)
+      Taekwondoist
     }
   }
 }

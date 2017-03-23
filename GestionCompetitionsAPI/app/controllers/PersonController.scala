@@ -15,6 +15,11 @@ import scala.util.{ Failure, Success }
 
 import reactivemongo.bson.{ BSONDocument, BSONObjectID }
 import java.util.Date
+import bo.Taekwondoist
+import bo.Taekwondoist.TaekwondoistWriter
+import bo.Taekwondoist.TaekwondoistReader
+import bo.Taekwondoist.TaekwondoistReads
+import bo.Taekwondoist.TaekwondoistWrites
 
 class PersonController @Inject() (personManager: PersonManager)
     extends Controller {
