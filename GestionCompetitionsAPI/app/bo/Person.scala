@@ -10,13 +10,14 @@ import java.text.DateFormat
 import play.api.data.format.Formats
 import org.joda.time.DateTime
 import scala.concurrent.ExecutionContext
+import java.util.ArrayList
 
 trait Person {
   var _id: Option[String]
   var firstName: Option[String]
   var lastName: Option[String]
   var birthDate: Option[Date]
-  var address: Option[Adress]
+  var addresses: Option[List[Adress]]
 }
 
 object Person extends Person {
@@ -25,7 +26,7 @@ object Person extends Person {
   var firstName: Option[String]= Some(null)
   var lastName: Option[String]= Some(null)
   var birthDate: Option[Date]= Some(null)
-  var address: Option[Adress]= Some(null)
+  var addresses: Option[List[Adress]]= Some(null)
 
   implicit val jodaDateReads = Reads.jodaDateReads("yyyy-MM-dd'T'HH:mm:ss'Z'")
   implicit val jodaDateWrites = Writes.jodaDateWrites("yyyy-MM-dd'T'HH:mm:ss'Z'")
@@ -34,7 +35,7 @@ object Person extends Person {
   final val FIRST_NAME: String = "firstName"
   final val LAST_NAME: String = "lastName"
   final val BIRTH_DATE: String = "birthDate"
-  final val ADDRESS: String = "Address"
+  final val ADDRESSES: String = "addresses"
 
   implicit object PersonWrites extends Writes[Person] {
     def writes(person: Person): JsObject = {
@@ -47,8 +48,8 @@ object Person extends Person {
         json += (LAST_NAME -> JsString.apply(person.lastName.get))
       if (person.birthDate.isDefined)
         json += (BIRTH_DATE -> JsString.apply(new DateTime(person.birthDate.get).toString()))
-      if (person.address.isDefined)
-        json += (ADDRESS -> Json.toJson(person.address.get))
+      if (person.addresses.isDefined)
+        json += (ADDRESSES -> Json.toJson(person.addresses.get))
       json
     }
   }
@@ -60,7 +61,7 @@ object Person extends Person {
         firstName = (obj \ FIRST_NAME).asOpt[String]
         lastName = (obj \ LAST_NAME).asOpt[String]
         birthDate = (obj \ BIRTH_DATE).asOpt[Date]
-        address = (obj \ ADDRESS).asOpt[Adress]
+        addresses = (obj \ ADDRESSES).asOpt[List[Adress]]
         JsSuccess(Person)
 
       } catch {
@@ -84,8 +85,8 @@ object Person extends Person {
         bson ++= (LAST_NAME -> person.lastName.get)
       if (person.birthDate.isDefined)
         bson ++= (BIRTH_DATE -> person.birthDate.get)
-      if (person.address.isDefined)
-        bson ++= (ADDRESS -> BSON.write(person.address.get))
+      if (person.addresses.isDefined)
+        bson ++= (ADDRESSES -> person.addresses.get)
       bson
     }
   }
@@ -96,7 +97,7 @@ object Person extends Person {
       firstName = bson.getAs[String](FIRST_NAME)
       lastName = bson.getAs[String](LAST_NAME)
       birthDate = bson.getAs[Date](BIRTH_DATE)
-      address = bson.getAs[Adress](ADDRESS)
+      addresses = bson.getAs[List[Adress]](ADDRESSES)
       Person
     }
   }

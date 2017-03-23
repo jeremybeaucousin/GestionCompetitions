@@ -20,7 +20,7 @@ object Taekwondoist extends Taekwondoist {
   var firstName: Option[String] = Some(null)
   var lastName: Option[String] = Some(null)
   var birthDate: Option[Date] = Some(null)
-  var address: Option[Adress] = Some(null)
+  var addresses: Option[List[Adress]] = Some(null)
   var passportNumber: Option[Int] = Some(0)
   var grade: Option[String] = Some(null)
 
@@ -46,7 +46,7 @@ object Taekwondoist extends Taekwondoist {
         firstName = person.firstName
         lastName = person.lastName
         birthDate = person.birthDate
-        address = person.address
+        addresses = person.addresses
         passportNumber = (obj \ PASSEPORT_NUMBER).asOpt[Int]
         grade = (obj \ GRADE).asOpt[String]
         JsSuccess(Taekwondoist)
@@ -79,7 +79,7 @@ object Taekwondoist extends Taekwondoist {
       firstName = person.firstName
       lastName = person.lastName
       birthDate = person.birthDate
-      address = person.address
+      addresses = person.addresses
       passportNumber = bson.getAs[Int](PASSEPORT_NUMBER)
       grade = bson.getAs[String](GRADE)
       Taekwondoist
