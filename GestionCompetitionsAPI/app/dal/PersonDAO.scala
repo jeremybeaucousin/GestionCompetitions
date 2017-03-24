@@ -14,8 +14,11 @@ import bo.Taekwondoist
 
 @Singleton
 class PersonDAO @Inject() (val personRepo: PersonRepoImpl)(implicit ec: ExecutionContext) {
-  private val logger = org.slf4j.LoggerFactory.getLogger(this.getClass)
 
+  def listPersons (implicit ec: ExecutionContext): Future[List[Person]] = {
+    personRepo.find
+  }
+  
   def getPerson(id: String)(implicit ec: ExecutionContext): Future[Option[Person]] = {
     personRepo.select(id)
   }
@@ -44,10 +47,10 @@ class PersonDAO @Inject() (val personRepo: PersonRepoImpl)(implicit ec: Executio
       case Failure(exception) => {
         val sw = new StringWriter
         exception.printStackTrace(new PrintWriter(sw))
-        logger.error(sw.toString)
+        Logger.error(sw.toString)
       }
       case Success(writeResult) => {
-        logger.info(s"successfully inserted document with result: $writeResult")
+        Logger.info(s"successfully inserted document with result: $writeResult")
       }
     }
   }

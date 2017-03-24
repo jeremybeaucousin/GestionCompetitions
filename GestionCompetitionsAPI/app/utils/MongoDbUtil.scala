@@ -7,6 +7,7 @@ import reactivemongo.api.collections.bson
 import reactivemongo.api.collections.bson.BSONCollection
 
 import reactivemongo.bson.{ BSON, BSONDocument, BSONObjectID }
+import reactivemongo.bson.BSONArray
 
 object MongoDbUtil {
   def generateId(): BSONObjectID = {
@@ -20,7 +21,7 @@ object MongoDbUtil {
       val fieldName = element._1
       val fieldValue = element._2
       // if the value of the current field is an object we begin rebuild
-      if (fieldValue.isInstanceOf[BSONDocument]) {
+      if (fieldValue.isInstanceOf[BSONDocument]) { 
         newDocument = newDocument.remove(fieldName)
         val subObject: BSONDocument = fieldValue.asInstanceOf[BSONDocument]
         var newSubObject = subObject.copy()
@@ -35,6 +36,11 @@ object MongoDbUtil {
             newSubObject = constructBSONDocumentForPartialUpdate(subObjectFieldValue.asInstanceOf[BSONDocument])
             // else we replace the sub object key with the document key as prefix 
             //(ex : document key : "Adress", sub object key: "Number", result :"Adress.Number")
+          } else if (fieldValue.isInstanceOf[BSONArray]) {
+            newDocument = newDocument.remove(fieldName)
+            val subArray: BSONArray = fieldValue.asInstanceOf[BSONArray]
+            var newArray = subArray.copy()
+            // TODO Browse array            
           } else {
             val newFieldName = fieldName + "." + subObjectFieldName
             newSubObject = newSubObject.remove(subObjectFieldName)

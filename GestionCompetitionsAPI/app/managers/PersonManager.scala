@@ -12,20 +12,23 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class PersonManager @Inject() (personDAO: PersonDAO) (implicit ec: ExecutionContext) {
 
+  def listPersons: Future[List[Person]] = {
+  	personDAO.listPersons
+  }
   
   def getPerson(id: String): Future[Option[Person]] = {
-  	personDAO.getPerson(id);
+  	personDAO.getPerson(id)
   }
   
   def addPerson(person: Person): Future[String] = {
-  	personDAO.addPerson(person);
+  	personDAO.addPerson(person)
   }
   
   def editPerson(id: String, person: Person) = {
-  	personDAO.editPerson(id, person);
+  	personDAO.editPerson(id, person)
   }
   
   def deletePerson(id: String) = {
-  	personDAO.deletePerson(id);
+  	personDAO.deletePerson(id)
   }
 }
