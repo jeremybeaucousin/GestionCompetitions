@@ -16,9 +16,13 @@ import reactivemongo.bson.{ BSONDocument, BSONObjectID }
 import java.util.Date
 import bo.Taekwondoist
 import play.api.http.ContentTypes
+import play.api.i18n.MessagesApi
+import play.api.i18n.I18nSupport
+import play.api.i18n.Lang
+import java.util.Locale
 
-class PersonController @Inject() (personManager: PersonManager)
-    extends Controller {
+class PersonController @Inject() (val personManager: PersonManager, val messagesApi: MessagesApi)
+    extends Controller with I18nSupport {
 
   private val logger = org.slf4j.LoggerFactory.getLogger(this.getClass)
 

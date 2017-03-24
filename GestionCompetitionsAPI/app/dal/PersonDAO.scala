@@ -11,19 +11,20 @@ import scala.concurrent.Future
 import scala.concurrent.{ ExecutionContext, Future, Promise }
 import scala.util.{ Failure, Success }
 import bo.Taekwondoist
+import play.api.i18n.Messages
 
 @Singleton
 class PersonDAO @Inject() (val personRepo: PersonRepoImpl)(implicit ec: ExecutionContext) {
 
-  def listPersons (implicit ec: ExecutionContext): Future[List[Person]] = {
+  def listPersons()(implicit messages: Messages): Future[List[Person]] = {
     personRepo.find
   }
   
-  def getPerson(id: String)(implicit ec: ExecutionContext): Future[Option[Person]] = {
+  def getPerson(id: String)(implicit messages: Messages): Future[Option[Person]] = {
     personRepo.select(id)
   }
 
-  def addPerson(person: Person)(implicit ec: ExecutionContext): Future[String] = {
+  def addPerson(person: Person)(implicit messages: Messages): Future[String] = {
     val writeResult: Future[WriteResult] = personRepo.save(person)
     
     handleWriteResul(writeResult)
@@ -32,17 +33,17 @@ class PersonDAO @Inject() (val personRepo: PersonRepoImpl)(implicit ec: Executio
       person._id.get)
   }
 
-  def editPerson(id: String, person: Person)(implicit ec: ExecutionContext) = {
+  def editPerson(id: String, person: Person)(implicit messages: Messages) = {
     val writeResult: Future[WriteResult] = personRepo.update(id, person)
 
     handleWriteResul(writeResult)
   }
 
-  def deletePerson(id: String)(implicit ec: ExecutionContext) = {
+  def deletePerson(id: String)(implicit messages: Messages) = {
     handleWriteResul(personRepo.remove(id))
   }
 
-  private def handleWriteResul(writeResult: Future[WriteResult]) {
+  private def handleWriteResul(writeResult: Future[WriteResult])(implicit messages: Messages) {
     writeResult.onComplete {
       case Failure(exception) => {
         val sw = new StringWriter
@@ -50,7 +51,8 @@ class PersonDAO @Inject() (val personRepo: PersonRepoImpl)(implicit ec: Executio
         Logger.error(sw.toString)
       }
       case Success(writeResult) => {
-        Logger.info(s"successfully inserted document with result: $writeResult")
+        // TODO define constant
+        Logger.info(messages("database.inserted", writeResult))
       }
     }
   }

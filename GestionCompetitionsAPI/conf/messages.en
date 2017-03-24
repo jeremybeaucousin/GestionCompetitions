@@ -1,0 +1,6 @@
+#errors
+error.server=An error occured on the server: {0}
+error.client=A client error occurred: {0}
+
+#databases
+database.inserted=successfully inserted document with result: {0}

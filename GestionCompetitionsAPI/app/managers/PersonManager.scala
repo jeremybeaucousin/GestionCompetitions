@@ -8,27 +8,28 @@ import play.api.Logger
 import reactivemongo.api.commands.WriteResult
 import scala.concurrent.Future
 import scala.concurrent.{ExecutionContext, Future}
+import play.api.i18n.Messages
 
 @Singleton
-class PersonManager @Inject() (personDAO: PersonDAO) (implicit ec: ExecutionContext) {
+class PersonManager @Inject() (val personDAO: PersonDAO) (implicit val ec: ExecutionContext) {
 
-  def listPersons: Future[List[Person]] = {
-  	personDAO.listPersons
+  def listPersons()(implicit messages: Messages): Future[List[Person]] = {
+  	personDAO.listPersons()
   }
   
-  def getPerson(id: String): Future[Option[Person]] = {
+  def getPerson(id: String) (implicit messages: Messages): Future[Option[Person]] = {
   	personDAO.getPerson(id)
   }
   
-  def addPerson(person: Person): Future[String] = {
-  	personDAO.addPerson(person)
+  def addPerson(person: Person) (implicit messages: Messages): Future[String] = {
+  	personDAO.addPerson(person) 
   }
   
-  def editPerson(id: String, person: Person) = {
+  def editPerson(id: String, person: Person) (implicit messages: Messages) = {
   	personDAO.editPerson(id, person)
   }
   
-  def deletePerson(id: String) = {
+  def deletePerson(id: String) (implicit messages: Messages) = {
   	personDAO.deletePerson(id)
   }
 }
