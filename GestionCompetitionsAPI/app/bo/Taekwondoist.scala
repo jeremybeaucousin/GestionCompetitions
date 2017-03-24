@@ -20,7 +20,7 @@ object Taekwondoist extends Taekwondoist {
   var firstName: Option[String] = Some(null)
   var lastName: Option[String] = Some(null)
   var birthDate: Option[Date] = Some(null)
-  var addresses: Option[List[Adress]] = Some(null)
+  var addresses: Option[List[Address]] = Some(null)
   var passportNumber: Option[Int] = Some(0)
   var grade: Option[String] = Some(null)
 

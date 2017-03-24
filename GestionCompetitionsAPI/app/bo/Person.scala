@@ -17,7 +17,7 @@ trait Person {
   var firstName: Option[String]
   var lastName: Option[String]
   var birthDate: Option[Date]
-  var addresses: Option[List[Adress]]
+  var addresses: Option[List[Address]]
 }
 
 object Person extends Person {
@@ -26,7 +26,7 @@ object Person extends Person {
   var firstName: Option[String]= Some(null)
   var lastName: Option[String]= Some(null)
   var birthDate: Option[Date]= Some(null)
-  var addresses: Option[List[Adress]]= Some(null)
+  var addresses: Option[List[Address]]= Some(null)
 
   implicit val jodaDateReads = Reads.jodaDateReads("yyyy-MM-dd'T'HH:mm:ss'Z'")
   implicit val jodaDateWrites = Writes.jodaDateWrites("yyyy-MM-dd'T'HH:mm:ss'Z'")
@@ -61,7 +61,7 @@ object Person extends Person {
         firstName = (obj \ FIRST_NAME).asOpt[String]
         lastName = (obj \ LAST_NAME).asOpt[String]
         birthDate = (obj \ BIRTH_DATE).asOpt[Date]
-        addresses = (obj \ ADDRESSES).asOpt[List[Adress]]
+        addresses = (obj \ ADDRESSES).asOpt[List[Address]]
         JsSuccess(Person)
 
       } catch {
@@ -97,7 +97,7 @@ object Person extends Person {
       firstName = bson.getAs[String](FIRST_NAME)
       lastName = bson.getAs[String](LAST_NAME)
       birthDate = bson.getAs[Date](BIRTH_DATE)
-      addresses = bson.getAs[List[Adress]](ADDRESSES)
+      addresses = bson.getAs[List[Address]](ADDRESSES)
       Person
     }
   }
