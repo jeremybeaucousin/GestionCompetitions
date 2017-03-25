@@ -41,13 +41,13 @@ object Person extends Person {
     def writes(person: Person): JsObject = {
       var json = Json.obj()
       if (person._id.isDefined && !person._id.get.isEmpty())
-        json += (_ID -> JsString.apply(person._id.get))
+        json += (_ID -> JsString(person._id.get))
       if (person.firstName.isDefined)
-        json += (FIRST_NAME -> JsString.apply(person.firstName.get))
+        json += (FIRST_NAME -> JsString(person.firstName.get))
       if (person.lastName.isDefined)
-        json += (LAST_NAME -> JsString.apply(person.lastName.get))
+        json += (LAST_NAME -> JsString(person.lastName.get))
       if (person.birthDate.isDefined)
-        json += (BIRTH_DATE -> JsString.apply(new DateTime(person.birthDate.get).toString()))
+        json += (BIRTH_DATE -> JsString(new DateTime(person.birthDate.get).toString()))
       if (person.addresses.isDefined)
         json += (ADDRESSES -> Json.toJson(person.addresses.get))
       json

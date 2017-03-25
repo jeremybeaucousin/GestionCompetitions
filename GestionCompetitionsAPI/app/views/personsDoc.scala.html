@@ -1,18 +1,15 @@
 @import play.api.i18n.Messages
 @import constantes.MessageConstant
 @import scala.collection.mutable.Map
+@import bo.Route
 
-@(title:String, availableOperations:Map[String, String])(implicit messages: Messages)
+@(title:String, availableOperations:List[Route])(implicit messages: Messages)
 
 @main(title) {
-		<div class="header-with-logo">
-			<div class="header-title">
-				<h1>@title</h1>
-				<ul>
-					@for(availableOperation <- availableOperations) {
-					  <li><strong>Methode</strong> : @availableOperation._1; <strong>URI</strong> : @availableOperation._2</li>
-					}
-				</ul>
-			</div>
-		</div>
+	@titleTemplate(title)
+	<ul>
+		@for(availableOperation <- availableOperations) {
+		  <li><strong>Methode</strong> : @availableOperation.method; <strong>URI</strong> : @availableOperation.url</li>
+		}
+	</ul>
 }

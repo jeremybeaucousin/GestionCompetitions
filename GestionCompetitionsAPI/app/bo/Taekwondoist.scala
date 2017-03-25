@@ -31,9 +31,9 @@ object Taekwondoist extends Taekwondoist {
     def writes(taekwondoist: Taekwondoist): JsObject = {
       var json = PersonWrites.writes(taekwondoist)
       if (taekwondoist.passportNumber.isDefined)
-        json += (PASSEPORT_NUMBER -> JsNumber.apply(taekwondoist.passportNumber.get))
+        json += (PASSEPORT_NUMBER -> JsNumber(taekwondoist.passportNumber.get))
       if (taekwondoist.grade.isDefined)
-        json += (GRADE -> JsString.apply(taekwondoist.grade.get))
+        json += (GRADE -> JsString(taekwondoist.grade.get))
       json
     }
   }

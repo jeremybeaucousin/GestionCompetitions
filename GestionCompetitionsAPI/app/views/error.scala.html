@@ -6,15 +6,11 @@
 
 @defining(messages(MessageConstant.getErrorTitleMessageKey)) { title =>
 	@main(title) {
-			<div class="header-with-logo">
-				<div class="header-title">
-					<h1>@title</h1>
-					<ul>
-						@for(error <- errors) {
-						  <li><strong>Code</strong> : @error.code; <strong>Message</strong> : @error.userMessage</li>
-						}
-					</ul>
-				</div>
-			</div>
+			@titleTemplate(title)
+			<ul>
+				@for(error <- errors) {
+				  <li><strong>Code</strong> : @error.code; <strong>Message</strong> : @error.userMessage</li>
+				}
+			</ul>
 	}
 }

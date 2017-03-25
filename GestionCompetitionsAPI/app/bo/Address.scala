@@ -6,7 +6,7 @@ import reactivemongo.bson
 
 case class Address(
   var name: Option[String],  
-  var number: Option[Int],
+  var url: Option[Int],
   var streetName: Option[String],
   var postalCode: Option[String])
 
@@ -20,13 +20,13 @@ object Address {
     def writes(address: Address): JsObject = {
       var json = Json.obj()
       if (address.name.isDefined)
-        json += (NAME -> JsString.apply(address.name.get))
-      if (address.number.isDefined)
-        json += (NUMBER -> JsNumber.apply(address.number.get))
+        json += (NAME -> JsString(address.name.get))
+      if (address.url.isDefined)
+        json += (NUMBER -> JsNumber(address.url.get))
       if (address.streetName.isDefined)
-        json += (STREET_NAME -> JsString.apply(address.streetName.get))
+        json += (STREET_NAME -> JsString(address.streetName.get))
       if (address.postalCode.isDefined)
-        json += (POSTAL_CODE -> JsString.apply(address.postalCode.get))
+        json += (POSTAL_CODE -> JsString(address.postalCode.get))
       json
     }
   }
@@ -58,8 +58,8 @@ object Address {
       var bson = BSONDocument()
       if (address.name.isDefined)
         bson ++= (NAME -> address.name.get)
-      if (address.number.isDefined)
-        bson ++= (NUMBER -> address.number.get)
+      if (address.url.isDefined)
+        bson ++= (NUMBER -> address.url.get)
       if (address.streetName.isDefined)
         bson ++= (STREET_NAME -> address.streetName.get)
       if (address.postalCode.isDefined)

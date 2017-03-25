@@ -21,6 +21,7 @@ import reactivemongo.bson.{ BSONDocument, BSONObjectID }
 import scala.concurrent.{ Future, ExecutionContext }
 import scala.util.{ Failure, Success }
 import scala.collection.mutable.Map
+import bo.Route
 
 class PersonController @Inject() (val personManager: PersonManager, val messagesApi: MessagesApi)
     extends Controller with I18nSupport {
@@ -28,15 +29,21 @@ class PersonController @Inject() (val personManager: PersonManager, val messages
   private val logger = org.slf4j.LoggerFactory.getLogger(this.getClass)
 
   def index = Action.async { implicit request =>
-    val rootUrl:String = routes.PersonController.index().url
-    val title:String = messagesApi(MessageConstant.getDocumentationTitleMessageKey, rootUrl)
-    
-    val availableOperations:Map[String, String] = Map[String, String]()
-    
+    val rootUrl: String = routes.PersonController.index().url
+    val title: String = messagesApi(MessageConstant.getDocumentationTitleMessageKey, rootUrl)
+
+    var availableOperations: List[Route] = List[Route]()
+
     // TODO Create method to create all occurrences
-    val addPerson = routes.PersonController.addPerson()
-    availableOperations += (addPerson.method -> addPerson.url)
-    
+    val operation = routes.PersonController.addPerson()
+    val route = Route(
+      Some(operation.method),
+      Some(operation.url),
+      None,
+      None,
+      None)
+    availableOperations = route :: availableOperations
+
     render.async {
       case Accepts.Html() => Future.successful(Ok(views.html.personsDoc(title, availableOperations)))
       case Accepts.Json() => listPersons.apply(request)
@@ -45,7 +52,7 @@ class PersonController @Inject() (val personManager: PersonManager, val messages
 
   def listPersons = Action.async { implicit request =>
     val futurePersons = personManager.listPersons
-    futurePersons.map { persons => 
+    futurePersons.map { persons =>
       Ok(Json.toJson(persons))
     }
   }
