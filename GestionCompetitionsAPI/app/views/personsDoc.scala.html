@@ -1,6 +1,6 @@
-@import play.api.i18n.Messages
+	@import play.api.i18n.Messages
 @import constantes.MessageConstant
-@import scala.collection.mutable.Map
+@import scala.collection.Map
 @import bo.Route
 
 @(title:String, availableOperations:List[Route])(implicit messages: Messages)
@@ -9,7 +9,7 @@
 	@titleTemplate(title)
 	<ul>
 		@for(availableOperation <- availableOperations) {
-		  <li><strong>Methode</strong> : @availableOperation.method; <strong>URI</strong> : @availableOperation.url</li>
+			@route(availableOperation)
 		}
 	</ul>
 }

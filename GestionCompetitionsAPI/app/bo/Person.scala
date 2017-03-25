@@ -22,11 +22,25 @@ trait Person {
 
 object Person extends Person {
 
-  var _id: Option[String] = Some(null)
-  var firstName: Option[String]= Some(null)
-  var lastName: Option[String]= Some(null)
-  var birthDate: Option[Date]= Some(null)
-  var addresses: Option[List[Address]]= Some(null)
+  var _id: Option[String] = None
+  var firstName: Option[String] = None
+  var lastName: Option[String] = None
+  var birthDate: Option[Date] = None
+  var addresses: Option[List[Address]] = None
+
+  def apply(
+    _id: Option[String],
+    firstName: Option[String],
+    lastName: Option[String],
+    birthDate: Option[Date],
+    addresses: Option[List[Address]]): Person = {
+    this._id = _id
+    this.firstName = firstName
+    this.lastName = lastName
+    this.birthDate = birthDate
+    this.addresses = addresses
+    this
+  }
 
   implicit val jodaDateReads = Reads.jodaDateReads("yyyy-MM-dd'T'HH:mm:ss'Z'")
   implicit val jodaDateWrites = Writes.jodaDateWrites("yyyy-MM-dd'T'HH:mm:ss'Z'")

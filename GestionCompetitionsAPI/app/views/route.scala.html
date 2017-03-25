@@ -1,0 +1,43 @@
+@import bo.Route
+
+@(route: Route)
+
+<!--			<div class="panel panel-primary">...</div>
+<div class="panel panel-success">...</div>
+<div class="panel panel-info">...</div>
+<div class="panel panel-warning">...</div>
+<div class="panel panel-danger">...</div>-->
+<div class="panel panel-primary">
+	<div class="panel-heading"><strong>@route.method :</strong> @route.url</div>
+	<div class="panel-body">
+		<h3>Parameters</h3>
+		<div class="well">
+			<ul>
+			  @for(parameter <- route.parameters.get) {
+			  	<li>
+			  		<strong>@parameter._1 : </strong>@parameter._2
+			  	</li>
+			  }
+			</ul>
+		</div>
+		<h3>Body</h3>
+		<textarea class="json col-sm-12" readonly="true" rows="14">@route.body</textarea>
+	</div>
+	<div class="panel-footer">
+		<h3>Errors</h3>
+		<ul>
+			@for(error <- route.errors.get) {
+				<li>
+					<strong>@error._1 : </strong>@error._2
+				</li>
+			}
+		</ul>
+	</div>
+</div>
+<!-- TODO Externalise -->
+<script>
+var jsonElement = $(".json");
+var jsonContent = $.parseJSON(jsonElement.html());
+var jsonPretty = JSON.stringify(jsonContent, undefined, 4);
+jsonElement.html(jsonPretty);
+</script>

@@ -1,7 +1,8 @@
 package controllers
 
+import bo.Address
 import bo.Person
-import bo.Taekwondoist
+import bo.Route
 import constantes.MessageConstant
 import java.util.Date
 import java.util.Locale
@@ -21,7 +22,6 @@ import reactivemongo.bson.{ BSONDocument, BSONObjectID }
 import scala.concurrent.{ Future, ExecutionContext }
 import scala.util.{ Failure, Success }
 import scala.collection.mutable.Map
-import bo.Route
 
 class PersonController @Inject() (val personManager: PersonManager, val messagesApi: MessagesApi)
     extends Controller with I18nSupport {
@@ -35,13 +35,28 @@ class PersonController @Inject() (val personManager: PersonManager, val messages
     var availableOperations: List[Route] = List[Route]()
 
     // TODO Create method to create all occurrences
-    val operation = routes.PersonController.addPerson()
+    val operation: Call = routes.PersonController.addPerson()
+    val parameters: Map[String, String] = Map[String, String]("parameter1" -> "parameterValue")
+    val errors: Map[String, String] = Map[String, String]("error1" -> "errorValue")
+    // TODO Create exemple generator
+    val address: Address = Address(
+        Some("name"),
+        Some (0),
+        Some ("streetName"),
+        Some ("postalCode"))
+
+    val personExemple = Person(
+      Some("1"),
+      Some("firstName"),
+      Some("lastName"),
+      Some(new Date),
+      Some(List[Address](address)))
     val route = Route(
       Some(operation.method),
       Some(operation.url),
-      None,
-      None,
-      None)
+      Some(parameters.toMap),
+      Some((Json.toJson(personExemple)).toString),
+      Some(errors.toMap))
     availableOperations = route :: availableOperations
 
     render.async {
