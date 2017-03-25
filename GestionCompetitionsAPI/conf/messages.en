@@ -1,5 +1,6 @@
 #titles
 title.error=Error
+title.documentation=Possible operations on the ressource {0}
 
 #errors
 error.server=An error occured on the server: {0}

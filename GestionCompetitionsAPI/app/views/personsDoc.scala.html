@@ -1,20 +1,18 @@
-@*
- * This template takes a single argument, a String containing a
- * message to display.
- *@
-@(message: String)
+@import play.api.i18n.Messages
+@import constantes.MessageConstant
+@import scala.collection.mutable.Map
 
-@*
- * Call the `main` template with two arguments. The first
- * argument is a `String` with the title of the page, the second
- * argument is an `Html` object containing the body of the page.
- *@
-@main("Welcome to Play") {
+@(title:String, availableOperations:Map[String, String])(implicit messages: Messages)
 
-    @*
-     * Get an `Html` object by calling the built-in Play welcome
-     * template and passing a `String` message.
-     *@
-    @play20.welcome(message, style = "Scala")
-
+@main(title) {
+		<div class="header-with-logo">
+			<div class="header-title">
+				<h1>@title</h1>
+				<ul>
+					@for(availableOperation <- availableOperations) {
+					  <li><strong>Methode</strong> : @availableOperation._1; <strong>URI</strong> : @availableOperation._2</li>
+					}
+				</ul>
+			</div>
+		</div>
 }

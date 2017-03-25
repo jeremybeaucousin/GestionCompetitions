@@ -1,5 +1,6 @@
 #titles
 title.error=Erreur
+title.documentation=Opérations possible sur la ressource /persons
 
 #errors
 error.server=Une erreur s''est produite sur le serveur: {0}

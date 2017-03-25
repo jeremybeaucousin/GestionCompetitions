@@ -10,9 +10,14 @@ object MessageConstant {
   // Titles
   private final val TITLE_PREFIX = "title";
   private final val TITLE_ERROR = "error";
+  private final val TITLE_DOCUMENTATION = "documentation";
   
   def getErrorTitleMessageKey: String = {
     getMessageKey(TITLE_PREFIX, TITLE_ERROR);
+  }
+  
+  def getDocumentationTitleMessageKey: String = {
+    getMessageKey(TITLE_PREFIX, TITLE_DOCUMENTATION);
   }
   
   // Errors
