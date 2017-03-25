@@ -8,8 +8,12 @@
 <div class="panel panel-warning">...</div>
 <div class="panel panel-danger">...</div>-->
 <div class="panel panel-primary">
-	<div class="panel-heading"><strong>@route.method :</strong> @route.url</div>
-	<div class="panel-body">
+	<div class="panel-heading"
+		role="button" data-toggle="collapse" href="#collapsePanel" 
+		aria-expanded="false" aria-controls="collapsePanel">
+		<strong>@route.method :</strong> @route.url
+	</div>
+	<div class="panel-body collapse" id="collapsePanel">
 		<h3>Parameters</h3>
 		<div class="well">
 			<ul>
