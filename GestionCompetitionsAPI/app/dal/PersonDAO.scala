@@ -12,6 +12,7 @@ import scala.concurrent.{ ExecutionContext, Future, Promise }
 import scala.util.{ Failure, Success }
 import bo.Taekwondoist
 import play.api.i18n.Messages
+import constantes.MessageConstante
 
 @Singleton
 class PersonDAO @Inject() (val personRepo: PersonRepoImpl)(implicit ec: ExecutionContext) {
@@ -52,7 +53,7 @@ class PersonDAO @Inject() (val personRepo: PersonRepoImpl)(implicit ec: Executio
       }
       case Success(writeResult) => {
         // TODO define constant
-        Logger.info(messages("database.inserted", writeResult))
+        Logger.info(messages(MessageConstante.getDatabaseInsertedMessageKey, writeResult))
       }
     }
   }

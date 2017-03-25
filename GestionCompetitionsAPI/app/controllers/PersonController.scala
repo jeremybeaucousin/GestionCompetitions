@@ -28,7 +28,7 @@ class PersonController @Inject() (val personManager: PersonManager, val messages
 
   def index = Action.async { implicit request =>
     render.async {
-      case Accepts.Html() => Future.successful(Ok(views.html.index("Your new application is ready.")))
+      case Accepts.Html() => Future.successful(Ok(views.html.personsDoc("Documentation")))
       case Accepts.Json() => listPersons.apply(request)
     }
   }
