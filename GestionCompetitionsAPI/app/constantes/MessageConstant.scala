@@ -1,12 +1,20 @@
 package constantes
 
-object MessageConstante {
+object MessageConstant {
 
   // Commons
   private def getMessageKey(prefix: String, value: String): String = {
     s"$prefix.$value";
   }
 
+  // Titles
+  private final val TITLE_PREFIX = "title";
+  private final val TITLE_ERROR = "error";
+  
+  def getErrorTitleMessageKey: String = {
+    getMessageKey(TITLE_PREFIX, TITLE_ERROR);
+  }
+  
   // Errors
   private final val ERROR_PREFIX = "error";
   private final val ERROR_SERVER = "server";

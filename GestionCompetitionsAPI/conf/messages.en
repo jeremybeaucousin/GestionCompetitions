@@ -1,3 +1,6 @@
+#titles
+title.error=Error
+
 #errors
 error.server=An error occured on the server: {0}
 error.client=A client error occurred: {0}

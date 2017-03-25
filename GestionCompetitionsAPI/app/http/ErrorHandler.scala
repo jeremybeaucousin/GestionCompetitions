@@ -16,7 +16,7 @@ import play.api.mvc.Results._
 import scala.concurrent._
 import scala.util.parsing.json.JSONArray
 import play.api.i18n.Lang
-import constantes.MessageConstante
+import constantes.MessageConstant
 import play.api.http.MediaRange
 
 @Singleton
@@ -25,7 +25,7 @@ class ErrorHandler @Inject() (val messagesApi: MessagesApi)(implicit ec: Executi
 
   def onClientError(requestHeader: RequestHeader, statusCode: Int, message: String) = {
     val messages = messagesApi.preferred(requestHeader)
-    val userMessage = messages(MessageConstante.getClientErrorMessageKey, requestHeader.path)
+    val userMessage = messages(MessageConstant.getClientErrorMessageKey, requestHeader.path)
     var errors: List[Error] = List[Error]()
     val error: Error = new Error(
       Some(statusCode),
@@ -37,13 +37,13 @@ class ErrorHandler @Inject() (val messagesApi: MessagesApi)(implicit ec: Executi
     if (preferedContentType.accepts(MimeTypes.JSON)) {
       Future.successful(Status(statusCode)(Json.obj("errors" -> errors)))
     } else {
-      Future.successful(Status(statusCode)(views.html.error(userMessage)))
+      Future.successful(Status(statusCode)(views.html.error(errors, messages)))
     }
   }
 
   def onServerError(requestHeader: RequestHeader, exception: Throwable) = {
     val messages = messagesApi.preferred(requestHeader)
-    val userMessage = messages(MessageConstante.getServerErrorMessageKey, requestHeader.path)
+    val userMessage = messages(MessageConstant.getServerErrorMessageKey, requestHeader.path)
     var errors: List[Error] = List[Error]()
     val sw = new StringWriter
     exception.printStackTrace(new PrintWriter(sw))
@@ -58,7 +58,7 @@ class ErrorHandler @Inject() (val messagesApi: MessagesApi)(implicit ec: Executi
     if (preferedContentType.accepts(MimeTypes.JSON)) {
       Future.successful(InternalServerError(Json.obj("errors" -> errors)))
     } else {
-      Future.successful(InternalServerError(views.html.error(userMessage)))
+      Future.successful(InternalServerError(views.html.error(errors, messages)))
     }
   }
 
