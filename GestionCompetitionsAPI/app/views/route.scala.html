@@ -7,6 +7,7 @@
 <div class="panel panel-info">...</div>
 <div class="panel panel-warning">...</div>
 <div class="panel panel-danger">...</div>-->
+
 <div class="panel panel-primary">
 	<div class="panel-heading"
 		role="button" data-toggle="collapse" href="#collapsePanel" 
@@ -14,34 +15,32 @@
 		<strong>@route.method :</strong> @route.url
 	</div>
 	<div class="panel-body collapse" id="collapsePanel">
-		<h3>Parameters</h3>
+		<div>
+			<h3>Body</h3>
+			<textarea class="json col-sm-12" readonly="true" rows="14">@route.body</textarea>
+		</div>
 		<div class="well">
+			<h3>Errors</h3>
 			<ul>
-			  @for(parameter <- route.parameters.get) {
-			  	<li>
-			  		<strong>@parameter._1 : </strong>@parameter._2
-			  	</li>
-			  }
+				@for(error <- route.errors.get) {
+					<li>
+						<strong>@error._1 : </strong>@error._2
+					</li>
+				}
 			</ul>
 		</div>
-		<h3>Body</h3>
-		<textarea class="json col-sm-12" readonly="true" rows="14">@route.body</textarea>
 	</div>
 	<div class="panel-footer">
-		<h3>Errors</h3>
+		<h3>Parameters</h3>
 		<ul>
-			@for(error <- route.errors.get) {
-				<li>
-					<strong>@error._1 : </strong>@error._2
-				</li>
-			}
+		  @for(parameter <- route.parameters.get) {
+		  	<li>
+		  		<strong>@parameter._1 : </strong>@parameter._2
+		  	</li>
+		  }
 		</ul>
 	</div>
 </div>
+
+<script src="@routes.Assets.versioned("javascripts/route.js")" type="text/javascript"></script>
 <!-- TODO Externalise -->
-<script>
-var jsonElement = $(".json");
-var jsonContent = $.parseJSON(jsonElement.html());
-var jsonPretty = JSON.stringify(jsonContent, undefined, 4);
-jsonElement.html(jsonPretty);
-</script>

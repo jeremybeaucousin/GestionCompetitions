@@ -60,7 +60,7 @@ class PersonController @Inject() (val personManager: PersonManager, val messages
     availableOperations = route :: availableOperations
 
     render.async {
-      case Accepts.Html() => Future.successful(Ok(views.html.personsDoc(title, availableOperations)))
+      case Accepts.Html() => Future.successful(Ok(views.html.documentation(title, availableOperations)))
       case Accepts.Json() => listPersons.apply(request)
     }
   }
