@@ -30,7 +30,7 @@ class PersonController @Inject() (val personManager: PersonManager, val messages
 
   def index = Action.async { implicit request =>
     val rootUrl: String = routes.PersonController.index().url
-    val title: String = messagesApi(MessageConstant.getDocumentationTitleMessageKey, rootUrl)
+    val title: String = messagesApi(MessageConstant.title.documentation, rootUrl)
 
     var availableOperations: List[Route] = List[Route]()
 

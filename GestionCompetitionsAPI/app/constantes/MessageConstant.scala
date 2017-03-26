@@ -1,43 +1,34 @@
 package constantes
 
+object Title {
+  private final val PREFIX:String = "title.";
+  private final val ERROR:String = "error";
+  private final val DOCUMENTATION:String = "documentation";
+  
+  def error:String = PREFIX + ERROR;
+  def documentation:String = PREFIX + DOCUMENTATION;
+}
+
+
+object Error {
+  private final val PREFIX = "error.";
+  private final val SERVER = "server";
+  private final val CLIENT = "client";
+  
+  def server:String = PREFIX + SERVER;
+  def client:String = PREFIX + CLIENT;
+}
+
+object Database {
+  private final val PREFIX = "database.";
+  private final val INSERTED = "inserted";
+  
+  def inserted:String = PREFIX + INSERTED;
+}
+
 object MessageConstant {
-
-  // Commons
-  private def getMessageKey(prefix: String, value: String): String = {
-    s"$prefix.$value";
-  }
-
-  // Titles
-  private final val TITLE_PREFIX = "title";
-  private final val TITLE_ERROR = "error";
-  private final val TITLE_DOCUMENTATION = "documentation";
+  val title = Title
+  val error = Error
+  val database = Database
   
-  def getErrorTitleMessageKey: String = {
-    getMessageKey(TITLE_PREFIX, TITLE_ERROR);
-  }
-  
-  def getDocumentationTitleMessageKey: String = {
-    getMessageKey(TITLE_PREFIX, TITLE_DOCUMENTATION);
-  }
-  
-  // Errors
-  private final val ERROR_PREFIX = "error";
-  private final val ERROR_SERVER = "server";
-  private final val ERROR_CLIENT = "client";
-
-  def getServerErrorMessageKey: String = {
-    getMessageKey(ERROR_PREFIX, ERROR_SERVER);
-  }
-
-  def getClientErrorMessageKey: String = {
-    getMessageKey(ERROR_PREFIX, ERROR_CLIENT);
-  }
-
-  // Database
-  private final val DATABASE_PREFIX = "database";
-  private final val DATABASE_INSERTED = "inserted";
-
-  def getDatabaseInsertedMessageKey: String = {
-    getMessageKey(DATABASE_PREFIX, DATABASE_INSERTED);
-  }
 }

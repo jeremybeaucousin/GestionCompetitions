@@ -4,7 +4,7 @@
 
 @(errors: List[Error], messages: Messages)
 
-@defining(messages(MessageConstant.getErrorTitleMessageKey)) { title =>
+@defining(messages(MessageConstant.title.error)) { title =>
 	@main(title) {
 			@titleTemplate(title)
 			<ul>

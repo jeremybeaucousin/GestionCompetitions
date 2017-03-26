@@ -25,7 +25,7 @@ class ErrorHandler @Inject() (val messagesApi: MessagesApi)(implicit ec: Executi
 
   def onClientError(requestHeader: RequestHeader, statusCode: Int, message: String) = {
     val messages = messagesApi.preferred(requestHeader)
-    val userMessage = messages(MessageConstant.getClientErrorMessageKey, requestHeader.path)
+    val userMessage = messages(MessageConstant.error.client, requestHeader.path)
     var errors: List[Error] = List[Error]()
     val error: Error = new Error(
       Some(statusCode),
@@ -43,7 +43,7 @@ class ErrorHandler @Inject() (val messagesApi: MessagesApi)(implicit ec: Executi
 
   def onServerError(requestHeader: RequestHeader, exception: Throwable) = {
     val messages = messagesApi.preferred(requestHeader)
-    val userMessage = messages(MessageConstant.getServerErrorMessageKey, requestHeader.path)
+    val userMessage = messages(MessageConstant.error.server, requestHeader.path)
     var errors: List[Error] = List[Error]()
     val sw = new StringWriter
     exception.printStackTrace(new PrintWriter(sw))
