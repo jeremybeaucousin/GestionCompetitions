@@ -3,13 +3,14 @@
 @import scala.collection.Map
 @import bo.Route
 
+@import play.api.libs.json.JsValue
+
 @(title:String, availableOperations:List[Route])(implicit messages: Messages)
 
 @main(title) {
 	@titleTemplate(title)
-	<ul>
-		@for(availableOperation <- availableOperations) {
-			@route(availableOperation)
-		}
-	</ul>
+	
+	@for(availableOperation <- availableOperations) {
+		@route(availableOperation)
+	}
 }

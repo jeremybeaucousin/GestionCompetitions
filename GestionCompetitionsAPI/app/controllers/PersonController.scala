@@ -25,7 +25,6 @@ import scala.collection.mutable.Map
 
 class PersonController @Inject() (val personManager: PersonManager, val messagesApi: MessagesApi)
     extends Controller with I18nSupport {
-
   private val logger = org.slf4j.LoggerFactory.getLogger(this.getClass)
 
   def index = Action.async { implicit request =>
@@ -54,9 +53,13 @@ class PersonController @Inject() (val personManager: PersonManager, val messages
     val route = Route(
       Some(operation.method),
       Some(operation.url),
+//      None,
       Some(parameters.toMap),
       Some((Json.toJson(personExemple)).toString),
-      Some(errors.toMap))
+//      None,
+      Some(errors.toMap)
+//      None
+      )
     availableOperations = route :: availableOperations
 
     render.async {
