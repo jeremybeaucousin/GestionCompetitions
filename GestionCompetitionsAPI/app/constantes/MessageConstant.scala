@@ -26,9 +26,27 @@ object Database {
   def inserted:String = PREFIX + INSERTED;
 }
 
+object Template {
+  private final val PREFIX = "template.";
+  private final val REQUEST = "request";
+  private final val PARAMETERS = "parameters";
+  private final val BODY = "body";
+  private final val EMPTY = "empty";
+  private final val ERRORS = "errors";
+  private final val RESPONSE = "response";
+  
+  def request:String = PREFIX + REQUEST;
+  def parameters:String = PREFIX + PARAMETERS;
+  def body:String = PREFIX + BODY;
+  def empty:String = PREFIX + EMPTY;
+  def errors:String = PREFIX + ERRORS;
+  def response:String = PREFIX + RESPONSE;
+}
+
 object MessageConstant {
   val title = Title
   val error = Error
   val database = Database
+  val template = Template
   
 }

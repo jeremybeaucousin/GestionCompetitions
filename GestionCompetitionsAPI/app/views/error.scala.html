@@ -6,11 +6,11 @@
 
 @defining(messages(MessageConstant.title.error)) { title =>
 	@main(title) {
-			@titleTemplate(title)
-			<ul>
-				@for(error <- errors) {
-				  <li><strong>Code</strong> : @error.code; <strong>Message</strong> : @error.userMessage</li>
-				}
-			</ul>
+		@titleTemplate(title)
+		<ul>
+			@for(error <- errors) {
+			  <li><strong>Code</strong> : @error.code; <strong>Message</strong> : @error.userMessage</li>
+			}
+		</ul>
 	}
 }

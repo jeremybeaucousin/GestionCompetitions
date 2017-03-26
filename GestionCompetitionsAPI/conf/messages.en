@@ -8,3 +8,11 @@ error.client=A client error occurred: {0}
 
 #databases
 database.inserted=successfully inserted document with result: {0}
+
+#templates
+template.request=Request
+template.parameters=Parameter(s)
+template.body=Body
+template.empty=Nothing to display
+template.errors=Error(s)
+template.response=Response

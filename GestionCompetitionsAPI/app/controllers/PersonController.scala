@@ -2,7 +2,7 @@ package controllers
 
 import bo.Address
 import bo.Person
-import bo.Route
+import bo.Operation
 import constantes.MessageConstant
 import java.util.Date
 import java.util.Locale
@@ -23,45 +23,15 @@ import scala.concurrent.{ Future, ExecutionContext }
 import scala.util.{ Failure, Success }
 import scala.collection.mutable.Map
 
-class PersonController @Inject() (val personManager: PersonManager, val messagesApi: MessagesApi)
+class PersonController @Inject() (val documentationManager: DocumentationManager, val personManager: PersonManager, val messagesApi: MessagesApi)
     extends Controller with I18nSupport {
   private val logger = org.slf4j.LoggerFactory.getLogger(this.getClass)
 
   def index = Action.async { implicit request =>
     val rootUrl: String = routes.PersonController.index().url
     val title: String = messagesApi(MessageConstant.title.documentation, rootUrl)
-
-    var availableOperations: List[Route] = List[Route]()
-
-    // TODO Create method to create all occurrences
-    val operation: Call = routes.PersonController.addPerson()
-    val parameters: Map[String, String] = Map[String, String]("parameter1" -> "parameterValue")
-    val errors: Map[String, String] = Map[String, String]("error1" -> "errorValue")
-    // TODO Create exemple generator
-    val address: Address = Address(
-        Some("name"),
-        Some (0),
-        Some ("streetName"),
-        Some ("postalCode"))
-
-    val personExemple = Person(
-      Some("1"),
-      Some("firstName"),
-      Some("lastName"),
-      Some(new Date),
-      Some(List[Address](address)))
-    val route = Route(
-      Some(operation.method),
-      Some(operation.url),
-//      None,
-      Some(parameters.toMap),
-      Some((Json.toJson(personExemple)).toString),
-//      None,
-      Some(errors.toMap)
-//      None
-      )
-    availableOperations = route :: availableOperations
-
+    
+    val availableOperations: List[Operation] = documentationManager.getPersonOperations
     render.async {
       case Accepts.Html() => Future.successful(Ok(views.html.documentation(title, availableOperations)))
       case Accepts.Json() => listPersons.apply(request)

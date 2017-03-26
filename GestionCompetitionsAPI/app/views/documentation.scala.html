@@ -1,16 +1,17 @@
 @import play.api.i18n.Messages
 @import constantes.MessageConstant
 @import scala.collection.Map
-@import bo.Route
+@import bo.Operation
+@import constantes.MessageConstant
 
 @import play.api.libs.json.JsValue
 
-@(title:String, availableOperations:List[Route])(implicit messages: Messages)
+@(title:String, availableOperations:List[Operation])(implicit messages: Messages)
 
 @main(title) {
 	@titleTemplate(title)
 	
 	@for(availableOperation <- availableOperations) {
-		@route(availableOperation)
+		@operation(availableOperation)
 	}
 }

@@ -8,3 +8,11 @@ error.client=Une erreur du client s''est produite: {0}
 
 #databases
 database.inserted=Le document à été enregistré avec succés avec le resultat suivant : {0}
+
+#templates
+template.request=Requête
+template.parameters=Paramètre(s)
+template.body=Corp
+template.empty=Rien à afficher
+template.errors=Erreur(s)
+template.response=Réponse

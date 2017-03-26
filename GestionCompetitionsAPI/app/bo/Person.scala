@@ -11,6 +11,7 @@ import play.api.data.format.Formats
 import org.joda.time.DateTime
 import scala.concurrent.ExecutionContext
 import java.util.ArrayList
+import org.apache.commons.lang3.StringUtils
 
 trait Person {
   var _id: Option[String]
@@ -22,11 +23,11 @@ trait Person {
 
 object Person extends Person {
 
-  var _id: Option[String] = None
-  var firstName: Option[String] = None
-  var lastName: Option[String] = None
-  var birthDate: Option[Date] = None
-  var addresses: Option[List[Address]] = None
+  var _id: Option[String] = Some(StringUtils.EMPTY)
+  var firstName: Option[String] = Some(StringUtils.EMPTY)
+  var lastName: Option[String] = Some(StringUtils.EMPTY)
+  var birthDate: Option[Date] = Some(new Date)
+  var addresses: Option[List[Address]] = Some(List[Address](new Address, new Address))
 
   def apply(
     _id: Option[String],

@@ -3,12 +3,13 @@ package bo
 import play.api.Logger
 import play.api.libs.json._
 import reactivemongo.bson
+import org.apache.commons.lang3.StringUtils
 
 case class Address(
-  var name: Option[String],  
-  var url: Option[Int],
-  var streetName: Option[String],
-  var postalCode: Option[String])
+  var name: Option[String] = Some(StringUtils.EMPTY),  
+  var url: Option[Int] = Some(0),
+  var streetName: Option[String] = Some(StringUtils.EMPTY),
+  var postalCode: Option[String] = Some(StringUtils.EMPTY))
 
 object Address {
   final val NAME: String = "name"
