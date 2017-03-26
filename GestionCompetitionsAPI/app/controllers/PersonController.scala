@@ -55,7 +55,7 @@ class PersonController @Inject() (val documentationManager: DocumentationManager
   def addPerson = Action.async(BodyParsers.parse.json) { implicit request =>
     val futureId = personManager.addPerson(request.body.as[Person])
     futureId.map { id =>
-      Created.withHeaders("Location" -> (request.host + "/persons/" + id))
+      Created.withHeaders("Location" -> (request.host + routes.PersonController.getPerson(id)))
     }
   }
 
