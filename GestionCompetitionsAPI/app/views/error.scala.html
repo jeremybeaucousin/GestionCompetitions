@@ -1,4 +1,4 @@
-@import http.Error
+	@import http.Error
 @import play.api.i18n.Messages
 @import constantes.MessageConstant
 
@@ -7,10 +7,15 @@
 @defining(messages(MessageConstant.title.error)) { title =>
 	@main(title) {
 		@titleTemplate(title)
-		<ul>
-			@for(error <- errors) {
-			  <li><strong>Code</strong> : @error.code; <strong>Message</strong> : @error.userMessage</li>
-			}
-		</ul>
+		@for(error <- errors) {
+		<div class="panel panel-danger">
+			<div class="panel-heading">
+				<strong>Code</strong> : @error.code; 
+			</div>
+			<div class="panel-body">
+				<strong>Message</strong> : @error.userMessage
+			</div>
+		</div>
+		}
 	}
 }

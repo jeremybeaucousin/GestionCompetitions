@@ -2,7 +2,7 @@
 @import play.api.libs.json.Json
 @import constantes.MessageConstant
 
-@(operation: Operation)(implicit messages: Messages)
+@(operation: Operation, operationIndex: Int = 0)(implicit messages: Messages)
 	
 @if(operation.call.isDefined) {
 	@defining(operation.call.get.method match {
@@ -14,11 +14,13 @@
 	<div class="panel panel-@methodClass">
 	}
 		<div class="panel-heading"
-			role="button" data-toggle="collapse" href="#collapsePanel" 
-			aria-expanded="false" aria-controls="collapsePanel">
-			<strong>@operation.call.get.method </strong> @operation.call.get.url
+			role="button" data-toggle="collapse" href="#collapsePanel-@operationIndex" 
+			aria-expanded="false" aria-controls="collapsePanel-@operationIndex">
+			<p><strong>@operation.call.get.method </strong> @operation.call.get.url</p>
+			<p>@operation.description</p>
+			
 		</div>
-		<div class="panel-body collapse" id="collapsePanel">
+		<div class="panel-body collapse" id="collapsePanel-@operationIndex">
 			<div>
 				<h3>@messages(MessageConstant.template.body)</h3>
 				@if(operation.body.isDefined) {

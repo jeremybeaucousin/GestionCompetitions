@@ -10,8 +10,7 @@
 
 @main(title) {
 	@titleTemplate(title)
-	
-	@for(availableOperation <- availableOperations) {
-		@operation(availableOperation)
+	@for(i <- 0 to availableOperations.size-1) {
+		@operation(availableOperations(i), i)
 	}
 }

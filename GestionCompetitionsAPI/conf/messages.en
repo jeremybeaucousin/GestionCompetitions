@@ -16,3 +16,13 @@ template.body=Body
 template.empty=Nothing to display
 template.errors=Error(s)
 template.response=Response
+
+#Documentation
+documentation.listPersonsDescription=Return the persons stored in database
+documentation.listPersonsReturn=Return the persons as JsonObject inside a Json Array
+documentation.getPersonDescription=Return the person with the identifier set in parameters
+documentation.getPersonIdParameterDescription=the person identifier as stored in database
+documentation.getPersonReturn=Return the person in JsonObject
+documentation.addPersonDescription=Add a new person to the database
+documentation.editPersonDescription=Update the person with the identifier set in parameters
+documentation.deletePersonDescription=Delete the person with the identifier set in parameters

@@ -16,3 +16,13 @@ template.body=Corp
 template.empty=Rien à afficher
 template.errors=Erreur(s)
 template.response=Réponse
+
+#Documentation
+documentation.listPersonsDescription=Retourne les personnes enregistrées en base de données
+documentation.listPersonsReturn=Retourne les personnes au format JsonObject dans un tableau Json
+documentation.getPersonDescription=Retourne la personne avec l''identifiant renseigné dans les paramètres
+documentation.getPersonIdParameterDescription=L''identifiant de la personne telle qu''enregistré en base de données
+documentation.getPersonReturn=Retourne la personne au format JsonObject
+documentation.addPersonDescription=Ajoute une nouvelle personne à la base de données
+documentation.editPersonDescription=Met à jour la personne avec l''identifiant renseigné dans les paramètres
+documentation.deletePersonDescription=Supprime la personne avec l''identifiant renseigné dans les paramètres

@@ -13,7 +13,7 @@ import play.api.i18n.Messages
 @Singleton
 class PersonManager @Inject() (val personDAO: PersonDAO) (implicit val ec: ExecutionContext) {
 
-  def listPersons()(implicit messages: Messages): Future[List[Person]] = {
+  def listPersons(implicit messages: Messages): Future[List[Person]] = {
   	personDAO.listPersons()
   }
   

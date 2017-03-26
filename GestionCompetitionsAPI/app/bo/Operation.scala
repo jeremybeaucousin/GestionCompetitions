@@ -11,6 +11,7 @@ import play.api.mvc.Call
 
 case class Operation(
   var call: Option[Call],  
+  var description: Option[String],
   var parameters: Option[Map[String,String]],
   var body: Option[JsValue],
   var errors: Option[Map[String,String]],
