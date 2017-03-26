@@ -27,19 +27,19 @@ class PersonController @Inject() (val documentationManager: DocumentationManager
     extends Controller with I18nSupport {
   private val logger = org.slf4j.LoggerFactory.getLogger(this.getClass)
 
-  def index = Action.async { implicit request =>
-    val rootUrl: String = routes.PersonController.index().url
+  def index(sort: Option[Seq[String]], fields: Option[Seq[String]], offset: Option[Int], limit: Option[Int]) = Action.async { implicit request =>
+    val rootUrl: String = routes.PersonController.index(None, None, None, None).url
     val title: String = messagesApi(MessageConstant.title.documentation, rootUrl)
     
     val availableOperations: List[Operation] = documentationManager.getPersonOperations
     render.async {
       case Accepts.Html() => Future.successful(Ok(views.html.documentation(title, availableOperations)))
-      case Accepts.Json() => listPersons.apply(request)
+      case Accepts.Json() => listPersons(sort, fields, offset, limit).apply(request)
     }
   }
 
-  def listPersons = Action.async { implicit request =>
-    val futurePersons = personManager.listPersons
+  def listPersons(sort: Option[Seq[String]], fields: Option[Seq[String]], offset: Option[Int], limit: Option[Int]) = Action.async { implicit request =>
+    val futurePersons = personManager.listPersons(sort, fields, offset, limit)
     futurePersons.map { persons =>
       Ok(Json.toJson(persons))
     }

@@ -17,7 +17,7 @@ import reactivemongo.bson.BSONWriter
 
 
 trait PersonRepo {
-  def find()(implicit ec: ExecutionContext): Future[List[Person]]
+  def find(sort: Option[Seq[String]], fields: Option[Seq[String]], offset: Option[Int], limit: Option[Int])(implicit ec: ExecutionContext): Future[List[Person]]
 
   def select(id: String)(implicit ec: ExecutionContext): Future[Option[Person]]
 
@@ -34,8 +34,9 @@ class PersonRepoImpl @Inject() (val reactiveMongoApi: ReactiveMongoApi)(implicit
   def collection = reactiveMongoApi.database.
     map(_.collection[BSONCollection]("persons"))
 
-  override def find()(implicit ec: ExecutionContext): Future[List[Person]] = {
-    val cursor = collection.map(_.find(Json.obj()).cursor[Person]())
+  override def find(sort: Option[Seq[String]], fields: Option[Seq[String]], offset: Option[Int], limit: Option[Int])(implicit ec: ExecutionContext): Future[List[Person]] = {
+    val sortBson = createSortBson(sort)
+    val cursor = collection.map(_.find(Json.obj()).sort(sortBson).cursor[Person]())
     cursor.flatMap(_.collect[List]()).map { persons =>
       persons
     }
@@ -62,6 +63,19 @@ class PersonRepoImpl @Inject() (val reactiveMongoApi: ReactiveMongoApi)(implicit
   
   private def constructId(id: String):BSONDocument = {
     BSONDocument("_id" -> id)
+  }
+  
+  private def createSortBson(fields: Option[Seq[String]]):BSONDocument = {
+    var sortingBson = BSONDocument()
+    if (fields.isDefined && !fields.isEmpty) {
+      fields.get.map(field => {
+        val regex = "^[\\+|\\-]"
+        Logger.info(field)
+        Logger.info(regex)
+        Logger.info("test : " + field.matches(regex).toString()) 
+      })
+    }
+    sortingBson
   }
 
 }

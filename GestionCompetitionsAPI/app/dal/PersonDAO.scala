@@ -17,8 +17,8 @@ import constantes.MessageConstant
 @Singleton
 class PersonDAO @Inject() (val personRepo: PersonRepoImpl)(implicit ec: ExecutionContext) {
 
-  def listPersons()(implicit messages: Messages): Future[List[Person]] = {
-    personRepo.find
+  def listPersons(sort: Option[Seq[String]], fields: Option[Seq[String]], offset: Option[Int], limit: Option[Int])(implicit messages: Messages): Future[List[Person]] = {
+    personRepo.find(sort, fields, offset, limit)
   }
   
   def getPerson(id: String)(implicit messages: Messages): Future[Option[Person]] = {

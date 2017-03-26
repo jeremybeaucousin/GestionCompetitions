@@ -13,7 +13,7 @@ GET     /message                    controllers.AsyncController.message
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
 
 # Arbitres
-GET		/persons					controllers.PersonController.index
+GET		/persons					controllers.PersonController.index(sort: Option[Seq[String]], fields: Option[Seq[String]], offset: Option[Int], limit: Option[Int])
 GET		/persons/:id				controllers.PersonController.getPerson(id: String)
 POST	/persons					controllers.PersonController.addPerson
 PUT 	/persons/:id				controllers.PersonController.editPerson(id: String)

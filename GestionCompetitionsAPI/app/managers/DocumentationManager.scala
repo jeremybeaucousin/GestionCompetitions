@@ -25,7 +25,7 @@ class DocumentationManager @Inject() (implicit val ec: ExecutionContext) {
     var jsonPersonExemple = (Json.toJson(Person));
     
     val listPersonsOperation = Operation(
-      Some(routes.PersonController.index()),
+      Some(routes.PersonController.index(None, None, None, None)),
       Some(messages(MessageConstant.documentation.listPersonsDescription)),
       None,
       None,
