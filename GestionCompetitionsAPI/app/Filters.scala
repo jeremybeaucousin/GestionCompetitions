@@ -2,8 +2,7 @@ import javax.inject._
 import play.api._
 import play.api.http.HttpFilters
 import play.api.mvc._
-
-import filters.ExampleFilter
+import v1.filters.ExampleFilter
 
 @Singleton
 class Filters @Inject() (

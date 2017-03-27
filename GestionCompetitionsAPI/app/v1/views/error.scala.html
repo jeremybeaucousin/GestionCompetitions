@@ -1,0 +1,21 @@
+@import v1.http.Error
+@import play.api.i18n.Messages
+@import v1.constantes.MessageConstant
+
+@(errors: List[Error], messages: Messages)
+
+@defining(messages(MessageConstant.title.error)) { title =>
+	@main(title) {
+		@titleTemplate(title)
+		@for(error <- errors) {
+		<div class="panel panel-danger">
+			<div class="panel-heading">
+				<strong>Code</strong> : @error.code; 
+			</div>
+			<div class="panel-body">
+				<strong>Message</strong> : @error.userMessage
+			</div>
+		</div>
+		}
+	}
+}

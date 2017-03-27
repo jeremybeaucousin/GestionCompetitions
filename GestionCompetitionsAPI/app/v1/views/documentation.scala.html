@@ -1,0 +1,16 @@
+@import play.api.i18n.Messages
+@import v1.constantes.MessageConstant
+@import scala.collection.Map
+@import v1.bo.Operation
+@import v1.constantes.MessageConstant
+
+@import play.api.libs.json.JsValue
+
+@(title:String, availableOperations:List[Operation])(implicit messages: Messages)
+
+@main(title) {
+	@titleTemplate(title)
+	@for(i <- 0 to availableOperations.size-1) {
+		@operation(availableOperations(i), i)
+	}
+}

@@ -1,13 +1,8 @@
-New log file opened at Sun Mar 12 13:57:14 CET 2017 by 10936@JEJE-PORTABLE
-Taking next connection to: 62353
-New client attempting to connect on port: 62354-62353
-  Address = /192.168.1.86:62353
-This client on port 62354 has uuid 444ae948-315f-452f-984a-1793fc347a27 configName activator humanReadableName Activator protocolVersion 3 featureTags Vector()
-Connected Clients: activator-444ae948-315f-452f-984a-1793fc347a27
-Taking next connection to: 62353
-New client attempting to connect on port: 62355-62353
-  Address = /192.168.1.86:62353
-Handshake exception on socket: 62355
+New log file opened at Mon Mar 27 18:50:45 CEST 2017 by 10876@JEJE-PORTABLE
+Taking next connection to: 51677
+New client attempting to connect on port: 51678-51677
+  Address = /192.168.1.86:51677
+Handshake exception on socket: 51678
 sbt.impl.ipc.HandshakeException: Unable to perform handshake
 	at sbt.impl.ipc.Peer.handshake(IPC.scala:46)
 	at sbt.impl.ipc.MultiClientServer.<init>(IPC.scala:150)
@@ -23,15 +18,4 @@ Caused by: java.net.SocketException: Software caused connection abort: recv fail
 	at sbt.impl.ipc.Peer.receive(IPC.scala:95)
 	at sbt.impl.ipc.Peer.handshake(IPC.scala:49)
 	... 2 more
-Taking next connection to: 62353
-New client attempting to connect on port: 62356-62353
-  Address = /192.168.1.86:62353
-This client on port 62356 has uuid bf7f0a19-d780-4473-8fe2-fe59be7bd9d9 configName activator humanReadableName Activator protocolVersion 3 featureTags Vector()
-Connected Clients: activator-444ae948-315f-452f-984a-1793fc347a27, activator-bf7f0a19-d780-4473-8fe2-fe59be7bd9d9
-Taking next connection to: 62353
-Checking to see if clients are empty...
-No non-daemon clients connected after 3 min. Shutting down.
-Server socket thread exiting.
-0 clients open, will close them...
-All client sockets have been closed.
-Closing the 10936@JEJE-PORTABLE logs at Sun Mar 12 14:00:15 CET 2017, goodbye.
+Taking next connection to: 51677

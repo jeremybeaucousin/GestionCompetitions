@@ -3,18 +3,18 @@
 # ~~~~
 
 # An example controller showing a sample home page
-GET     /                           controllers.HomeController.index
+GET     /                           v1.controllers.HomeController.index
 # An example controller showing how to use dependency injection
-GET     /count                      controllers.CountController.count
+GET     /count                      v1.controllers.CountController.count
 # An example controller showing how to write asynchronous code
-GET     /message                    controllers.AsyncController.message
+GET     /message                    v1.controllers.AsyncController.message
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
 
 # Arbitres
-GET		/persons					controllers.PersonController.index(sort: Option[Seq[String]], fields: Option[Seq[String]], offset: Option[Int], limit: Option[Int])
-GET		/persons/:id				controllers.PersonController.getPerson(id: String)
-POST	/persons					controllers.PersonController.addPerson
-PUT 	/persons/:id				controllers.PersonController.editPerson(id: String)
-DELETE	/persons/:id				controllers.PersonController.deletePerson(id: String)
+GET		/v1/persons					v1.controllers.PersonController.index(sort: Option[Seq[String]], fields: Option[Seq[String]], offset: Option[Int], limit: Option[Int])
+GET		/v1/persons/:id				v1.controllers.PersonController.getPerson(id: String)
+POST	/v1/persons					v1.controllers.PersonController.addPerson
+PUT 	/v1/persons/:id				v1.controllers.PersonController.editPerson(id: String)
+DELETE	/v1/persons/:id				v1.controllers.PersonController.deletePerson(id: String)
