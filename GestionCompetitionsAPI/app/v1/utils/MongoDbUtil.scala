@@ -10,8 +10,47 @@ import reactivemongo.bson.{ BSON, BSONDocument, BSONObjectID }
 import reactivemongo.bson.BSONArray
 
 object MongoDbUtil {
+  final val _ID = "_id"
+
   def generateId(): BSONObjectID = {
     BSONObjectID.generate
+  }
+
+  def createSortBson(fields: Option[Seq[String]]): BSONDocument = {
+    var sortingBson = BSONDocument()
+    val regex = """(\-|\+)?([\w ]+)""".r
+    if (fields.isDefined && !fields.get.isEmpty) {
+      fields.get.map(field => {
+        if (regex.pattern.matcher(field).matches) {
+          field match {
+            case regex(order, field) => {
+              val mongoOrder = if (order != null && order == "-") -1 else 1
+              sortingBson ++= (field -> mongoOrder)
+            }
+          }
+        }
+      })
+    }
+    sortingBson
+  }
+
+  def createProjectionBson(fields: Option[Seq[String]]): BSONDocument = {
+    var projectionBson = BSONDocument()
+    val regex = """([\w]+)""".r
+    if (fields.isDefined) {
+      if (!fields.get.isEmpty && !fields.get(0).isEmpty())
+        projectionBson ++= (_ID -> 0)
+      fields.get.map(field => {
+        if (regex.pattern.matcher(field).matches) {
+          field match {
+            case regex(field) => {
+              projectionBson ++= (field -> 1)
+            }
+          }
+        }
+      })
+    }
+    projectionBson
   }
 
   def constructBSONDocumentForPartialUpdate(document: BSONDocument): BSONDocument = {
@@ -21,7 +60,7 @@ object MongoDbUtil {
       val fieldName = element._1
       val fieldValue = element._2
       // if the value of the current field is an object we begin rebuild
-      if (fieldValue.isInstanceOf[BSONDocument]) { 
+      if (fieldValue.isInstanceOf[BSONDocument]) {
         newDocument = newDocument.remove(fieldName)
         val subObject: BSONDocument = fieldValue.asInstanceOf[BSONDocument]
         var newSubObject = subObject.copy()
@@ -50,7 +89,6 @@ object MongoDbUtil {
         newDocument = newDocument.add(newSubObject)
       }
     })
-    Logger.info(BSONDocument.pretty(newDocument))
     newDocument
   }
 }

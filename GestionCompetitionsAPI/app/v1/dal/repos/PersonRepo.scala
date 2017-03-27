@@ -15,7 +15,6 @@ import scala.concurrent.{ ExecutionContext, Future }
 import v1.utils.MongoDbUtil
 import reactivemongo.bson.BSONWriter
 
-
 trait PersonRepo {
   def find(sort: Option[Seq[String]], fields: Option[Seq[String]], offset: Option[Int], limit: Option[Int])(implicit ec: ExecutionContext): Future[List[Person]]
 
@@ -35,9 +34,13 @@ class PersonRepoImpl @Inject() (val reactiveMongoApi: ReactiveMongoApi)(implicit
     map(_.collection[BSONCollection]("persons"))
 
   override def find(sort: Option[Seq[String]], fields: Option[Seq[String]], offset: Option[Int], limit: Option[Int])(implicit ec: ExecutionContext): Future[List[Person]] = {
-    val sortBson = createSortBson(sort)
-    val cursor = collection.map(_.find(Json.obj()).sort(sortBson).cursor[Person]())
+    val sortBson = MongoDbUtil.createSortBson(sort)
+    val projectionBson = MongoDbUtil.createProjectionBson(fields)
+    val cursor = collection.map(_.find(Json.obj(), projectionBson).sort(sortBson).cursor[Person]())
     cursor.flatMap(_.collect[List]()).map { persons =>
+      persons.map(person => {
+//        Logger.info(person.toString())
+      })
       persons
     }
   }
@@ -47,7 +50,7 @@ class PersonRepoImpl @Inject() (val reactiveMongoApi: ReactiveMongoApi)(implicit
   }
 
   override def update(id: String, person: Person)(implicit ec: ExecutionContext): Future[WriteResult] = {
-    person._id=Some(id)
+    person._id = Some(id)
     val rebuildDocument = MongoDbUtil.constructBSONDocumentForPartialUpdate(BSON.write(person))
     collection.flatMap(_.update(constructId(id), BSONDocument("$set" -> rebuildDocument)))
   }
@@ -60,27 +63,8 @@ class PersonRepoImpl @Inject() (val reactiveMongoApi: ReactiveMongoApi)(implicit
     person._id = Some(MongoDbUtil.generateId().stringify)
     collection.flatMap(_.insert(person))
   }
-  
-  private def constructId(id: String):BSONDocument = {
+
+  private def constructId(id: String): BSONDocument = {
     BSONDocument("_id" -> id)
   }
-  
-  private def createSortBson(fields: Option[Seq[String]]):BSONDocument = {
-    var sortingBson = BSONDocument()
-    val regex = """(\-|\+)?([\w ]+)""".r
-    if (fields.isDefined && !fields.isEmpty) {
-      fields.get.map(field => {
-        if(regex.pattern.matcher(field).matches) {
-          field match {
-            case regex(order, field) => {
-              val mongoOrder = if (order != null && order == "-") -1 else 1
-              sortingBson ++= (field -> mongoOrder)
-            }
-          }
-        }
-      })
-    }
-    sortingBson
-  }
-
 }

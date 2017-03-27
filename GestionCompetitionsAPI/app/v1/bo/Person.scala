@@ -18,7 +18,15 @@ case class Person(
   var firstName: Option[String] = Some(StringUtils.EMPTY),
   var lastName: Option[String] = Some(StringUtils.EMPTY),
   var birthDate: Option[Date] = Some(new Date),
-  var addresses: Option[List[Address]] = Some(List[Address](new Address, new Address)))
+  var addresses: Option[List[Address]] = Some(List[Address](new Address, new Address))) {
+  
+  @Override
+  override def toString():String = {
+    "id : " + _id + "; firstName : " + firstName + "; lastName : " + lastName + "; birthDate : " + birthDate + "; addresses: " + addresses + ";"
+//    s"id : $this._id; firstName : $this.firstName;"
+//    s"id : $this._id; firstName : $this.firstName; lastName : $this.lastName; birthDate : $this.birthDate; addresses: $this.addresses;"
+  }
+}
 
 object Person {
 
