@@ -9,16 +9,23 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import play.api.i18n.Messages
 import play.api.libs.json.Json
+import reactivemongo.bson.BSONObjectID
+import v1.utils.MongoDbUtil
 
 @Singleton
 class DocumentationManager @Inject() (implicit val ec: ExecutionContext) {
+  final val jsonPersonExemple = (Json.toJson(new Person))
+  final val _idExemple = MongoDbUtil.generateId().stringify
+  
   def getPersonOperations(implicit messages: Messages): List[Operation] = {
     var availableOperations: List[Operation] = List[Operation]()
     
-    var jsonPersonExemple = (Json.toJson(new Person));
-    
     val listPersonsOperation = Operation(
-      Some(routes.PersonController.index(None, None, None, None)),
+      Some(routes.PersonController.index(
+          Some(Seq[String]("+" + Person.FIRST_NAME, "-" +  Person.LAST_NAME)), 
+          Some(Seq[String](Person._ID, Person.FIRST_NAME, Person.LAST_NAME)),
+          Some(0), 
+          Some(0))),
       Some(messages(MessageConstant.documentation.listPersonsDescription)),
       None,
       None,
@@ -27,7 +34,7 @@ class DocumentationManager @Inject() (implicit val ec: ExecutionContext) {
     availableOperations = listPersonsOperation :: availableOperations
 
     val getPersonOperation = Operation(
-      Some(routes.PersonController.getPerson(Person._ID)),
+      Some(routes.PersonController.getPerson(_idExemple)),
       Some(messages(MessageConstant.documentation.getPersonDescription)),
       Some(getGetPersonParameters),
       None,
@@ -45,7 +52,7 @@ class DocumentationManager @Inject() (implicit val ec: ExecutionContext) {
     availableOperations = addPersonOperation :: availableOperations
 
     val editPersonOperation = Operation(
-      Some(routes.PersonController.editPerson(Person._ID)),
+      Some(routes.PersonController.editPerson(_idExemple)),
       Some(messages(MessageConstant.documentation.editPersonDescription)),
       None,
       Some(jsonPersonExemple),
@@ -54,7 +61,7 @@ class DocumentationManager @Inject() (implicit val ec: ExecutionContext) {
     availableOperations = editPersonOperation :: availableOperations
     
     val deletePersonOperation = Operation(
-      Some(routes.PersonController.deletePerson(Person._ID)),
+      Some(routes.PersonController.deletePerson(_idExemple)),
       Some(messages(MessageConstant.documentation.deletePersonDescription)),
       None,
       None,
