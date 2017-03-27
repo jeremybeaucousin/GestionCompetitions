@@ -13,35 +13,35 @@ import scala.concurrent.ExecutionContext
 import java.util.ArrayList
 import org.apache.commons.lang3.StringUtils
 
-trait Person {
-  var _id: Option[String]
-  var firstName: Option[String]
-  var lastName: Option[String]
-  var birthDate: Option[Date]
-  var addresses: Option[List[Address]]
-}
+case class Person(
+  var _id: Option[String] = Some(StringUtils.EMPTY),
+  var firstName: Option[String] = Some(StringUtils.EMPTY),
+  var lastName: Option[String] = Some(StringUtils.EMPTY),
+  var birthDate: Option[Date] = Some(new Date),
+  var addresses: Option[List[Address]] = Some(List[Address](new Address, new Address)))
 
-object Person extends Person {
+object Person {
 
-  var _id: Option[String] = Some(StringUtils.EMPTY)
-  var firstName: Option[String] = Some(StringUtils.EMPTY)
-  var lastName: Option[String] = Some(StringUtils.EMPTY)
-  var birthDate: Option[Date] = Some(new Date)
-  var addresses: Option[List[Address]] = Some(List[Address](new Address, new Address))
+  //  var _id: Option[String]
+  //  var firstName: Option[String] = Some(StringUtils.EMPTY)
+  //  var lastName: Option[String] = Some(StringUtils.EMPTY)
+  //  var birthDate: Option[Date] = Some(new Date)
+  //  var addresses: Option[List[Address]] = Some(List[Address](new Address, new Address))
 
-  def apply(
-    _id: Option[String],
-    firstName: Option[String],
-    lastName: Option[String],
-    birthDate: Option[Date],
-    addresses: Option[List[Address]]): Person = {
-    this._id = _id
-    this.firstName = firstName
-    this.lastName = lastName
-    this.birthDate = birthDate
-    this.addresses = addresses
-    this
-  }
+  //  def apply = this
+  //  def apply(
+  //    _id: Option[String],
+  //    firstName: Option[String],
+  //    lastName: Option[String],
+  //    birthDate: Option[Date],
+  //    addresses: Option[List[Address]]): Person = {
+  //    this._id = _id
+  //    this.firstName = firstName
+  //    this.lastName = lastName
+  //    this.birthDate = birthDate
+  //    this.addresses = addresses
+  //    this
+  //  }
 
   implicit val jodaDateReads = Reads.jodaDateReads("yyyy-MM-dd'T'HH:mm:ss'Z'")
   implicit val jodaDateWrites = Writes.jodaDateWrites("yyyy-MM-dd'T'HH:mm:ss'Z'")
@@ -72,13 +72,12 @@ object Person extends Person {
   implicit object PersonReads extends Reads[Person] {
     def reads(json: JsValue): JsResult[Person] = json match {
       case obj: JsValue => try {
-        _id = (obj \ _ID).asOpt[String]
-        firstName = (obj \ FIRST_NAME).asOpt[String]
-        lastName = (obj \ LAST_NAME).asOpt[String]
-        birthDate = (obj \ BIRTH_DATE).asOpt[Date]
-        addresses = (obj \ ADDRESSES).asOpt[List[Address]]
-        JsSuccess(Person)
-
+        JsSuccess(Person(
+          (obj \ _ID).asOpt[String],
+          (obj \ FIRST_NAME).asOpt[String],
+          (obj \ LAST_NAME).asOpt[String],
+          (obj \ BIRTH_DATE).asOpt[Date],
+          (obj \ ADDRESSES).asOpt[List[Address]]))
       } catch {
         case cause: Throwable => JsError(cause.getMessage)
       }
@@ -108,12 +107,12 @@ object Person extends Person {
 
   implicit object PersonReader extends BSONDocumentReader[Person] {
     def read(bson: BSONDocument): Person = {
-      _id = bson.getAs[String](_ID)
-      firstName = bson.getAs[String](FIRST_NAME)
-      lastName = bson.getAs[String](LAST_NAME)
-      birthDate = bson.getAs[Date](BIRTH_DATE)
-      addresses = bson.getAs[List[Address]](ADDRESSES)
-      Person
+      Person(
+        bson.getAs[String](_ID),
+        bson.getAs[String](FIRST_NAME),
+        bson.getAs[String](LAST_NAME),
+        bson.getAs[Date](BIRTH_DATE),
+        bson.getAs[List[Address]](ADDRESSES))
     }
   }
 }

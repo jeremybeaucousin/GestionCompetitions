@@ -11,19 +11,11 @@ import bo.Person.PersonWriter
 import bo.Person.PersonReader
 
 trait Taekwondoist extends Person {
-  var passportNumber: Option[Int]
-  var grade: Option[String]
+  var passportNumber: Option[Int] = Some(0)
+  var grade: Option[String] = Some(null)
 }
 
 object Taekwondoist extends Taekwondoist {
-  var _id: Option[String] = Some(null)
-  var firstName: Option[String] = Some(null)
-  var lastName: Option[String] = Some(null)
-  var birthDate: Option[Date] = Some(null)
-  var addresses: Option[List[Address]] = Some(null)
-  var passportNumber: Option[Int] = Some(0)
-  var grade: Option[String] = Some(null)
-
   final val PASSEPORT_NUMBER: String = "passportNumber"
   final val GRADE: String = "grade"
 

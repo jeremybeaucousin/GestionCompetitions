@@ -10,7 +10,6 @@ import reactivemongo.api.ReadPreference
 import scala.concurrent.Future
 import scala.concurrent.{ ExecutionContext, Future, Promise }
 import scala.util.{ Failure, Success }
-import bo.Taekwondoist
 import play.api.i18n.Messages
 import constantes.MessageConstant
 

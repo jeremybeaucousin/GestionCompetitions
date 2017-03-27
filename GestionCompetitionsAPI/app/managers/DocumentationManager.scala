@@ -1,28 +1,21 @@
 package managers
 
 import scala.concurrent.ExecutionContext
-import javax.inject.Singleton
 import bo.Operation
-import play.api.mvc.Call
-import bo.Address
-import controllers.routes
 import bo.Person
-import java.util.Date
-import play.api.libs.json.Json
-import javax.inject.Inject
-import play.api.libs.json.JsValue
-import play.api.libs.json.JsObject
-import play.Logger
-import play.mvc.Http
-import play.api.i18n.Messages
 import constantes.MessageConstant
-import org.apache.commons.lang3.StringUtils
+import controllers.routes
+import javax.inject.Inject
+import javax.inject.Singleton
+import play.api.i18n.Messages
+import play.api.libs.json.Json
 
 @Singleton
 class DocumentationManager @Inject() (implicit val ec: ExecutionContext) {
   def getPersonOperations(implicit messages: Messages): List[Operation] = {
     var availableOperations: List[Operation] = List[Operation]()
-    var jsonPersonExemple = (Json.toJson(Person));
+    
+    var jsonPersonExemple = (Json.toJson(new Person));
     
     val listPersonsOperation = Operation(
       Some(routes.PersonController.index(None, None, None, None)),
