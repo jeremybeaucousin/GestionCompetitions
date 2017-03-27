@@ -34,10 +34,12 @@ class PersonRepoImpl @Inject() (val reactiveMongoApi: ReactiveMongoApi)(implicit
   def collection = reactiveMongoApi.database.
     map(_.collection[BSONCollection]("persons"))
 
-  // TODO Why i receive all the same
   override def find(sort: Option[Seq[String]], fields: Option[Seq[String]], offset: Option[Int], limit: Option[Int])(implicit ec: ExecutionContext): Future[List[Person]] = {
     val sortBson = createSortBson(sort)
-    collection.flatMap(_.find(Json.obj()).sort(sortBson).cursor[Person]().collect[List]())
+    val cursor = collection.map(_.find(Json.obj()).sort(sortBson).cursor[Person]())
+    cursor.flatMap(_.collect[List]()).map { persons =>
+      persons
+    }
   }
 
   override def select(id: String)(implicit ec: ExecutionContext): Future[Option[Person]] = {
@@ -78,7 +80,6 @@ class PersonRepoImpl @Inject() (val reactiveMongoApi: ReactiveMongoApi)(implicit
         }
       })
     }
-    Logger.info(BSONDocument.pretty(sortingBson))
     sortingBson
   }
 
