@@ -25,12 +25,11 @@ import scala.collection.mutable.Map
 
 class PersonController @Inject() (val documentationManager: DocumentationManager, val personManager: PersonManager, val messagesApi: MessagesApi)
     extends Controller with I18nSupport {
-  private val logger = org.slf4j.LoggerFactory.getLogger(this.getClass)
 
   def index(sort: Option[Seq[String]], fields: Option[Seq[String]], offset: Option[Int], limit: Option[Int]) = Action.async { implicit request =>
     val rootUrl: String = routes.PersonController.index(None, None, None, None).url
     val title: String = messagesApi(MessageConstant.title.documentation, rootUrl)
-    
+    Logger.info(sort.toString())
     val availableOperations: List[Operation] = documentationManager.getPersonOperations
     render.async {
       case Accepts.Html() => Future.successful(Ok(v1.views.html.documentation(title, availableOperations)))
@@ -39,6 +38,7 @@ class PersonController @Inject() (val documentationManager: DocumentationManager
   }
 
   def listPersons(sort: Option[Seq[String]], fields: Option[Seq[String]], offset: Option[Int], limit: Option[Int]) = Action.async { implicit request =>
+    Logger.info(request.queryString.toString())
     val futurePersons = personManager.listPersons(sort, fields, offset, limit)
     futurePersons.map { persons =>
       Ok(Json.toJson(persons))

@@ -8,6 +8,7 @@ import reactivemongo.api.collections.bson.BSONCollection
 
 import reactivemongo.bson.{ BSON, BSONDocument, BSONObjectID }
 import reactivemongo.bson.BSONArray
+import reactivemongo.bson.BSONString
 
 object MongoDbUtil {
   final val _ID = "_id"
@@ -18,13 +19,13 @@ object MongoDbUtil {
 
   def createSortBson(fields: Option[Seq[String]]): BSONDocument = {
     var sortingBson = BSONDocument()
-    val regex = """(\-|\+)?([\w ]+)""".r
+    val regex = """(\-|\+)([\w]+)""".r
     if (fields.isDefined && !fields.get.isEmpty) {
       fields.get.map(field => {
         if (regex.pattern.matcher(field).matches) {
           field match {
             case regex(order, field) => {
-              val mongoOrder = if (order != null && order == "-") -1 else 1
+              val mongoOrder = if (order == "-") -1 else 1
               sortingBson ++= (field -> mongoOrder)
             }
           }
@@ -38,6 +39,7 @@ object MongoDbUtil {
     var projectionBson = BSONDocument()
     val regex = """([\w]+)""".r
     if (fields.isDefined) {
+      // the fields can be filled with an empty string "" when fields is empty (ex : "fields=")
       if (!fields.get.isEmpty && !fields.get(0).isEmpty())
         projectionBson ++= (_ID -> 0)
       fields.get.map(field => {

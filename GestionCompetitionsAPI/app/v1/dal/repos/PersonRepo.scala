@@ -14,6 +14,7 @@ import reactivemongo.bson.{ BSON, BSONDocument, BSONObjectID }
 import scala.concurrent.{ ExecutionContext, Future }
 import v1.utils.MongoDbUtil
 import reactivemongo.bson.BSONWriter
+import reactivemongo.api.QueryOpts
 
 trait PersonRepo {
   def find(sort: Option[Seq[String]], fields: Option[Seq[String]], offset: Option[Int], limit: Option[Int])(implicit ec: ExecutionContext): Future[List[Person]]
@@ -36,13 +37,7 @@ class PersonRepoImpl @Inject() (val reactiveMongoApi: ReactiveMongoApi)(implicit
   override def find(sort: Option[Seq[String]], fields: Option[Seq[String]], offset: Option[Int], limit: Option[Int])(implicit ec: ExecutionContext): Future[List[Person]] = {
     val sortBson = MongoDbUtil.createSortBson(sort)
     val projectionBson = MongoDbUtil.createProjectionBson(fields)
-    val cursor = collection.map(_.find(Json.obj(), projectionBson).sort(sortBson).cursor[Person]())
-    cursor.flatMap(_.collect[List]()).map { persons =>
-      persons.map(person => {
-//        Logger.info(person.toString())
-      })
-      persons
-    }
+    collection.flatMap(_.find(Json.obj(), projectionBson).options(QueryOpts(skipN = offset.getOrElse(0))).sort(sortBson).cursor[Person]().collect[List](limit.getOrElse(0)))
   }
 
   override def select(id: String)(implicit ec: ExecutionContext): Future[Option[Person]] = {
