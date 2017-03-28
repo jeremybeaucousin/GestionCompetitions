@@ -37,7 +37,6 @@ class PersonController @Inject() (val documentationManager: DocumentationManager
   }
 
   def listPersons(sort: Option[Seq[String]], fields: Option[Seq[String]], offset: Option[Int], limit: Option[Int]) = Action.async { implicit request =>
-    Logger.info(request.queryString.toString())
     val futurePersons = personManager.listPersons(sort, fields, offset, limit)
     futurePersons.map { persons =>
       Ok(Json.toJson(persons))

@@ -37,7 +37,8 @@ class PersonRepoImpl @Inject() (val reactiveMongoApi: ReactiveMongoApi)(implicit
   override def find(sort: Option[Seq[String]], fields: Option[Seq[String]], offset: Option[Int], limit: Option[Int])(implicit ec: ExecutionContext): Future[List[Person]] = {
     val sortBson = MongoDbUtil.createSortBson(sort)
     val projectionBson = MongoDbUtil.createProjectionBson(fields)
-    collection.flatMap(_.find(Json.obj(), projectionBson).options(QueryOpts(skipN = offset.getOrElse(0))).sort(sortBson).cursor[Person]().collect[List](limit.getOrElse(0)))
+    val cursor = collection.map(_.find(Json.obj(), projectionBson).options(QueryOpts(skipN = offset.getOrElse(0))).sort(sortBson).cursor[Person]())
+    cursor.flatMap(_.collect[List](limit.getOrElse(0)))
   }
 
   override def select(id: String)(implicit ec: ExecutionContext): Future[Option[Person]] = {
