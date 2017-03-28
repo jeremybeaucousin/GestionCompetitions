@@ -1,10 +1,10 @@
 @import v1.http.Error
 @import play.api.i18n.Messages
-@import v1.constantes.MessageConstant
+@import v1.constantes.MessageConstants
 
 @(errors: List[Error], messages: Messages)
 
-@defining(messages(MessageConstant.title.error)) { title =>
+@defining(messages(MessageConstants.title.error)) { title =>
 	@main(title) {
 		@titleTemplate(title)
 		@for(error <- errors) {

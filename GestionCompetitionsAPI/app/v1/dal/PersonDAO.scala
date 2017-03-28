@@ -11,7 +11,7 @@ import scala.concurrent.Future
 import scala.concurrent.{ ExecutionContext, Future, Promise }
 import scala.util.{ Failure, Success }
 import play.api.i18n.Messages
-import v1.constantes.MessageConstant
+import v1.constantes.MessageConstants
 
 @Singleton
 class PersonDAO @Inject() (val personRepo: PersonRepoImpl)(implicit ec: ExecutionContext) {
@@ -51,7 +51,7 @@ class PersonDAO @Inject() (val personRepo: PersonRepoImpl)(implicit ec: Executio
         Logger.error(sw.toString)
       }
       case Success(writeResult) => {
-        Logger.info(messages(MessageConstant.database.inserted, writeResult))
+        Logger.info(messages(MessageConstants.database.inserted, writeResult))
       }
     }
   }

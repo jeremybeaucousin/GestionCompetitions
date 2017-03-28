@@ -3,7 +3,7 @@ package v1.managers
 import scala.concurrent.ExecutionContext
 import v1.bo.Operation
 import v1.bo.Person
-import v1.constantes.MessageConstant
+import v1.constantes.MessageConstants
 import v1.controllers.routes
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -26,25 +26,25 @@ class DocumentationManager @Inject() (implicit val ec: ExecutionContext) {
           Some(Seq[String](Person._ID, Person.FIRST_NAME, Person.LAST_NAME)),
           Some(0), 
           Some(0))),
-      Some(messages(MessageConstant.documentation.listPersonsDescription)),
+      Some(messages(MessageConstants.documentation.listPersonsDescription)),
       None,
       None,
       None,
-      Some(messages(MessageConstant.documentation.listPersonsReturn)))
+      Some(messages(MessageConstants.documentation.listPersonsReturn)))
     availableOperations = listPersonsOperation :: availableOperations
 
     val getPersonOperation = Operation(
       Some(routes.PersonController.getPerson(_idExemple)),
-      Some(messages(MessageConstant.documentation.getPersonDescription)),
+      Some(messages(MessageConstants.documentation.getPersonDescription)),
       Some(getGetPersonParameters),
       None,
       None,
-      Some(messages(MessageConstant.documentation.getPersonReturn)))
+      Some(messages(MessageConstants.documentation.getPersonReturn)))
     availableOperations = getPersonOperation :: availableOperations
 
     val addPersonOperation = Operation(
       Some(routes.PersonController.addPerson()),
-      Some(messages(MessageConstant.documentation.addPersonDescription)),
+      Some(messages(MessageConstants.documentation.addPersonDescription)),
       None,
       Some(jsonPersonExemple),
       Some(getAddPersonsErrors.toMap),
@@ -53,7 +53,7 @@ class DocumentationManager @Inject() (implicit val ec: ExecutionContext) {
 
     val editPersonOperation = Operation(
       Some(routes.PersonController.editPerson(_idExemple)),
-      Some(messages(MessageConstant.documentation.editPersonDescription)),
+      Some(messages(MessageConstants.documentation.editPersonDescription)),
       None,
       Some(jsonPersonExemple),
       None,
@@ -62,7 +62,7 @@ class DocumentationManager @Inject() (implicit val ec: ExecutionContext) {
     
     val deletePersonOperation = Operation(
       Some(routes.PersonController.deletePerson(_idExemple)),
-      Some(messages(MessageConstant.documentation.deletePersonDescription)),
+      Some(messages(MessageConstants.documentation.deletePersonDescription)),
       None,
       None,
       None,
@@ -74,7 +74,7 @@ class DocumentationManager @Inject() (implicit val ec: ExecutionContext) {
 
   private def getGetPersonParameters(implicit messages: Messages): Map[String, String] = {
     var parameters: Map[String, String] = Map[String, String]()
-    parameters += (Person._ID -> messages(MessageConstant.documentation.getPersonIdParameterDescription))
+    parameters += (Person._ID -> messages(MessageConstants.documentation.getPersonIdParameterDescription))
     parameters
   }
 

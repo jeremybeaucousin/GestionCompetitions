@@ -3,7 +3,7 @@ package v1.controllers
 import v1.bo.Address
 import v1.bo.Person
 import v1.bo.Operation
-import v1.constantes.MessageConstant
+import v1.constantes.MessageConstants
 import java.util.Date
 import java.util.Locale
 import javax.inject._
@@ -28,7 +28,7 @@ class PersonController @Inject() (val documentationManager: DocumentationManager
 
   def index(sort: Option[Seq[String]], fields: Option[Seq[String]], offset: Option[Int], limit: Option[Int]) = Action.async { implicit request =>
     val rootUrl: String = routes.PersonController.index(None, None, None, None).url
-    val title: String = messagesApi(MessageConstant.title.documentation, rootUrl)
+    val title: String = messagesApi(MessageConstants.title.documentation, rootUrl)
     Logger.info(sort.toString())
     val availableOperations: List[Operation] = documentationManager.getPersonOperations
     render.async {

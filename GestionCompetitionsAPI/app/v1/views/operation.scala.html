@@ -1,12 +1,13 @@
 @import v1.bo.Operation
 @import play.api.libs.json.Json
-@import v1.constantes.MessageConstant
+@import v1.constantes.MessageConstants
+@import org.asynchttpclient.util.HttpConstants
 
 @(operation: Operation, operationIndex: Int = 0)(implicit messages: Messages)
 	
 @if(operation.call.isDefined) {
 	@defining(operation.call.get.method match {
-	  case "GET" => "primary";
+	  case HttpConstants.Methods.GET => "primary";
 	  case "POST" => "warning";
 	  case "PUT" => "warning";
 	  case "DELETE" => "danger";
@@ -22,15 +23,15 @@
 		</div>
 		<div class="panel-body collapse" id="collapsePanel-@operationIndex">
 			<div>
-				<h3>@messages(MessageConstant.template.body)</h3>
+				<h3>@messages(MessageConstants.template.body)</h3>
 				@if(operation.body.isDefined) {
 					<pre><code>@Json.prettyPrint(operation.body.get)</code></pre>
 				} else {
-					<p>@messages(MessageConstant.template.empty)</p>
+					<p>@messages(MessageConstants.template.empty)</p>
 				}
 			</div>
 			<div class="well">
-				<h3>@messages(MessageConstant.template.errors)</h3>
+				<h3>@messages(MessageConstants.template.errors)</h3>
 				
 				@if(operation.errors.isDefined && !operation.errors.get.isEmpty) {
 					<ul>
@@ -41,12 +42,12 @@
 						}
 					</ul>
 				} else {
-					<p>@messages(MessageConstant.template.empty)</p>
+					<p>@messages(MessageConstants.template.empty)</p>
 				}
 			</div>
 		</div>
 		<div class="panel-footer">
-			<h3>@messages(MessageConstant.template.parameters)</h3>
+			<h3>@messages(MessageConstants.template.parameters)</h3>
 			
 			@if(operation.parameters.isDefined && !operation.parameters.get.isEmpty) {
 				<ul>
@@ -57,15 +58,15 @@
 				}
 				</ul>
 			} else {
-				<p>@messages(MessageConstant.template.empty)</p>
+				<p>@messages(MessageConstants.template.empty)</p>
 			}
 			
-			<h3>@messages(MessageConstant.template.response)</h3>
+			<h3>@messages(MessageConstants.template.response)</h3>
 			
 			@if(operation.response.isDefined) {
 				<p>@operation.response</p>
 			} else {
-				<p>@messages(MessageConstant.template.empty)</p>
+				<p>@messages(MessageConstants.template.empty)</p>
 			}
 		</div>
 	</div>

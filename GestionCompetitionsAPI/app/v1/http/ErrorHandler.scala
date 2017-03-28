@@ -16,7 +16,7 @@ import play.api.mvc.Results._
 import scala.concurrent._
 import scala.util.parsing.json.JSONArray
 import play.api.i18n.Lang
-import v1.constantes.MessageConstant
+import v1.constantes.MessageConstants
 import play.api.http.MediaRange
 
 @Singleton
@@ -25,7 +25,7 @@ class ErrorHandler @Inject() (val messagesApi: MessagesApi)(implicit ec: Executi
 
   def onClientError(requestHeader: RequestHeader, statusCode: Int, message: String) = {
     val messages = messagesApi.preferred(requestHeader)
-    val userMessage = messages(MessageConstant.error.client, requestHeader.path)
+    val userMessage = messages(MessageConstants.error.client, requestHeader.path)
     var errors: List[Error] = List[Error]()
     val error: Error = new Error(
       Some(statusCode),
@@ -43,7 +43,7 @@ class ErrorHandler @Inject() (val messagesApi: MessagesApi)(implicit ec: Executi
 
   def onServerError(requestHeader: RequestHeader, exception: Throwable) = {
     val messages = messagesApi.preferred(requestHeader)
-    val userMessage = messages(MessageConstant.error.server, requestHeader.path)
+    val userMessage = messages(MessageConstants.error.server, requestHeader.path)
     var errors: List[Error] = List[Error]()
     val sw = new StringWriter
     exception.printStackTrace(new PrintWriter(sw))

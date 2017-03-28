@@ -64,7 +64,7 @@ object Documentation {
   def deletePersonDescription:String = PREFIX + DELETE_PERSON_DESCRIPTION
 }
 
-final object MessageConstant {
+final object MessageConstants {
   final val title = Title
   final val error = Error
   final val database = Database
