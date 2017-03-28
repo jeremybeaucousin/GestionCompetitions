@@ -20,6 +20,10 @@ class PersonDAO @Inject() (val personRepo: PersonRepoImpl)(implicit ec: Executio
     personRepo.find(sort, fields, offset, limit)
   }
   
+  def getTotalCount(): Future[Int] = {
+    personRepo.getTotalCount
+  }
+  
   def getPerson(id: String)(implicit messages: Messages): Future[Option[Person]] = {
     personRepo.select(id)
   }

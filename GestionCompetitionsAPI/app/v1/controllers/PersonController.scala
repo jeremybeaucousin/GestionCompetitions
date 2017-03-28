@@ -25,6 +25,7 @@ import scala.collection.mutable.Map
 import v1.bo.Taekwondoist
 import reactivemongo.bson.BSON
 import v1.bo.Taekwondoist.TaekwondoistReader
+import v1.utils.RequestUtil
 
 class PersonController @Inject() (val documentationManager: DocumentationManager, val personManager: PersonManager, val messagesApi: MessagesApi)
     extends Controller with I18nSupport {
@@ -41,8 +42,11 @@ class PersonController @Inject() (val documentationManager: DocumentationManager
 
   def listPersons(sort: Option[Seq[String]], fields: Option[Seq[String]], offset: Option[Int], limit: Option[Int]) = Action.async { implicit request =>
     val futurePersons = personManager.listPersons(sort, fields, offset, limit)
+    // TODO Extract data
+    personManager.getTotalCount().map(totalCount => Logger.info(totalCount.toString()))
     futurePersons.map { persons =>
-      Ok(Json.toJson(persons))
+      var result = Ok(Json.toJson(persons))
+      RequestUtil.managePagination(result, offset, limit) 
     }
   }
 

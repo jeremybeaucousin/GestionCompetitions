@@ -55,6 +55,14 @@ object MongoDbUtil {
     projectionBson
   }
 
+  def getSafeOffset(optionOffset: Option[Int]): Int = {
+    if(!optionOffset.isDefined || (optionOffset.isDefined && optionOffset.get < 0)) {
+      0
+    } else {
+      optionOffset.get
+    }
+  }
+  
   def constructBSONDocumentForPartialUpdate(document: BSONDocument): BSONDocument = {
     var newDocument = document.copy()
     // Browse fields of the document

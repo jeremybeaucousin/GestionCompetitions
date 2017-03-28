@@ -17,6 +17,10 @@ class PersonManager @Inject() (val personDAO: PersonDAO) (implicit val ec: Execu
   	personDAO.listPersons(sort, fields, offset, limit)
   }
   
+  def getTotalCount(): Future[Int] = {
+    personDAO.getTotalCount
+  }
+  
   def getPerson(id: String) (implicit messages: Messages): Future[Option[Person]] = {
   	personDAO.getPerson(id)
   }
