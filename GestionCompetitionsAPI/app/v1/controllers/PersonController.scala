@@ -29,7 +29,6 @@ class PersonController @Inject() (val documentationManager: DocumentationManager
   def index(sort: Option[Seq[String]], fields: Option[Seq[String]], offset: Option[Int], limit: Option[Int]) = Action.async { implicit request =>
     val rootUrl: String = routes.PersonController.index(None, None, None, None).url
     val title: String = messagesApi(MessageConstants.title.documentation, rootUrl)
-    Logger.info(sort.toString())
     val availableOperations: List[Operation] = documentationManager.getPersonOperations
     render.async {
       case Accepts.Html() => Future.successful(Ok(v1.views.html.documentation(title, availableOperations)))
