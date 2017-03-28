@@ -8,9 +8,9 @@
 @if(operation.call.isDefined) {
 	@defining(operation.call.get.method match {
 	  case HttpConstants.Methods.GET => "primary";
-	  case "POST" => "warning";
-	  case "PUT" => "warning";
-	  case "DELETE" => "danger";
+	  case HttpConstants.Methods.POST => "warning";
+	  case HttpConstants.Methods.PUT => "warning";
+	  case HttpConstants.Methods.DELETE => "danger";
 	  }) { methodClass =>
 	<div class="panel panel-@methodClass">
 	}
