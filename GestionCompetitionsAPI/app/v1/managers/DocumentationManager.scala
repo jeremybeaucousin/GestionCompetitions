@@ -18,15 +18,15 @@ class DocumentationManager @Inject() (implicit val ec: ExecutionContext) {
   final val jsonPersonExemple = (Json.toJson(new Person))
   final val _idExemple = MongoDbUtil.generateId().stringify
 
-  def getPersonOperations(implicit messages: Messages): List[Operation] = {
-    var availableOperations: List[Operation] = List[Operation]()
+  def getPersonOperations(implicit messages: Messages): Seq[Operation] = {
+    var availableOperations: Seq[Operation] = Seq[Operation]()
 
     var listPersonsParams = Map[String, String]()
     listPersonsParams += getSortDescription
     listPersonsParams += getFieldsDescription
     listPersonsParams += getOffsetDescription
     listPersonsParams += getLimitDescription
-    
+
     val listPersonsOperation = Operation(
       Some(routes.PersonController.index(
         Some(Seq[String]("+" + Person.FIRST_NAME, "-" + Person.LAST_NAME)),
@@ -38,7 +38,7 @@ class DocumentationManager @Inject() (implicit val ec: ExecutionContext) {
       None,
       None,
       Some(messages(MessageConstants.documentation.person.listPersonsReturn)))
-    availableOperations = listPersonsOperation :: availableOperations
+    availableOperations :+= listPersonsOperation
 
     val getPersonOperation = Operation(
       Some(routes.PersonController.getPerson(_idExemple)),
@@ -47,7 +47,7 @@ class DocumentationManager @Inject() (implicit val ec: ExecutionContext) {
       None,
       None,
       Some(messages(MessageConstants.documentation.person.getPersonReturn)))
-    availableOperations = getPersonOperation :: availableOperations
+    availableOperations :+= getPersonOperation
 
     val addPersonOperation = Operation(
       Some(routes.PersonController.addPerson()),
@@ -56,7 +56,7 @@ class DocumentationManager @Inject() (implicit val ec: ExecutionContext) {
       Some(jsonPersonExemple),
       Some(getAddPersonsErrors.toMap),
       None)
-    availableOperations = addPersonOperation :: availableOperations
+    availableOperations :+= addPersonOperation
 
     val editPersonOperation = Operation(
       Some(routes.PersonController.editPerson(_idExemple)),
@@ -65,7 +65,7 @@ class DocumentationManager @Inject() (implicit val ec: ExecutionContext) {
       Some(jsonPersonExemple),
       None,
       None)
-    availableOperations = editPersonOperation :: availableOperations
+    availableOperations :+= editPersonOperation
 
     val deletePersonOperation = Operation(
       Some(routes.PersonController.deletePerson(_idExemple)),
@@ -74,7 +74,7 @@ class DocumentationManager @Inject() (implicit val ec: ExecutionContext) {
       None,
       None,
       None)
-    availableOperations = deletePersonOperation :: availableOperations
+    availableOperations :+= deletePersonOperation
 
     availableOperations
   }

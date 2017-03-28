@@ -5,7 +5,7 @@
 
 @import play.api.libs.json.JsValue
 
-@(title:String, availableOperations:List[Operation])(implicit messages: Messages)
+@(title:String, availableOperations:Seq[Operation])(implicit messages: Messages)
 
 @main(title) {
 	@titleTemplate(title)
