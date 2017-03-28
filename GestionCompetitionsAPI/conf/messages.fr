@@ -18,11 +18,18 @@ template.errors=Erreur(s)
 template.response=Réponse
 
 #Documentation
-documentation.listPersonsDescription=Retourne les personnes enregistrées en base de données
-documentation.listPersonsReturn=Retourne les personnes au format JsonObject dans un tableau Json
-documentation.getPersonDescription=Retourne la personne avec l''identifiant renseigné dans les paramètres
-documentation.getPersonIdParameterDescription=L''identifiant de la personne telle qu''enregistré en base de données
-documentation.getPersonReturn=Retourne la personne au format JsonObject
-documentation.addPersonDescription=Ajoute une nouvelle personne à la base de données
-documentation.editPersonDescription=Met à jour la personne avec l''identifiant renseigné dans les paramètres
-documentation.deletePersonDescription=Supprime la personne avec l''identifiant renseigné dans les paramètres
+#Common
+documentation.common.sortDescription=Permets de trier la liste avec les champs renseignés en paramètres avec le prefixe pour l''ordre (+ : croissant, - : decroissant) et le caractère "," pour les séparer
+documentation.common.fieldsDescription=Permets de filtrer les champs affichés avec avec les champs renseignés et le caractère "," pour les séparer
+documentation.common.offsetDescription=Définit le décalage initial de la liste
+documentation.common.limitDescription=Définit le nombre d''éléments à afficher
+
+#Persons
+documentation.person.listPersonsDescription=Retourne les personnes enregistrées en base de données
+documentation.person.listPersonsReturn=Retourne les personnes au format JsonObject dans un tableau Json
+documentation.person.getPersonDescription=Retourne la personne avec l''identifiant renseigné en paramètres
+documentation.person.getPersonIdParameterDescription=L''identifiant de la personne telle qu''enregistré en base de données
+documentation.person.getPersonReturn=Retourne la personne au format JsonObject
+documentation.person.addPersonDescription=Ajoute une nouvelle personne à la base de données
+documentation.person.editPersonDescription=Met à jour la personne avec l''identifiant renseigné dans les paramètres
+documentation.person.deletePersonDescription=Supprime la personne avec l''identifiant renseigné dans les paramètres

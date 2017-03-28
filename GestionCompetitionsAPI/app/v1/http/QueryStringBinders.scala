@@ -13,19 +13,21 @@ object QueryStringBinders {
         // Replace the first space caracter by a +
         var paramsCopy = collection.mutable.Map[String, Seq[String]]() ++= params
         if (HttpConstants.queryFields.sort.equals(key)) {
-          val sortParams: Seq[String] = params.get(key).get
-          paramsCopy = paramsCopy -= key
-          var sortParamsWithoutSpace: Seq[String] = Seq[String]()
-          // Test if the chain contains a backspace in beginning
-          val regex = """[[,]?([ ])([\w]+)]*""".r
-          sortParams.foreach(value => {
-            if (regex.pattern.matcher(value).matches) {
-              sortParamsWithoutSpace = sortParamsWithoutSpace :+ value.replace(" ", "+")
-            } else {
-              sortParamsWithoutSpace = sortParamsWithoutSpace :+ value
-            }
-          })
-          paramsCopy = paramsCopy += (key -> sortParamsWithoutSpace)
+          if (params.get(key).isDefined) {
+            val sortParams: Seq[String] = params.get(key).get
+            paramsCopy = paramsCopy -= key
+            var sortParamsWithoutSpace: Seq[String] = Seq[String]()
+            // Test if the chain contains a backspace in beginning
+            val regex = """[[,]?([ ])([\w]+)]*""".r
+            sortParams.foreach(value => {
+              if (regex.pattern.matcher(value).matches) {
+                sortParamsWithoutSpace = sortParamsWithoutSpace :+ value.replace(" ", "+")
+              } else {
+                sortParamsWithoutSpace = sortParamsWithoutSpace :+ value
+              }
+            })
+            paramsCopy = paramsCopy += (key -> sortParamsWithoutSpace)
+          }
         }
         stringBinder.bind(key, paramsCopy.toMap).map(_.right.map(_.split(",").toList))
       }

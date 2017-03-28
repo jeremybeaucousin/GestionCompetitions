@@ -18,11 +18,18 @@ template.errors=Error(s)
 template.response=Response
 
 #Documentation
-documentation.listPersonsDescription=Return the persons stored in database
-documentation.listPersonsReturn=Return the persons as JsonObject inside a Json Array
-documentation.getPersonDescription=Return the person with the identifier set in parameters
-documentation.getPersonIdParameterDescription=the person identifier as stored in database
-documentation.getPersonReturn=Return the person in JsonObject
-documentation.addPersonDescription=Add a new person to the database
-documentation.editPersonDescription=Update the person with the identifier set in parameters
-documentation.deletePersonDescription=Delete the person with the identifier set in parameters
+#Common
+documentation.common.sortDescription=Allow to sort the list with the fields set in parameter with prefix for ordering (+ : ascending, - : descending) and the caracter "," to separate them
+documentation.common.fieldsDescription=Allow to filter the displayed fields with those set in parameter and the caracter "," to separate them
+documentation.common.offsetDescription=Set the beginning offset of the List
+documentation.common.limitDescription=Set the number of element to display
+
+#Persons
+documentation.person.listPersonsDescription=Return the persons stored in database
+documentation.person.listPersonsReturn=Return the persons as JsonObject inside a Json Array
+documentation.person.getPersonDescription=Return the person with the identifier set in parameters
+documentation.person.getPersonIdParameterDescription=the person identifier as stored in database
+documentation.person.getPersonReturn=Return the person in JsonObject
+documentation.person.addPersonDescription=Add a new person to the database
+documentation.person.editPersonDescription=Update the person with the identifier set in parameters
+documentation.person.deletePersonDescription=Delete the person with the identifier set in parameters
