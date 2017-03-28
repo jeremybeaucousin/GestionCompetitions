@@ -22,6 +22,9 @@ import reactivemongo.bson.{ BSONDocument, BSONObjectID }
 import scala.concurrent.{ Future, ExecutionContext }
 import scala.util.{ Failure, Success }
 import scala.collection.mutable.Map
+import v1.bo.Taekwondoist
+import reactivemongo.bson.BSON
+import v1.bo.Taekwondoist.TaekwondoistReader
 
 class PersonController @Inject() (val documentationManager: DocumentationManager, val personManager: PersonManager, val messagesApi: MessagesApi)
     extends Controller with I18nSupport {
