@@ -16,13 +16,16 @@ import v1.utils.MongoDbUtil
 import reactivemongo.bson.BSONWriter
 import reactivemongo.api.QueryOpts
 import reactivemongo.core.commands.Count
+import v1.bo.Person.PersonReads
+import v1.bo.Person.PersonWrites
 
 trait PersonRepo {
-  def find(sort: Option[Seq[String]], fields: Option[Seq[String]], offset: Option[Int], limit: Option[Int])(implicit ec: ExecutionContext): Future[List[Person]]
+  
+  def getTotalCount(personOption: Option[Person])(implicit ec: ExecutionContext): Future[Int]
+  
+  def find(personOption: Option[Person], sortOption: Option[Seq[String]], fieldsOption: Option[Seq[String]], offsetOption: Option[Int], limitOption: Option[Int])(implicit ec: ExecutionContext): Future[List[Person]]
 
   def select(id: String)(implicit ec: ExecutionContext): Future[Option[Person]]
-  
-  def getTotalCount()(implicit ec: ExecutionContext): Future[Int]
 
   def update(id: String, person: Person)(implicit ec: ExecutionContext): Future[WriteResult]
 
@@ -37,16 +40,18 @@ class PersonRepoImpl @Inject() (val reactiveMongoApi: ReactiveMongoApi)(implicit
   def collection = reactiveMongoApi.database.
     map(_.collection[BSONCollection]("persons"))
 
-  override def find(sort: Option[Seq[String]], fields: Option[Seq[String]], offset: Option[Int], limit: Option[Int])(implicit ec: ExecutionContext): Future[List[Person]] = {
-    val sortBson = MongoDbUtil.createSortBson(sort)
-    val projectionBson = MongoDbUtil.createProjectionBson(fields)
-    val query = collection.map(_.find(Json.obj()).projection(projectionBson))
-    val cursor = query.map(_.options(QueryOpts(skipN = MongoDbUtil.getSafeOffset(offset))).sort(sortBson).cursor[Person]())
-    cursor.flatMap(_.collect[List](limit.getOrElse(0)))
+  override def find(personOption: Option[Person],sortOption: Option[Seq[String]], fieldsOption: Option[Seq[String]], offsetOption: Option[Int], limitOption: Option[Int])(implicit ec: ExecutionContext): Future[List[Person]] = {
+    val personSearch: JsObject = if(personOption.isDefined) PersonWrites.writes(personOption.get) else Json.obj() 
+    val sortBson = MongoDbUtil.createSortBson(sortOption)
+    val projectionBson = MongoDbUtil.createProjectionBson(fieldsOption)
+    val query = collection.map(_.find(personSearch).projection(projectionBson))
+    val cursor = query.map(_.options(QueryOpts(skipN = MongoDbUtil.getSafeOffset(offsetOption))).sort(sortBson).cursor[Person]())
+    cursor.flatMap(_.collect[List](limitOption.getOrElse(0)))
   }
 
-  def getTotalCount()(implicit ec: ExecutionContext):Future[Int] = {
-    collection.flatMap(_.count(Some(BSONDocument())))
+  def getTotalCount(personOption: Option[Person])(implicit ec: ExecutionContext):Future[Int] = {
+    val personSearch:BSONDocument = if(personOption.isDefined) BSON.write(personOption.get) else BSONDocument() 
+    collection.flatMap(_.count(Some(personSearch)))
   }
 
   override def select(id: String)(implicit ec: ExecutionContext): Future[Option[Person]] = {

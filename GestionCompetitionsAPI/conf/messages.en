@@ -29,6 +29,7 @@ documentation.common.linkDescription=Contains the following links to manage pagi
 
 #Persons
 documentation.person.listPersonsDescription=Return the persons stored in database
+documentation.person.searchPersonsDescription=Return the persons stored in database filtered by fields set in the body
 documentation.person.getPersonDescription=Return the person with the identifier set in parameters
 documentation.person.getPersonIdParameterDescription=the person identifier as stored in database
 documentation.person.getPersonReturn=Return the person in JsonObject

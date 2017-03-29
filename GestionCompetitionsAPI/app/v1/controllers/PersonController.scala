@@ -41,12 +41,22 @@ class PersonController @Inject() (val documentationManager: DocumentationManager
     }
   }
 
-  def listPersons(sort: Option[Seq[String]], fields: Option[Seq[String]], offset: Option[Int], limit: Option[Int]) = Action.async { implicit request =>
-    val futurePersons = personManager.listPersons(sort, fields, offset, limit)
-    val totalCount = personManager.getTotalCount
+  def listPersons(sortOption: Option[Seq[String]], fieldsOption: Option[Seq[String]], offsetOption: Option[Int], limitOption: Option[Int]) = Action.async { implicit request =>
+    val futurePersons = personManager.listPersons(sortOption, fieldsOption, offsetOption, limitOption)
+    val totalCount = personManager.getTotalCount(None)
     futurePersons.map { persons =>
       var result = Ok(Json.toJson(persons))
-      RequestUtil.managePagination(result, offset, limit, totalCount)
+      RequestUtil.managePagination(result, offsetOption, limitOption, totalCount)
+    }
+  }
+
+  def searchPersons(sortOption: Option[Seq[String]], fieldsOption: Option[Seq[String]], offsetOption: Option[Int], limitOption: Option[Int]) = Action.async(BodyParsers.parse.json) { implicit request =>
+    val person = request.body.as[Person]
+    val futurePersons = personManager.searchPersons(person, sortOption, fieldsOption, offsetOption, limitOption)
+    val totalCount = personManager.getTotalCount(Some(person))
+    futurePersons.map { persons =>
+      var result = Ok(Json.toJson(persons))
+      RequestUtil.managePagination(result, offsetOption, limitOption, totalCount)
     }
   }
 

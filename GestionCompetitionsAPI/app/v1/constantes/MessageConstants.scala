@@ -68,6 +68,7 @@ final object MessageConstants {
     final object Person {
       private final val PREFIX = Documentation.PREFIX + "person."
       private final val LIST_PERSONS_DESCRIPTION = "listPersonsDescription"
+      private final val SEARCH_PERSONS_DESCRIPTION = "searchPersonsDescription"
       private final val GET_PERSON_DESCRIPTION = "getPersonDescription"
       private final val GET_PERSON_ID_PARAMETER_DESCRIPTION = "getPersonIdParameterDescription"
       private final val GET_PERSON_RETURN = "getPersonReturn"
@@ -76,12 +77,14 @@ final object MessageConstants {
       private final val DELETE_PERSON_DESCRIPTION = "deletePersonDescription"
 
       def listPersonsDescription: String = PREFIX + LIST_PERSONS_DESCRIPTION
+      def searchPersonsDescription: String = PREFIX + SEARCH_PERSONS_DESCRIPTION
       def getPersonDescription: String = PREFIX + GET_PERSON_DESCRIPTION
       def getPersonIdParameterDescription: String = PREFIX + GET_PERSON_ID_PARAMETER_DESCRIPTION
       def getPersonReturn: String = PREFIX + GET_PERSON_RETURN
       def addPersonDescription: String = PREFIX + ADD_PERSON_DESCRIPTION
       def editPersonDescription: String = PREFIX + EDIT_PERSON_DESCRIPTION
       def deletePersonDescription: String = PREFIX + DELETE_PERSON_DESCRIPTION
+      searchPersonsDescription
     }
 
     final val common = Common

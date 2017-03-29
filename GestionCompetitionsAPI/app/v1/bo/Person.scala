@@ -56,7 +56,7 @@ object Person {
   implicit object PersonWrites extends Writes[Person] {
     def writes(person: Person): JsObject = {
       var json = Json.obj()
-      if (person._id.isDefined && !person._id.get.isEmpty())
+      if (person._id.isDefined)
         json += (_ID -> JsString(person._id.get))
       if (person.firstName.isDefined)
         json += (FIRST_NAME -> JsString(person.firstName.get))
@@ -92,7 +92,7 @@ object Person {
   implicit object PersonWriter extends BSONDocumentWriter[Person] {
     def write(person: Person): BSONDocument = {
       var bson = BSONDocument()
-      if (person._id.isDefined && !person._id.get.isEmpty())
+      if (person._id.isDefined)
         bson ++= (_ID -> person._id.get)
       if (person.firstName.isDefined)
         bson ++= (FIRST_NAME -> person.firstName.get)

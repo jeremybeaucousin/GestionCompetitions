@@ -17,10 +17,27 @@ import v1.constantes.HttpConstants
 @Singleton
 class DocumentationManager @Inject() (implicit val ec: ExecutionContext) {
   final val jsonPersonExemple = (Json.toJson(new Person))
+  final val jsonPersonArrayExemple = (Json.toJson(List[Person](new Person, new Person)))
   final val _idExemple = MongoDbUtil.generateId().stringify
 
   def getPersonOperations(implicit messages: Messages): Seq[Operation] = {
     var availableOperations: Seq[Operation] = Seq[Operation]()
+
+    def getSortDescription(implicit messages: Messages): (String, String) = {
+      (HttpConstants.queryFields.sort -> messages(MessageConstants.documentation.common.sortDescription))
+    }
+
+    def getFieldsDescription(implicit messages: Messages): (String, String) = {
+      (HttpConstants.queryFields.fields -> messages(MessageConstants.documentation.common.fieldsDescription))
+    }
+
+    def getOffsetDescription(implicit messages: Messages): (String, String) = {
+      (HttpConstants.queryFields.offset -> messages(MessageConstants.documentation.common.offsetDescription))
+    }
+
+    def getLimitDescription(implicit messages: Messages): (String, String) = {
+      (HttpConstants.queryFields.limit -> messages(MessageConstants.documentation.common.limitDescription))
+    }
 
     val listPersonsOperation = Operation()
     listPersonsOperation.call =
@@ -31,16 +48,81 @@ class DocumentationManager @Inject() (implicit val ec: ExecutionContext) {
         Some(0)))
     listPersonsOperation.description = Some(messages(MessageConstants.documentation.person.listPersonsDescription))
 
+    def getGetPersonsRequestParameters: Map[String, String] = {
+      var parameters: Map[String, String] = Map[String, String]()
+      parameters += getSortDescription
+      parameters += getFieldsDescription
+      parameters += getOffsetDescription
+      parameters += getLimitDescription
+      parameters
+    }
+
     val listPersonsRequest = RequestContents()
     listPersonsRequest.parameters = Some(getGetPersonsRequestParameters)
     listPersonsOperation.request = Some(listPersonsRequest)
 
-    val listPersonsHeaders = RequestContents()
-    listPersonsHeaders.body = Some(jsonPersonExemple)
-    listPersonsHeaders.headers = Some(getGetPersonsHeadersParameters)
-    listPersonsOperation.response = Some(listPersonsHeaders)
+    def getGetPersonsResponseParameters: Map[String, String] = {
+      var parameters: Map[String, String] = Map[String, String]()
+      parameters += (HttpConstants.headerFields.xTotalCount -> messages(MessageConstants.documentation.common.xTotalCountDescription))
+      parameters += (HttpConstants.headerFields.link -> messages(MessageConstants.documentation.common.linkDescription))
+      parameters
+    }
+    
+    val listPersonsResponse = RequestContents()
+    listPersonsResponse.body = Some(jsonPersonArrayExemple)
+    listPersonsResponse.headers = Some(getGetPersonsResponseParameters)
+    listPersonsOperation.response = Some(listPersonsResponse)
 
     availableOperations :+= listPersonsOperation
+    
+    val searchPersonsOperation = Operation()
+    searchPersonsOperation.call =
+      Some(routes.PersonController.searchPersons(
+        Some(Seq[String]("+" + Person.FIRST_NAME, "-" + Person.LAST_NAME)),
+        Some(Seq[String](Person._ID, Person.FIRST_NAME, Person.LAST_NAME)),
+        Some(0),
+        Some(0)))
+    searchPersonsOperation.description = Some(messages(MessageConstants.documentation.person.searchPersonsDescription))
+
+    def getSearchPersonsRequestParameters(implicit messages: Messages): Map[String, String] = {
+      var parameters: Map[String, String] = Map[String, String]()
+      parameters += getSortDescription
+      parameters += getFieldsDescription
+      parameters += getOffsetDescription
+      parameters += getLimitDescription
+      parameters
+    }
+
+    val searchPersonsRequest = RequestContents()
+    searchPersonsRequest.body = Some(jsonPersonExemple)
+    searchPersonsRequest.parameters = Some(getSearchPersonsRequestParameters)
+    searchPersonsOperation.request = Some(searchPersonsRequest)
+
+    def getSearchPersonsHeadersParameters(implicit messages: Messages): Map[String, String] = {
+      var parameters: Map[String, String] = Map[String, String]()
+      parameters += (HttpConstants.headerFields.xTotalCount -> messages(MessageConstants.documentation.common.xTotalCountDescription))
+      parameters += (HttpConstants.headerFields.link -> messages(MessageConstants.documentation.common.linkDescription))
+      parameters
+    }
+    
+    val searchPersonsResponse = RequestContents()
+    searchPersonsResponse.body = Some(jsonPersonArrayExemple)
+    searchPersonsResponse.headers = Some(getSearchPersonsHeadersParameters)
+    searchPersonsOperation.response = Some(searchPersonsResponse)
+
+    availableOperations :+= searchPersonsOperation
+
+    def getGetPersonRequestParameters(implicit messages: Messages): Map[String, String] = {
+      var parameters: Map[String, String] = Map[String, String]()
+      parameters += (Person._ID -> messages(MessageConstants.documentation.person.getPersonIdParameterDescription))
+      parameters
+    }
+
+    def getAddPersonsErrors: Map[String, String] = {
+      var errors: Map[String, String] = Map[String, String]()
+      //    errors += ("error1" -> "errorValue")
+      errors
+    }
 
     val getPersonOperation = Operation()
     //    (
@@ -82,49 +164,5 @@ class DocumentationManager @Inject() (implicit val ec: ExecutionContext) {
     availableOperations :+= deletePersonOperation
 
     availableOperations
-  }
-
-  private def getSortDescription(implicit messages: Messages): (String, String) = {
-    (HttpConstants.queryFields.sort -> messages(MessageConstants.documentation.common.sortDescription))
-  }
-
-  private def getFieldsDescription(implicit messages: Messages): (String, String) = {
-    (HttpConstants.queryFields.fields -> messages(MessageConstants.documentation.common.fieldsDescription))
-  }
-
-  private def getOffsetDescription(implicit messages: Messages): (String, String) = {
-    (HttpConstants.queryFields.offset -> messages(MessageConstants.documentation.common.offsetDescription))
-  }
-
-  private def getLimitDescription(implicit messages: Messages): (String, String) = {
-    (HttpConstants.queryFields.limit -> messages(MessageConstants.documentation.common.limitDescription))
-  }
-
-  private def getGetPersonsRequestParameters(implicit messages: Messages): Map[String, String] = {
-    var parameters: Map[String, String] = Map[String, String]()
-    parameters += getSortDescription
-    parameters += getFieldsDescription
-    parameters += getOffsetDescription
-    parameters += getLimitDescription
-    parameters
-  }
-  
-  private def getGetPersonsHeadersParameters(implicit messages: Messages): Map[String, String] = {
-    var parameters: Map[String, String] = Map[String, String]()
-    parameters += (HttpConstants.headerFields.xTotalCount -> messages(MessageConstants.documentation.common.xTotalCountDescription))
-    parameters += (HttpConstants.headerFields.link -> messages(MessageConstants.documentation.common.linkDescription))
-    parameters
-  }
-  
-  private def getGetPersonRequestParameters(implicit messages: Messages): Map[String, String] = {
-    var parameters: Map[String, String] = Map[String, String]()
-    parameters += (Person._ID -> messages(MessageConstants.documentation.person.getPersonIdParameterDescription))
-    parameters
-  }
-
-  private def getAddPersonsErrors: Map[String, String] = {
-    var errors: Map[String, String] = Map[String, String]()
-    //    errors += ("error1" -> "errorValue")
-    errors
   }
 }

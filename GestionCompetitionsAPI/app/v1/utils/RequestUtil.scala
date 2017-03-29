@@ -47,6 +47,18 @@ object RequestUtil {
         var lastOffset = (totalCountValue / limitValue) * limitValue
         var lastLimit = totalCountValue % limitValue
 
+        def generateLinkLigne(url: String, offset: Int, limit: Int): String = {
+          var returnUrl = url
+          val offsetString = HttpConstants.queryFields.offset
+          val limitString = HttpConstants.queryFields.limit
+          val offsetRegex = (offsetString + """=\d+""")r
+          val limitRegex = (limitString + """=\d+""")r
+
+          returnUrl = offsetRegex.replaceAllIn(returnUrl, s"$offsetString=$offset")
+          returnUrl = limitRegex.replaceAllIn(returnUrl, s"$limitString=$limit")
+          returnUrl
+        }
+        
         val startOfLine: String = HttpConstants.HTML_LT
         val middleOfligne: String = HttpConstants.HTML_GT + "; rel=\""
         val EndOfLine: String = "\","
@@ -74,17 +86,5 @@ object RequestUtil {
     } else {
       result
     }
-  }
-
-  private def generateLinkLigne(url: String, offset: Int, limit: Int): String = {
-    var returnUrl = url
-    val offsetString = HttpConstants.queryFields.offset
-    val limitString = HttpConstants.queryFields.limit
-    val offsetRegex = (offsetString + """=\d+""")r
-    val limitRegex = (limitString + """=\d+""")r
-
-    returnUrl = offsetRegex.replaceAllIn(returnUrl, s"$offsetString=$offset")
-    returnUrl = limitRegex.replaceAllIn(returnUrl, s"$limitString=$limit")
-    returnUrl
   }
 }
