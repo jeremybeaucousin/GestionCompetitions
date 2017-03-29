@@ -40,11 +40,6 @@ class DocumentationManager @Inject() (implicit val ec: ExecutionContext) {
     listPersonsHeaders.headers = Some(getGetPersonsHeadersParameters)
     listPersonsOperation.response = Some(listPersonsHeaders)
 
-    //      ,
-    //      Some(listPersonsParams),
-    //      None,
-    //      None,
-    //      Some(messages(MessageConstants.documentation.person.listPersonsReturn)))
     availableOperations :+= listPersonsOperation
 
     val getPersonOperation = Operation()
