@@ -9,11 +9,23 @@ import reactivemongo.bson.BSONDocument
 import reactivemongo.bson.Macros
 import play.api.mvc.Call
 
+case class RequestContents (
+  var parameters: Option[Map[String,String]],
+  var body: Option[JsValue]
+)
+
+object RequestContents {
+   def apply() = new RequestContents(None, None)
+}
+
 case class Operation(
-  // TODO add body and header for response and request  
   var call: Option[Call],  
   var description: Option[String],
-  var parameters: Option[Map[String,String]],
-  var body: Option[JsValue],
-  var errors: Option[Map[String,String]],
-  var response: Option[String])
+  var request: Option[RequestContents],
+  var response: Option[RequestContents],
+  var errors: Option[Map[String,String]]
+  )
+  
+object Operation {
+  def apply() = new Operation(None, None, None, None, None)
+}

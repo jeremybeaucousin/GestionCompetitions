@@ -2,6 +2,7 @@ package v1.managers
 
 import scala.concurrent.ExecutionContext
 import v1.bo.Operation
+import v1.bo.RequestContents
 import v1.bo.Person
 import v1.constantes.MessageConstants
 import v1.controllers.routes
@@ -27,53 +28,61 @@ class DocumentationManager @Inject() (implicit val ec: ExecutionContext) {
     listPersonsParams += getOffsetDescription
     listPersonsParams += getLimitDescription
 
-    val listPersonsOperation = Operation(
+    val listPersonsOperation = Operation()
+    listPersonsOperation.call =
       Some(routes.PersonController.index(
         Some(Seq[String]("+" + Person.FIRST_NAME, "-" + Person.LAST_NAME)),
         Some(Seq[String](Person._ID, Person.FIRST_NAME, Person.LAST_NAME)),
         Some(0),
-        Some(0))),
-      Some(messages(MessageConstants.documentation.person.listPersonsDescription)),
-      Some(listPersonsParams),
-      None,
-      None,
-      Some(messages(MessageConstants.documentation.person.listPersonsReturn)))
+        Some(0)))
+    listPersonsOperation.description = Some(messages(MessageConstants.documentation.person.listPersonsDescription))
+    listPersonsOperation.request = Some(new RequestContents(Some(getGetPersonParameters), None))
+    listPersonsOperation.response = Some(new RequestContents(None, Some(jsonPersonExemple)))
+
+    //      ,
+    //      Some(listPersonsParams),
+    //      None,
+    //      None,
+    //      Some(messages(MessageConstants.documentation.person.listPersonsReturn)))
     availableOperations :+= listPersonsOperation
 
-    val getPersonOperation = Operation(
-      Some(routes.PersonController.getPerson(_idExemple)),
-      Some(messages(MessageConstants.documentation.person.getPersonDescription)),
-      Some(getGetPersonParameters),
-      None,
-      None,
-      Some(messages(MessageConstants.documentation.person.getPersonReturn)))
+    val getPersonOperation = Operation()
+    //    (
+    //      Some(routes.PersonController.getPerson(_idExemple)),
+    //      Some(messages(MessageConstants.documentation.person.getPersonDescription)),
+    //      Some(getGetPersonParameters),
+    //      None,
+    //      None,
+    //      Some(messages(MessageConstants.documentation.person.getPersonReturn)))
     availableOperations :+= getPersonOperation
 
-    val addPersonOperation = Operation(
-      Some(routes.PersonController.addPerson()),
-      Some(messages(MessageConstants.documentation.person.addPersonDescription)),
-      None,
-      Some(jsonPersonExemple),
-      Some(getAddPersonsErrors.toMap),
-      None)
+    val addPersonOperation = Operation()
+    //    (
+    //      Some(routes.PersonController.addPerson()),
+    //      Some(messages(MessageConstants.documentation.person.addPersonDescription)),
+    //      None,
+    //      Some(jsonPersonExemple),
+    //      Some(getAddPersonsErrors.toMap),
+    //      None)
     availableOperations :+= addPersonOperation
 
-    val editPersonOperation = Operation(
-      Some(routes.PersonController.editPerson(_idExemple)),
-      Some(messages(MessageConstants.documentation.person.editPersonDescription)),
-      None,
-      Some(jsonPersonExemple),
-      None,
-      None)
+    val editPersonOperation = Operation()
+    //    (
+    //      Some(routes.PersonController.editPerson(_idExemple)),
+    //      Some(messages(MessageConstants.documentation.person.editPersonDescription)),
+    //      None,
+    //      Some(jsonPersonExemple),
+    //      None,
+    //      None)
     availableOperations :+= editPersonOperation
 
-    val deletePersonOperation = Operation(
-      Some(routes.PersonController.deletePerson(_idExemple)),
-      Some(messages(MessageConstants.documentation.person.deletePersonDescription)),
-      None,
-      None,
-      None,
-      None)
+    val deletePersonOperation = Operation()
+    //      Some(routes.PersonController.deletePerson(_idExemple)),
+    //      Some(messages(MessageConstants.documentation.person.deletePersonDescription)),
+    //      None,
+    //      None,
+    //      None,
+    //      None)
     availableOperations :+= deletePersonOperation
 
     availableOperations

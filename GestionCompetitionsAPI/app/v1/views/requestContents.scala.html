@@ -1,0 +1,27 @@
+@import v1.bo.RequestContents
+@import play.api.libs.json.Json
+@import v1.constantes.MessageConstants
+@import org.asynchttpclient.util.HttpConstants
+
+@(requestContents: RequestContents)(implicit messages: Messages)
+
+@defining(requestContents) { request =>
+	<h3>@messages(MessageConstants.template.parameters)</h3>
+	@if(request.parameters.isDefined  && !request.parameters.get.isEmpty) {
+		<ul>
+			@for(parameter <- request.parameters.get) {
+				<li>
+					<strong>@parameter._1 : </strong>@parameter._2
+				</li>
+			}
+		</ul>		
+	} else {
+		<p>@messages(MessageConstants.template.empty)</p>
+	}
+	<h3>@messages(MessageConstants.template.body)</h3>
+	@if(request.body.isDefined) {
+		<pre><code>@Json.prettyPrint(request.body.get)</code></pre>
+	} else {
+		<p>@messages(MessageConstants.template.empty)</p>
+	}
+}

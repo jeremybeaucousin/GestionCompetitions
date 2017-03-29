@@ -22,52 +22,23 @@
 			
 		</div>
 		<div class="panel-body collapse" id="collapsePanel-@operationIndex">
-			<div>
-				<h3>@messages(MessageConstants.template.body)</h3>
-				@if(operation.body.isDefined) {
-					<pre><code>@Json.prettyPrint(operation.body.get)</code></pre>
-				} else {
-					<p>@messages(MessageConstants.template.empty)</p>
-				}
-			</div>
+			<h2>@messages(MessageConstants.template.request)</h2>
 			<div class="well">
-				<h3>@messages(MessageConstants.template.errors)</h3>
-				
-				@if(operation.errors.isDefined && !operation.errors.get.isEmpty) {
-					<ul>
-						@for(error <- operation.errors.get) {
-							<li>
-								<strong>@error._1 : </strong>@error._2
-							</li>
-						}
-					</ul>
+				@if(operation.request.isDefined) {
+					@requestContents(operation.request.get)
 				} else {
 					<p>@messages(MessageConstants.template.empty)</p>
 				}
 			</div>
-		</div>
-		<div class="panel-footer">
-			<h3>@messages(MessageConstants.template.parameters)</h3>
 			
-			@if(operation.parameters.isDefined && !operation.parameters.get.isEmpty) {
-				<ul>
-				@for(parameter <- operation.parameters.get) {
-					<li>
-						<strong>@parameter._1 : </strong>@parameter._2
-					</li>
+			<h2>@messages(MessageConstants.template.response)</h2>
+			<div class="well">
+				@if(operation.response.isDefined) {
+					@requestContents(operation.response.get)
+				} else {
+					<p>@messages(MessageConstants.template.empty)</p>
 				}
-				</ul>
-			} else {
-				<p>@messages(MessageConstants.template.empty)</p>
-			}
-			
-			<h3>@messages(MessageConstants.template.response)</h3>
-			
-			@if(operation.response.isDefined) {
-				<p>@operation.response</p>
-			} else {
-				<p>@messages(MessageConstants.template.empty)</p>
-			}
+			</div>
 		</div>
 	</div>
 }
