@@ -43,11 +43,10 @@ class PersonController @Inject() (val documentationManager: DocumentationManager
 
   def listPersons(sort: Option[Seq[String]], fields: Option[Seq[String]], offset: Option[Int], limit: Option[Int]) = Action.async { implicit request =>
     val futurePersons = personManager.listPersons(sort, fields, offset, limit)
-    // TODO Extract data
-    val totalCount = personManager.getTotalCount()
+    val totalCount = personManager.getTotalCount
     futurePersons.map { persons =>
       var result = Ok(Json.toJson(persons))
-      RequestUtil.managePagination(result, offset, limit, totalCount) 
+      RequestUtil.managePagination(result, offset, limit, totalCount)
     }
   }
 
@@ -61,7 +60,7 @@ class PersonController @Inject() (val documentationManager: DocumentationManager
   def addPerson = Action.async(BodyParsers.parse.json) { implicit request =>
     val futureId = personManager.addPerson(request.body.as[Person])
     futureId.map { id =>
-      Created.withHeaders(HttpConstants.headerFields.location -> (request.host + routes.PersonController.getPerson(id)))
+      Created.withHeaders(HttpConstants.headerFields.location -> (routes.PersonController.getPerson(id).absoluteURL()))
     }
   }
 
