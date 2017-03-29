@@ -10,6 +10,7 @@ error.client=A client error occurred: {0}
 database.inserted=successfully inserted document with result: {0}
 
 #templates
+template.headers=Headers
 template.request=Request
 template.parameters=Parameter(s)
 template.body=Body
@@ -23,10 +24,11 @@ documentation.common.sortDescription=Allow to sort the list with the fields set 
 documentation.common.fieldsDescription=Allow to filter the displayed fields with those set in parameter and the caracter "," to separate them
 documentation.common.offsetDescription=Set the beginning offset of the List
 documentation.common.limitDescription=Set the number of element to display
+documentation.common.xTotalCountDescription=Contains the total number of elements returned by the request
+documentation.common.linkDescription=Contains the following links to manage pagination
 
 #Persons
 documentation.person.listPersonsDescription=Return the persons stored in database
-documentation.person.listPersonsReturn=Return the persons as JsonObject inside a Json Array
 documentation.person.getPersonDescription=Return the person with the identifier set in parameters
 documentation.person.getPersonIdParameterDescription=the person identifier as stored in database
 documentation.person.getPersonReturn=Return the person in JsonObject

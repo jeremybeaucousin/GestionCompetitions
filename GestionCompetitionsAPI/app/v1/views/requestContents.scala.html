@@ -18,6 +18,20 @@
 	} else {
 		<p>@messages(MessageConstants.template.empty)</p>
 	}
+	
+	<h3>@messages(MessageConstants.template.headers)</h3>
+	@if(request.headers.isDefined) {
+		<ul>
+			@for(header <- request.headers.get) {
+				<li>
+					<strong>@header._1 : </strong>@header._2
+				</li>
+			}
+		</ul>	
+	} else {
+		<p>@messages(MessageConstants.template.empty)</p>
+	}
+	
 	<h3>@messages(MessageConstants.template.body)</h3>
 	@if(request.body.isDefined) {
 		<pre><code>@Json.prettyPrint(request.body.get)</code></pre>

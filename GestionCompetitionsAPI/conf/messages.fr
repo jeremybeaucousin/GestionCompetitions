@@ -10,6 +10,7 @@ error.client=Une erreur du client s''est produite: {0}
 database.inserted=Le document à été enregistré avec succés avec le resultat suivant : {0}
 
 #templates
+template.headers=En-têtes
 template.request=Requête
 template.parameters=Paramètre(s)
 template.body=Corp
@@ -23,10 +24,11 @@ documentation.common.sortDescription=Permets de trier la liste avec les champs r
 documentation.common.fieldsDescription=Permets de filtrer les champs affichés avec avec les champs renseignés et le caractère "," pour les séparer
 documentation.common.offsetDescription=Définit le décalage initial de la liste
 documentation.common.limitDescription=Définit le nombre d''éléments à afficher
+documentation.common.xTotalCountDescription=Contient le nombre total d''élements retournés par la requête
+documentation.common.linkDescription=Contient les liens permettant de gérer la pagination
 
 #Persons
 documentation.person.listPersonsDescription=Retourne les personnes enregistrées en base de données
-documentation.person.listPersonsReturn=Retourne les personnes au format JsonObject dans un tableau Json
 documentation.person.getPersonDescription=Retourne la personne avec l''identifiant renseigné en paramètres
 documentation.person.getPersonIdParameterDescription=L''identifiant de la personne telle qu''enregistré en base de données
 documentation.person.getPersonReturn=Retourne la personne au format JsonObject

@@ -28,6 +28,7 @@ final object MessageConstants {
 
   final object Template {
     private final val PREFIX = "template."
+    private final val HEADERS = "headers"
     private final val REQUEST = "request"
     private final val PARAMETERS = "parameters"
     private final val BODY = "body"
@@ -35,6 +36,7 @@ final object MessageConstants {
     private final val ERRORS = "errors"
     private final val RESPONSE = "response"
 
+    def headers: String = PREFIX + HEADERS
     def request: String = PREFIX + REQUEST
     def parameters: String = PREFIX + PARAMETERS
     def body: String = PREFIX + BODY
@@ -45,24 +47,27 @@ final object MessageConstants {
 
   final object Documentation {
     private final val PREFIX = "documentation."
-    
+
     object Common {
       private final val PREFIX = Documentation.PREFIX + "common."
       private final val SORT_DESCRIPTION = "sortDescription"
       private final val FIELDS_DESCRIPTION = "fieldsDescription"
       private final val OFFSET_DESCRIPTION = "offsetDescription"
       private final val LIMIT_DESCRIPTION = "limitDescription"
-      
+      private final val X_TOTAL_COUNT_DESCRIPTION = "xTotalCountDescription"
+      private final val LINK_DESCRIPTION = "linkDescription"
+
       def sortDescription: String = PREFIX + SORT_DESCRIPTION
       def fieldsDescription: String = PREFIX + FIELDS_DESCRIPTION
       def offsetDescription: String = PREFIX + OFFSET_DESCRIPTION
       def limitDescription: String = PREFIX + LIMIT_DESCRIPTION
+      def xTotalCountDescription: String = PREFIX + X_TOTAL_COUNT_DESCRIPTION
+      def linkDescription: String = PREFIX + LINK_DESCRIPTION
     }
-    
+
     final object Person {
       private final val PREFIX = Documentation.PREFIX + "person."
       private final val LIST_PERSONS_DESCRIPTION = "listPersonsDescription"
-      private final val LIST_PERSONS_RETURN = "listPersonsReturn"
       private final val GET_PERSON_DESCRIPTION = "getPersonDescription"
       private final val GET_PERSON_ID_PARAMETER_DESCRIPTION = "getPersonIdParameterDescription"
       private final val GET_PERSON_RETURN = "getPersonReturn"
@@ -71,7 +76,6 @@ final object MessageConstants {
       private final val DELETE_PERSON_DESCRIPTION = "deletePersonDescription"
 
       def listPersonsDescription: String = PREFIX + LIST_PERSONS_DESCRIPTION
-      def listPersonsReturn: String = PREFIX + LIST_PERSONS_RETURN
       def getPersonDescription: String = PREFIX + GET_PERSON_DESCRIPTION
       def getPersonIdParameterDescription: String = PREFIX + GET_PERSON_ID_PARAMETER_DESCRIPTION
       def getPersonReturn: String = PREFIX + GET_PERSON_RETURN

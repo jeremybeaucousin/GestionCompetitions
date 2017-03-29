@@ -11,11 +11,12 @@ import play.api.mvc.Call
 
 case class RequestContents (
   var parameters: Option[Map[String,String]],
+  var headers: Option[Map[String,String]],
   var body: Option[JsValue]
 )
 
 object RequestContents {
-   def apply() = new RequestContents(None, None)
+   def apply() = new RequestContents(None, None, None)
 }
 
 case class Operation(
