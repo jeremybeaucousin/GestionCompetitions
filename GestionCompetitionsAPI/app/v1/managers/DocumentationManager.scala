@@ -75,14 +75,15 @@ class DocumentationManager @Inject() (implicit val ec: ExecutionContext) {
       listPersonsResponse.body = Some(jsonPersonArrayExemple)
       listPersonsResponse.headers = Some(getGetPersonsResponseParameters)
       listPersonsOperation.response = Some(listPersonsResponse)
-      
-      def getListPersonsErrors: Map[String, String] = {
-        var errors: Map[String, String] = Map[String, String]()
-        errors += (Http.Status.NO_CONTENT.toString() -> messages(MessageConstants.error.http.noContent))
-        errors
+
+      def getListPersonsCodes: Map[String, String] = {
+        var codes: Map[String, String] = Map[String, String]()
+        codes += (Http.Status.OK.toString() -> messages(MessageConstants.http.ok))
+        codes += (Http.Status.NO_CONTENT.toString() -> messages(MessageConstants.http.noContent))
+        codes
       }
-      listPersonsOperation.errors = Some(getListPersonsErrors)
-      
+      listPersonsOperation.codes = Some(getListPersonsCodes)
+
       listPersonsOperation
     }
     availableOperations :+= getListPersonsOperation
@@ -123,12 +124,13 @@ class DocumentationManager @Inject() (implicit val ec: ExecutionContext) {
       searchPersonsResponse.headers = Some(getSearchPersonsHeadersParameters)
       searchPersonsOperation.response = Some(searchPersonsResponse)
 
-      def getSearchPersonsErrors: Map[String, String] = {
-        var errors: Map[String, String] = Map[String, String]()
-        errors += (Http.Status.NO_CONTENT.toString() -> messages(MessageConstants.error.http.noContent))
-        errors
+      def getSearchPersonsCodes: Map[String, String] = {
+        var codes: Map[String, String] = Map[String, String]()
+        codes += (Http.Status.OK.toString() -> messages(MessageConstants.http.ok))
+        codes += (Http.Status.NO_CONTENT.toString() -> messages(MessageConstants.http.noContent))
+        codes
       }
-      searchPersonsOperation.errors = Some(getSearchPersonsErrors)
+      searchPersonsOperation.codes = Some(getSearchPersonsCodes)
       searchPersonsOperation
     }
     availableOperations :+= getSearchPersonsOperation
@@ -145,59 +147,107 @@ class DocumentationManager @Inject() (implicit val ec: ExecutionContext) {
       }
 
       val getPersonRequest = RequestContents()
-      getPersonRequest.body = None
       getPersonRequest.parameters = Some(getGetPersonRequestParameters)
       getPersonOperation.request = Some(getPersonRequest)
 
       val getPersonsResponse = RequestContents()
       getPersonsResponse.body = Some(jsonPersonExemple)
-      getPersonsResponse.headers = None
       getPersonOperation.response = Some(getPersonsResponse)
 
-      def getGetPersonsErrors: Map[String, String] = {
-        var errors: Map[String, String] = Map[String, String]()
-        errors += (Http.Status.NOT_FOUND.toString() -> messages(MessageConstants.error.http.notFound))
-        errors
+      def getGetPersonsCodes: Map[String, String] = {
+        var codes: Map[String, String] = Map[String, String]()
+        codes += (Http.Status.OK.toString() -> messages(MessageConstants.http.ok))
+        codes += (Http.Status.NOT_FOUND.toString() -> messages(MessageConstants.http.notFound))
+        codes
       }
-      getPersonOperation.errors = Some(getGetPersonsErrors)
+      getPersonOperation.codes = Some(getGetPersonsCodes)
       getPersonOperation
     }
     availableOperations :+= getGetPersonOperation
 
-    def getAddPersonsErrors: Map[String, String] = {
-      var errors: Map[String, String] = Map[String, String]()
-      //    errors += ("error1" -> "errorValue")
-      errors
+    def getAddPersonOperation = {
+
+      val addPersonOperation = Operation()
+      addPersonOperation.call = Some(routes.PersonController.addPerson())
+      addPersonOperation.description = Some(messages(MessageConstants.documentation.person.addPersonDescription))
+
+      val getPersonRequest = RequestContents()
+      getPersonRequest.body = Some(jsonPersonExemple)
+      addPersonOperation.request = Some(getPersonRequest)
+
+      def getAddPersonsResponseParameters: Map[String, String] = {
+        var parameters: Map[String, String] = Map[String, String]()
+        parameters += (HttpConstants.headerFields.location -> messages(MessageConstants.documentation.common.locationDescription))
+        parameters
+      }
+
+      val addPersonsResponse = RequestContents()
+      addPersonsResponse.headers = Some(getAddPersonsResponseParameters)
+
+      def getAddPersonsCodes: Map[String, String] = {
+        var codes: Map[String, String] = Map[String, String]()
+        codes += (Http.Status.OK.toString() -> messages(MessageConstants.http.ok))
+        codes += (Http.Status.UNPROCESSABLE_ENTITY.toString() -> messages(MessageConstants.http.unprocessableEntity))
+        codes
+      }
+      addPersonOperation.codes = Some(getAddPersonsCodes)
+      addPersonOperation
     }
+    availableOperations :+= getAddPersonOperation
 
-    val addPersonOperation = Operation()
-    //    (
-    //      Some(routes.PersonController.addPerson()),
-    //      Some(messages(MessageConstants.documentation.person.addPersonDescription)),
-    //      None,
-    //      Some(jsonPersonExemple),
-    //      Some(getAddPersonsErrors.toMap),
-    //      None)
-    availableOperations :+= addPersonOperation
+    def getEditPersonOperation = {
 
-    val editPersonOperation = Operation()
-    //    (
-    //      Some(routes.PersonController.editPerson(_idExemple)),
-    //      Some(messages(MessageConstants.documentation.person.editPersonDescription)),
-    //      None,
-    //      Some(jsonPersonExemple),
-    //      None,
-    //      None)
-    availableOperations :+= editPersonOperation
+      val editPersonOperation = Operation()
+      editPersonOperation.call = Some(routes.PersonController.editPerson(_idExemple))
+      editPersonOperation.description = Some(messages(MessageConstants.documentation.person.editPersonDescription))
 
-    val deletePersonOperation = Operation()
-    //      Some(routes.PersonController.deletePerson(_idExemple)),
-    //      Some(messages(MessageConstants.documentation.person.deletePersonDescription)),
-    //      None,
-    //      None,
-    //      None,
-    //      None)
-    availableOperations :+= deletePersonOperation
+      def getEditPersonRequestParameters(implicit messages: Messages): Map[String, String] = {
+        var parameters: Map[String, String] = Map[String, String]()
+        parameters += (Person._ID -> messages(MessageConstants.documentation.person.getPersonIdParameterDescription))
+        parameters
+      }
+
+      val editPersonRequest = RequestContents()
+      editPersonRequest.body = Some(jsonPersonExemple)
+      editPersonRequest.parameters = Some(getEditPersonRequestParameters)
+      editPersonOperation.request = Some(editPersonRequest)
+
+      def getEditPersonsCodes: Map[String, String] = {
+        var codes: Map[String, String] = Map[String, String]()
+        codes += (Http.Status.OK.toString() -> messages(MessageConstants.http.ok))
+        codes += (Http.Status.UNPROCESSABLE_ENTITY.toString() -> messages(MessageConstants.http.unprocessableEntity))
+        codes
+      }
+      editPersonOperation.codes = Some(getEditPersonsCodes)
+      editPersonOperation
+    }
+    availableOperations :+= getEditPersonOperation
+
+    def getDeletePersonOperation = {
+      val deletePersonOperation = Operation()
+      deletePersonOperation.call = Some(routes.PersonController.deletePerson(_idExemple))
+      deletePersonOperation.description = Some(messages(MessageConstants.documentation.person.deletePersonDescription))
+
+      def getDeletePersonRequestParameters(implicit messages: Messages): Map[String, String] = {
+        var parameters: Map[String, String] = Map[String, String]()
+        parameters += (Person._ID -> messages(MessageConstants.documentation.person.getPersonIdParameterDescription))
+        parameters
+      }
+
+      val editPersonRequest = RequestContents()
+      editPersonRequest.parameters = Some(getDeletePersonRequestParameters)
+      deletePersonOperation.request = Some(editPersonRequest)
+
+      def getEditPersonsCodes: Map[String, String] = {
+        var codes: Map[String, String] = Map[String, String]()
+        codes += (Http.Status.OK.toString() -> messages(MessageConstants.http.ok))
+        codes += (Http.Status.UNPROCESSABLE_ENTITY.toString() -> messages(MessageConstants.http.unprocessableEntity))
+        codes
+      }
+      deletePersonOperation.codes = Some(getEditPersonsCodes)
+      deletePersonOperation
+    }
+    availableOperations :+= getDeletePersonOperation
 
     availableOperations
   }

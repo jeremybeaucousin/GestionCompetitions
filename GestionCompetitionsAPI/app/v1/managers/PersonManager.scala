@@ -33,11 +33,11 @@ class PersonManager @Inject() (val personDAO: PersonDAO)(implicit val ec: Execut
     personDAO.addPerson(person)
   }
 
-  def editPerson(id: String, person: Person)(implicit messages: Messages) = {
+  def editPerson(id: String, person: Person)(implicit messages: Messages): Future[Boolean] = {
     personDAO.editPerson(id, person)
   }
 
-  def deletePerson(id: String)(implicit messages: Messages) = {
+  def deletePerson(id: String)(implicit messages: Messages): Future[Boolean] = {
     personDAO.deletePerson(id)
   }
 }

@@ -60,6 +60,7 @@ class PersonController @Inject() (val documentationManager: DocumentationManager
     }
   }
 
+  // TODO Add fields filters to ressource
   def getPerson(id: String) = Action.async { implicit request =>
     val futurePerson = personManager.getPerson(id)
     futurePerson.map { person =>
@@ -75,17 +76,33 @@ class PersonController @Inject() (val documentationManager: DocumentationManager
   def addPerson = Action.async(BodyParsers.parse.json) { implicit request =>
     val futureId = personManager.addPerson(request.body.as[Person])
     futureId.map { id =>
-      Created.withHeaders(HttpConstants.headerFields.location -> (routes.PersonController.getPerson(id).absoluteURL()))
+      if (id != null && !id.isEmpty()) {
+        Created.withHeaders(HttpConstants.headerFields.location -> (routes.PersonController.getPerson(id).absoluteURL()))
+      } else {
+        UnprocessableEntity
+      }
     }
   }
 
   def editPerson(id: String) = Action.async(BodyParsers.parse.json) { implicit request =>
-    personManager.editPerson(id, request.body.as[Person])
-    Future(Ok)
+    val futurBoolean: Future[Boolean] = personManager.editPerson(id, request.body.as[Person])
+    futurBoolean.map { resultsOk =>
+      if (resultsOk) {
+        Ok
+      } else {
+        UnprocessableEntity
+      }
+    }
   }
 
   def deletePerson(id: String) = Action.async { implicit request =>
-    personManager.deletePerson(id)
-    Future(Ok)
+    val futurBoolean: Future[Boolean] = personManager.deletePerson(id)
+    futurBoolean.map { resultsOk =>
+      if (resultsOk) {
+        Ok
+      } else {
+        UnprocessableEntity
+      }
+    }
   }
 }

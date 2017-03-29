@@ -24,7 +24,7 @@ case class Operation(
   var description: Option[String],
   var request: Option[RequestContents],
   var response: Option[RequestContents],
-  var errors: Option[Map[String,String]]
+  var codes: Option[Map[String,String]]
   )
   
 object Operation {

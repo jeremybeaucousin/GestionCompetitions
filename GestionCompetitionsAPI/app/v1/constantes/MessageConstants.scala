@@ -17,17 +17,22 @@ final object MessageConstants {
 
     def server: String = PREFIX + SERVER
     def client: String = PREFIX + CLIENT
-    
-    final object Http {
-      private final val PREFIX = Error.PREFIX + "http."
-      private final val NOT_FOUND = "notFound"
-      private final val NO_CONTENT = "noContent"
-            
-      def notFound: String = PREFIX + NOT_FOUND
-      def noContent: String = PREFIX + NO_CONTENT
-    }
-    
-    final val http = Http    
+
+  }
+
+  final object Http {
+    private final val PREFIX = "http."
+    private final val NOT_FOUND = "notFound"
+    private final val NO_CONTENT = "noContent"
+    private final val UNPROCESSABLE_ENTITY = "unprocessableEntity"
+    private final val OK = "ok"
+    private final val CREATED = "created"
+
+    def notFound: String = PREFIX + NOT_FOUND
+    def noContent: String = PREFIX + NO_CONTENT
+    def unprocessableEntity: String = PREFIX + UNPROCESSABLE_ENTITY
+    def ok: String = PREFIX + OK
+    def created: String = PREFIX + CREATED
   }
 
   final object Database {
@@ -46,6 +51,7 @@ final object MessageConstants {
     private final val EMPTY = "empty"
     private final val ERRORS = "errors"
     private final val RESPONSE = "response"
+    private final val CODES = "codes"
 
     def headers: String = PREFIX + HEADERS
     def request: String = PREFIX + REQUEST
@@ -54,6 +60,7 @@ final object MessageConstants {
     def empty: String = PREFIX + EMPTY
     def errors: String = PREFIX + ERRORS
     def response: String = PREFIX + RESPONSE
+    def codes: String = PREFIX + CODES
   }
 
   final object Documentation {
@@ -67,13 +74,16 @@ final object MessageConstants {
       private final val LIMIT_DESCRIPTION = "limitDescription"
       private final val X_TOTAL_COUNT_DESCRIPTION = "xTotalCountDescription"
       private final val LINK_DESCRIPTION = "linkDescription"
-
+      private final val LOCATION_DESCRIPTION = "locationDescription"
+      
       def sortDescription: String = PREFIX + SORT_DESCRIPTION
       def fieldsDescription: String = PREFIX + FIELDS_DESCRIPTION
       def offsetDescription: String = PREFIX + OFFSET_DESCRIPTION
       def limitDescription: String = PREFIX + LIMIT_DESCRIPTION
       def xTotalCountDescription: String = PREFIX + X_TOTAL_COUNT_DESCRIPTION
       def linkDescription: String = PREFIX + LINK_DESCRIPTION
+      def locationDescription: String = PREFIX + LOCATION_DESCRIPTION
+      
     }
 
     final object Person {
@@ -103,6 +113,7 @@ final object MessageConstants {
 
   final val title = Title
   final val error = Error
+  final val http = Http
   final val database = Database
   final val template = Template
   final val documentation = Documentation

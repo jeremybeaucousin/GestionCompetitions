@@ -5,6 +5,7 @@ import v1.dal.repos.PersonRepoImpl
 import java.io.{ StringWriter, PrintWriter }
 import javax.inject.{ Inject, Singleton }
 import play.api.Logger
+import play.api.mvc.Results
 import reactivemongo.api.commands.WriteResult
 import reactivemongo.api.ReadPreference
 import scala.concurrent.Future
@@ -12,6 +13,8 @@ import scala.concurrent.{ ExecutionContext, Future, Promise }
 import scala.util.{ Failure, Success }
 import play.api.i18n.Messages
 import v1.constantes.MessageConstants
+import scala.concurrent.Await
+import scala.concurrent.duration.Duration
 
 @Singleton
 class PersonDAO @Inject() (val personRepo: PersonRepoImpl)(implicit ec: ExecutionContext) {
@@ -33,37 +36,28 @@ class PersonDAO @Inject() (val personRepo: PersonRepoImpl)(implicit ec: Executio
   }
 
   def addPerson(person: Person)(implicit messages: Messages): Future[String] = {
-    val writeResult: Future[WriteResult] = personRepo.save(person)
-
-    handleWriteResult(writeResult)
-
-    writeResult.map(writeRes =>
-      person._id.get)
+    val futureWriteResult: Future[WriteResult] = personRepo.save(person)
+    val noErrors: Boolean = Await.ready(handleWriteResult(futureWriteResult), Duration.Inf).value.get.getOrElse(false)
+    if (noErrors) {
+      futureWriteResult.map(writeRes =>
+        person._id.get)
+    } else {
+      null
+    }
   }
 
-  def editPerson(id: String, person: Person)(implicit messages: Messages) = {
-    val writeResult: Future[WriteResult] = personRepo.update(id, person)
-
-    handleWriteResult(writeResult)
+  def editPerson(id: String, person: Person)(implicit messages: Messages): Future[Boolean] = {
+    val futureWriteResult: Future[WriteResult] = personRepo.update(id, person)
+    handleWriteResult(futureWriteResult)
   }
 
-  def deletePerson(id: String)(implicit messages: Messages) = {
+  def deletePerson(id: String)(implicit messages: Messages): Future[Boolean] = {
     handleWriteResult(personRepo.remove(id))
   }
 
-  private def handleWriteResult(writeResult: Future[WriteResult])(implicit messages: Messages) {
-    writeResult.onComplete {
-      case Failure(exception) => {
-        val sw = new StringWriter
-        exception.printStackTrace(new PrintWriter(sw))
-        Logger.error(sw.toString)
-      }
-      case Success(writeResult) => {
-        if(writeResult.hasErrors && writeResult.n == 0) {
-          
-        }
-        Logger.info(messages(MessageConstants.database.inserted, writeResult))
-      }
-    }
+  def handleWriteResult(FutureWriteResult: Future[WriteResult]): Future[Boolean] = {
+    FutureWriteResult.map(writeResult => {
+      !writeResult.hasErrors && writeResult.n > 0
+    })
   }
 }

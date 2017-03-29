@@ -5,8 +5,13 @@ title.documentation=Possible operations on the ressource {0}
 #errors
 error.server=An error occured on the server: {0}
 error.client=A client error occurred: {0}
-error.http.notFound=Not found
-error.http.noContent=No Content
+
+#http
+http.ok=Eyerything is working
+http.created=New resource has been created
+http.notFound=Not found
+http.noContent=No Content
+http.unprocessableEntity=Unprocessable Entity
 
 #databases
 database.inserted=successfully inserted document with result: {0}
@@ -19,6 +24,7 @@ template.body=Body
 template.empty=Nothing to display
 template.errors=Error(s)
 template.response=Response
+template.codes=Code(s)
 
 #Documentation
 #Common
@@ -28,6 +34,7 @@ documentation.common.offsetDescription=Set the beginning offset of the List
 documentation.common.limitDescription=Set the number of element to display
 documentation.common.xTotalCountDescription=Contains the total number of elements returned by the request
 documentation.common.linkDescription=Contains the following links to manage pagination
+documentation.common.locationDescription=location of the created ressource
 
 #Persons
 documentation.person.listPersonsDescription=Return the persons stored in database
