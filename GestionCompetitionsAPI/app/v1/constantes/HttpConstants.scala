@@ -15,6 +15,13 @@ final object HeaderFields {
 }
 
 final object HttpConstants {
+  final val FIRST:String = "first"
+  final val PREV:String = "prev"
+  final val NEXT:String = "next"
+  final val LAST:String = "last"
+  final val HTML_LT:String = "<"
+  final val HTML_GT:String = ">"
+  
   final val queryFields = QueryFields  
   final val headerFields = HeaderFields
 }
