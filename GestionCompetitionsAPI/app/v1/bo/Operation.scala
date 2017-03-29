@@ -10,6 +10,7 @@ import reactivemongo.bson.Macros
 import play.api.mvc.Call
 
 case class Operation(
+  // TODO add body and header for response and request  
   var call: Option[Call],  
   var description: Option[String],
   var parameters: Option[Map[String,String]],

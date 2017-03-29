@@ -1,7 +1,7 @@
 package v1.constantes
 
 final object MessageConstants {
-  object Title {
+  final object Title {
     private final val PREFIX: String = "title."
     private final val ERROR: String = "error"
     private final val DOCUMENTATION: String = "documentation"
@@ -10,7 +10,7 @@ final object MessageConstants {
     def documentation: String = PREFIX + DOCUMENTATION
   }
 
-  object Error {
+  final object Error {
     private final val PREFIX = "error."
     private final val SERVER = "server"
     private final val CLIENT = "client"
@@ -19,14 +19,14 @@ final object MessageConstants {
     def client: String = PREFIX + CLIENT
   }
 
-  object Database {
+  final object Database {
     private final val PREFIX = "database."
     private final val INSERTED = "inserted"
 
     def inserted: String = PREFIX + INSERTED
   }
 
-  object Template {
+  final object Template {
     private final val PREFIX = "template."
     private final val REQUEST = "request"
     private final val PARAMETERS = "parameters"
@@ -43,7 +43,7 @@ final object MessageConstants {
     def response: String = PREFIX + RESPONSE
   }
 
-  object Documentation {
+  final object Documentation {
     private final val PREFIX = "documentation."
     
     object Common {
@@ -59,7 +59,7 @@ final object MessageConstants {
       def limitDescription: String = PREFIX + LIMIT_DESCRIPTION
     }
     
-    object Person {
+    final object Person {
       private final val PREFIX = Documentation.PREFIX + "person."
       private final val LIST_PERSONS_DESCRIPTION = "listPersonsDescription"
       private final val LIST_PERSONS_RETURN = "listPersonsReturn"

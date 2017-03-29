@@ -31,7 +31,7 @@ class PersonDAO @Inject() (val personRepo: PersonRepoImpl)(implicit ec: Executio
   def addPerson(person: Person)(implicit messages: Messages): Future[String] = {
     val writeResult: Future[WriteResult] = personRepo.save(person)
     
-    handleWriteResul(writeResult)
+    handleWriteResult(writeResult)
 
     writeResult.map(writeRes =>
       person._id.get)
@@ -40,14 +40,14 @@ class PersonDAO @Inject() (val personRepo: PersonRepoImpl)(implicit ec: Executio
   def editPerson(id: String, person: Person)(implicit messages: Messages) = {
     val writeResult: Future[WriteResult] = personRepo.update(id, person)
 
-    handleWriteResul(writeResult)
+    handleWriteResult(writeResult)
   }
 
   def deletePerson(id: String)(implicit messages: Messages) = {
-    handleWriteResul(personRepo.remove(id))
+    handleWriteResult(personRepo.remove(id))
   }
 
-  private def handleWriteResul(writeResult: Future[WriteResult])(implicit messages: Messages) {
+  private def handleWriteResult(writeResult: Future[WriteResult])(implicit messages: Messages) {
     writeResult.onComplete {
       case Failure(exception) => {
         val sw = new StringWriter
