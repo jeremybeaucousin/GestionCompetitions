@@ -1,32 +1,24 @@
 package v1.controllers
 
-import v1.bo.Address
-import v1.bo.Person
-import v1.bo.Operation
-import v1.constantes.MessageConstants
-import java.util.Date
-import java.util.Locale
-import javax.inject._
-import v1.managers._
-import play.api._
-import play.api.http.ContentTypes
+import scala.concurrent.Future
+
+import javax.inject.Inject
+import javax.inject.Singleton
 import play.api.i18n.I18nSupport
-import play.api.i18n.Lang
 import play.api.i18n.MessagesApi
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.json.Json
-import play.api.mvc._
-import play.modules.reactivemongo.{ MongoController, ReactiveMongoApi, ReactiveMongoComponents }
-import reactivemongo.api.commands.WriteResult
-import reactivemongo.bson.{ BSONDocument, BSONObjectID }
-import scala.concurrent.{ Future, ExecutionContext }
-import scala.util.{ Failure, Success }
-import scala.collection.mutable.Map
-import v1.bo.Taekwondoist
-import reactivemongo.bson.BSON
-import v1.bo.Taekwondoist.TaekwondoistReader
-import v1.utils.RequestUtil
+import play.api.mvc.Action
+import play.api.mvc.BodyParsers
+import play.api.mvc.Controller
+import v1.bo.Operation
+import v1.bo.Person
 import v1.constantes.HttpConstants
+import v1.constantes.MessageConstants
+import v1.managers.DocumentationManager
+import v1.managers.PersonManager
+import v1.utils.RequestUtil
+import play.Logger
 
 class PersonController @Inject() (val documentationManager: DocumentationManager, val personManager: PersonManager, val messagesApi: MessagesApi)
     extends Controller with I18nSupport {
@@ -45,8 +37,12 @@ class PersonController @Inject() (val documentationManager: DocumentationManager
     val futurePersons = personManager.listPersons(sortOption, fieldsOption, offsetOption, limitOption)
     val totalCount = personManager.getTotalCount(None)
     futurePersons.map { persons =>
-      var result = Ok(Json.toJson(persons))
-      RequestUtil.managePagination(result, offsetOption, limitOption, totalCount)
+      if (persons.isEmpty) {
+        NoContent
+      } else {
+        var result = Ok(Json.toJson(persons))
+        RequestUtil.managePagination(result, offsetOption, limitOption, totalCount)
+      }
     }
   }
 
@@ -55,15 +51,24 @@ class PersonController @Inject() (val documentationManager: DocumentationManager
     val futurePersons = personManager.searchPersons(person, sortOption, fieldsOption, offsetOption, limitOption)
     val totalCount = personManager.getTotalCount(Some(person))
     futurePersons.map { persons =>
-      var result = Ok(Json.toJson(persons))
-      RequestUtil.managePagination(result, offsetOption, limitOption, totalCount)
+      if (persons.isEmpty) {
+        NoContent
+      } else {
+        var result = Ok(Json.toJson(persons))
+        RequestUtil.managePagination(result, offsetOption, limitOption, totalCount)
+      }
     }
   }
 
   def getPerson(id: String) = Action.async { implicit request =>
     val futurePerson = personManager.getPerson(id)
     futurePerson.map { person =>
-      Ok(Json.toJson(person))
+      if (person.isDefined) {
+        Ok(Json.toJson(person))
+      } else {
+        NotFound
+      }
+
     }
   }
 

@@ -39,6 +39,21 @@
 					<p>@messages(MessageConstants.template.empty)</p>
 				}
 			</div>
+			
+			<h2>@messages(MessageConstants.template.errors)</h2>
+			<div class="well">
+				@if(operation.errors.isDefined) {
+					<ul>
+						@for(error <- operation.errors.get) {
+							<li>
+								<strong>@error._1 : </strong>@error._2
+							</li>
+						}
+					</ul>	
+				} else {
+					<p>@messages(MessageConstants.template.empty)</p>
+				}
+			</div>
 		</div>
 	</div>
 }

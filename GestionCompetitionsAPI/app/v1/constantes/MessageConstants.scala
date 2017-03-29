@@ -17,6 +17,17 @@ final object MessageConstants {
 
     def server: String = PREFIX + SERVER
     def client: String = PREFIX + CLIENT
+    
+    final object Http {
+      private final val PREFIX = Error.PREFIX + "http."
+      private final val NOT_FOUND = "notFound"
+      private final val NO_CONTENT = "noContent"
+            
+      def notFound: String = PREFIX + NOT_FOUND
+      def noContent: String = PREFIX + NO_CONTENT
+    }
+    
+    final val http = Http    
   }
 
   final object Database {
@@ -71,7 +82,6 @@ final object MessageConstants {
       private final val SEARCH_PERSONS_DESCRIPTION = "searchPersonsDescription"
       private final val GET_PERSON_DESCRIPTION = "getPersonDescription"
       private final val GET_PERSON_ID_PARAMETER_DESCRIPTION = "getPersonIdParameterDescription"
-      private final val GET_PERSON_RETURN = "getPersonReturn"
       private final val ADD_PERSON_DESCRIPTION = "addPersonDescription"
       private final val EDIT_PERSON_DESCRIPTION = "editPersonDescription"
       private final val DELETE_PERSON_DESCRIPTION = "deletePersonDescription"
@@ -80,7 +90,6 @@ final object MessageConstants {
       def searchPersonsDescription: String = PREFIX + SEARCH_PERSONS_DESCRIPTION
       def getPersonDescription: String = PREFIX + GET_PERSON_DESCRIPTION
       def getPersonIdParameterDescription: String = PREFIX + GET_PERSON_ID_PARAMETER_DESCRIPTION
-      def getPersonReturn: String = PREFIX + GET_PERSON_RETURN
       def addPersonDescription: String = PREFIX + ADD_PERSON_DESCRIPTION
       def editPersonDescription: String = PREFIX + EDIT_PERSON_DESCRIPTION
       def deletePersonDescription: String = PREFIX + DELETE_PERSON_DESCRIPTION

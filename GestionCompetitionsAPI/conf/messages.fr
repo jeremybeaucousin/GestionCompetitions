@@ -5,6 +5,8 @@ title.documentation=Opérations possible sur la ressource /persons
 #errors
 error.server=Une erreur s''est produite sur le serveur: {0}
 error.client=Une erreur du client s''est produite: {0}
+error.http.notFound=Non trouvé
+error.http.noContent=Pas de contenu
 
 #databases
 database.inserted=Le document à été enregistré avec succés avec le resultat suivant : {0}
@@ -32,7 +34,6 @@ documentation.person.listPersonsDescription=Retourne les personnes enregistrées
 documentation.person.searchPersonsDescription=Retourne les personnes enregistrées en base de données filtrées par les champs renseignés dans le corps
 documentation.person.getPersonDescription=Retourne la personne avec l''identifiant renseigné en paramètres
 documentation.person.getPersonIdParameterDescription=L''identifiant de la personne telle qu''enregistré en base de données
-documentation.person.getPersonReturn=Retourne la personne au format JsonObject
 documentation.person.addPersonDescription=Ajoute une nouvelle personne à la base de données
 documentation.person.editPersonDescription=Met à jour la personne avec l''identifiant renseigné dans les paramètres
 documentation.person.deletePersonDescription=Supprime la personne avec l''identifiant renseigné dans les paramètres

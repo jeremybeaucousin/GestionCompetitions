@@ -59,6 +59,9 @@ class PersonDAO @Inject() (val personRepo: PersonRepoImpl)(implicit ec: Executio
         Logger.error(sw.toString)
       }
       case Success(writeResult) => {
+        if(writeResult.hasErrors && writeResult.n == 0) {
+          
+        }
         Logger.info(messages(MessageConstants.database.inserted, writeResult))
       }
     }

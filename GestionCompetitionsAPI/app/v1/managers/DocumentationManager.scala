@@ -13,6 +13,8 @@ import play.api.libs.json.Json
 import reactivemongo.bson.BSONObjectID
 import v1.utils.MongoDbUtil
 import v1.constantes.HttpConstants
+import org.apache.http.HttpStatus
+import play.mvc.Http
 
 @Singleton
 class DocumentationManager @Inject() (implicit val ec: ExecutionContext) {
@@ -39,100 +41,134 @@ class DocumentationManager @Inject() (implicit val ec: ExecutionContext) {
       (HttpConstants.queryFields.limit -> messages(MessageConstants.documentation.common.limitDescription))
     }
 
-    val listPersonsOperation = Operation()
-    listPersonsOperation.call =
-      Some(routes.PersonController.index(
-        Some(Seq[String]("+" + Person.FIRST_NAME, "-" + Person.LAST_NAME)),
-        Some(Seq[String](Person._ID, Person.FIRST_NAME, Person.LAST_NAME)),
-        Some(0),
-        Some(0)))
-    listPersonsOperation.description = Some(messages(MessageConstants.documentation.person.listPersonsDescription))
+    def getListPersonsOperation: Operation = {
+      val listPersonsOperation = Operation()
+      listPersonsOperation.call =
+        Some(routes.PersonController.index(
+          Some(Seq[String]("+" + Person.FIRST_NAME, "-" + Person.LAST_NAME)),
+          Some(Seq[String](Person._ID, Person.FIRST_NAME, Person.LAST_NAME)),
+          Some(0),
+          Some(0)))
+      listPersonsOperation.description = Some(messages(MessageConstants.documentation.person.listPersonsDescription))
 
-    def getGetPersonsRequestParameters: Map[String, String] = {
-      var parameters: Map[String, String] = Map[String, String]()
-      parameters += getSortDescription
-      parameters += getFieldsDescription
-      parameters += getOffsetDescription
-      parameters += getLimitDescription
-      parameters
+      def getGetPersonsRequestParameters: Map[String, String] = {
+        var parameters: Map[String, String] = Map[String, String]()
+        parameters += getSortDescription
+        parameters += getFieldsDescription
+        parameters += getOffsetDescription
+        parameters += getLimitDescription
+        parameters
+      }
+
+      val listPersonsRequest = RequestContents()
+      listPersonsRequest.parameters = Some(getGetPersonsRequestParameters)
+      listPersonsOperation.request = Some(listPersonsRequest)
+
+      def getGetPersonsResponseParameters: Map[String, String] = {
+        var parameters: Map[String, String] = Map[String, String]()
+        parameters += (HttpConstants.headerFields.xTotalCount -> messages(MessageConstants.documentation.common.xTotalCountDescription))
+        parameters += (HttpConstants.headerFields.link -> messages(MessageConstants.documentation.common.linkDescription))
+        parameters
+      }
+
+      val listPersonsResponse = RequestContents()
+      listPersonsResponse.body = Some(jsonPersonArrayExemple)
+      listPersonsResponse.headers = Some(getGetPersonsResponseParameters)
+      listPersonsOperation.response = Some(listPersonsResponse)
+      
+      def getListPersonsErrors: Map[String, String] = {
+        var errors: Map[String, String] = Map[String, String]()
+        errors += (Http.Status.NO_CONTENT.toString() -> messages(MessageConstants.error.http.noContent))
+        errors
+      }
+      listPersonsOperation.errors = Some(getListPersonsErrors)
+      
+      listPersonsOperation
     }
+    availableOperations :+= getListPersonsOperation
 
-    val listPersonsRequest = RequestContents()
-    listPersonsRequest.parameters = Some(getGetPersonsRequestParameters)
-    listPersonsOperation.request = Some(listPersonsRequest)
+    def getSearchPersonsOperation = {
+      val searchPersonsOperation = Operation()
+      searchPersonsOperation.call =
+        Some(routes.PersonController.searchPersons(
+          Some(Seq[String]("+" + Person.FIRST_NAME, "-" + Person.LAST_NAME)),
+          Some(Seq[String](Person._ID, Person.FIRST_NAME, Person.LAST_NAME)),
+          Some(0),
+          Some(0)))
+      searchPersonsOperation.description = Some(messages(MessageConstants.documentation.person.searchPersonsDescription))
 
-    def getGetPersonsResponseParameters: Map[String, String] = {
-      var parameters: Map[String, String] = Map[String, String]()
-      parameters += (HttpConstants.headerFields.xTotalCount -> messages(MessageConstants.documentation.common.xTotalCountDescription))
-      parameters += (HttpConstants.headerFields.link -> messages(MessageConstants.documentation.common.linkDescription))
-      parameters
+      def getSearchPersonsRequestParameters(implicit messages: Messages): Map[String, String] = {
+        var parameters: Map[String, String] = Map[String, String]()
+        parameters += getSortDescription
+        parameters += getFieldsDescription
+        parameters += getOffsetDescription
+        parameters += getLimitDescription
+        parameters
+      }
+
+      val searchPersonsRequest = RequestContents()
+      searchPersonsRequest.body = Some(jsonPersonExemple)
+      searchPersonsRequest.parameters = Some(getSearchPersonsRequestParameters)
+      searchPersonsOperation.request = Some(searchPersonsRequest)
+
+      def getSearchPersonsHeadersParameters(implicit messages: Messages): Map[String, String] = {
+        var parameters: Map[String, String] = Map[String, String]()
+        parameters += (HttpConstants.headerFields.xTotalCount -> messages(MessageConstants.documentation.common.xTotalCountDescription))
+        parameters += (HttpConstants.headerFields.link -> messages(MessageConstants.documentation.common.linkDescription))
+        parameters
+      }
+
+      val searchPersonsResponse = RequestContents()
+      searchPersonsResponse.body = Some(jsonPersonArrayExemple)
+      searchPersonsResponse.headers = Some(getSearchPersonsHeadersParameters)
+      searchPersonsOperation.response = Some(searchPersonsResponse)
+
+      def getSearchPersonsErrors: Map[String, String] = {
+        var errors: Map[String, String] = Map[String, String]()
+        errors += (Http.Status.NO_CONTENT.toString() -> messages(MessageConstants.error.http.noContent))
+        errors
+      }
+      searchPersonsOperation.errors = Some(getSearchPersonsErrors)
+      searchPersonsOperation
     }
-    
-    val listPersonsResponse = RequestContents()
-    listPersonsResponse.body = Some(jsonPersonArrayExemple)
-    listPersonsResponse.headers = Some(getGetPersonsResponseParameters)
-    listPersonsOperation.response = Some(listPersonsResponse)
+    availableOperations :+= getSearchPersonsOperation
 
-    availableOperations :+= listPersonsOperation
-    
-    val searchPersonsOperation = Operation()
-    searchPersonsOperation.call =
-      Some(routes.PersonController.searchPersons(
-        Some(Seq[String]("+" + Person.FIRST_NAME, "-" + Person.LAST_NAME)),
-        Some(Seq[String](Person._ID, Person.FIRST_NAME, Person.LAST_NAME)),
-        Some(0),
-        Some(0)))
-    searchPersonsOperation.description = Some(messages(MessageConstants.documentation.person.searchPersonsDescription))
+    def getGetPersonOperation = {
+      val getPersonOperation = Operation()
+      getPersonOperation.call = Some(routes.PersonController.getPerson(_idExemple))
+      getPersonOperation.description = Some(messages(MessageConstants.documentation.person.getPersonDescription))
 
-    def getSearchPersonsRequestParameters(implicit messages: Messages): Map[String, String] = {
-      var parameters: Map[String, String] = Map[String, String]()
-      parameters += getSortDescription
-      parameters += getFieldsDescription
-      parameters += getOffsetDescription
-      parameters += getLimitDescription
-      parameters
+      def getGetPersonRequestParameters(implicit messages: Messages): Map[String, String] = {
+        var parameters: Map[String, String] = Map[String, String]()
+        parameters += (Person._ID -> messages(MessageConstants.documentation.person.getPersonIdParameterDescription))
+        parameters
+      }
+
+      val getPersonRequest = RequestContents()
+      getPersonRequest.body = None
+      getPersonRequest.parameters = Some(getGetPersonRequestParameters)
+      getPersonOperation.request = Some(getPersonRequest)
+
+      val getPersonsResponse = RequestContents()
+      getPersonsResponse.body = Some(jsonPersonExemple)
+      getPersonsResponse.headers = None
+      getPersonOperation.response = Some(getPersonsResponse)
+
+      def getGetPersonsErrors: Map[String, String] = {
+        var errors: Map[String, String] = Map[String, String]()
+        errors += (Http.Status.NOT_FOUND.toString() -> messages(MessageConstants.error.http.notFound))
+        errors
+      }
+      getPersonOperation.errors = Some(getGetPersonsErrors)
+      getPersonOperation
     }
-
-    val searchPersonsRequest = RequestContents()
-    searchPersonsRequest.body = Some(jsonPersonExemple)
-    searchPersonsRequest.parameters = Some(getSearchPersonsRequestParameters)
-    searchPersonsOperation.request = Some(searchPersonsRequest)
-
-    def getSearchPersonsHeadersParameters(implicit messages: Messages): Map[String, String] = {
-      var parameters: Map[String, String] = Map[String, String]()
-      parameters += (HttpConstants.headerFields.xTotalCount -> messages(MessageConstants.documentation.common.xTotalCountDescription))
-      parameters += (HttpConstants.headerFields.link -> messages(MessageConstants.documentation.common.linkDescription))
-      parameters
-    }
-    
-    val searchPersonsResponse = RequestContents()
-    searchPersonsResponse.body = Some(jsonPersonArrayExemple)
-    searchPersonsResponse.headers = Some(getSearchPersonsHeadersParameters)
-    searchPersonsOperation.response = Some(searchPersonsResponse)
-
-    availableOperations :+= searchPersonsOperation
-
-    def getGetPersonRequestParameters(implicit messages: Messages): Map[String, String] = {
-      var parameters: Map[String, String] = Map[String, String]()
-      parameters += (Person._ID -> messages(MessageConstants.documentation.person.getPersonIdParameterDescription))
-      parameters
-    }
+    availableOperations :+= getGetPersonOperation
 
     def getAddPersonsErrors: Map[String, String] = {
       var errors: Map[String, String] = Map[String, String]()
       //    errors += ("error1" -> "errorValue")
       errors
     }
-
-    val getPersonOperation = Operation()
-    //    (
-    //      Some(routes.PersonController.getPerson(_idExemple)),
-    //      Some(messages(MessageConstants.documentation.person.getPersonDescription)),
-    //      Some(getGetPersonParameters),
-    //      None,
-    //      None,
-    //      Some(messages(MessageConstants.documentation.person.getPersonReturn)))
-    availableOperations :+= getPersonOperation
 
     val addPersonOperation = Operation()
     //    (

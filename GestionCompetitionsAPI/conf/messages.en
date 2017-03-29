@@ -5,6 +5,8 @@ title.documentation=Possible operations on the ressource {0}
 #errors
 error.server=An error occured on the server: {0}
 error.client=A client error occurred: {0}
+error.http.notFound=Not found
+error.http.noContent=No Content
 
 #databases
 database.inserted=successfully inserted document with result: {0}
@@ -32,7 +34,6 @@ documentation.person.listPersonsDescription=Return the persons stored in databas
 documentation.person.searchPersonsDescription=Return the persons stored in database filtered by fields set in the body
 documentation.person.getPersonDescription=Return the person with the identifier set in parameters
 documentation.person.getPersonIdParameterDescription=the person identifier as stored in database
-documentation.person.getPersonReturn=Return the person in JsonObject
 documentation.person.addPersonDescription=Add a new person to the database
 documentation.person.editPersonDescription=Update the person with the identifier set in parameters
 documentation.person.deletePersonDescription=Delete the person with the identifier set in parameters
