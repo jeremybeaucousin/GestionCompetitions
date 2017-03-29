@@ -13,44 +13,37 @@ import scala.concurrent.ExecutionContext
 import java.util.ArrayList
 import org.apache.commons.lang3.StringUtils
 
+abstract trait User {
+  def _id: Option[String]
+  def firstName: Option[String]
+  def lastName: Option[String]
+  def birthDate: Option[Date]
+  def addresses: Option[List[Address]]
+}
+
 case class Person(
-  var _id: Option[String] = Some(StringUtils.EMPTY),
-  var firstName: Option[String] = Some(StringUtils.EMPTY),
-  var lastName: Option[String] = Some(StringUtils.EMPTY),
-  var birthDate: Option[Date] = Some(new Date),
-  var addresses: Option[List[Address]] = Some(List[Address](new Address, new Address))) {
-  
+    var _id: Option[String] = Some(StringUtils.EMPTY),
+    var firstName: Option[String] = Some(StringUtils.EMPTY),
+    var lastName: Option[String] = Some(StringUtils.EMPTY),
+    var birthDate: Option[Date] = Some(new Date),
+    var addresses: Option[List[Address]] = Some(List[Address](new Address, new Address))) extends User {
+
+  def toTaekwondoist(): Taekwondoist = {
+    Taekwondoist(
+      _id,
+      firstName,
+      lastName,
+      birthDate,
+      addresses)
+  }
+
   @Override
-  override def toString():String = {
+  override def toString(): String = {
     "id : " + _id + "; firstName : " + firstName + "; lastName : " + lastName + "; birthDate : " + birthDate + "; addresses: " + addresses + ";"
-//    s"id : $this._id; firstName : $this.firstName;"
-//    s"id : $this._id; firstName : $this.firstName; lastName : $this.lastName; birthDate : $this.birthDate; addresses: $this.addresses;"
   }
 }
 
 object Person {
-
-  //  var _id: Option[String]
-  //  var firstName: Option[String] = Some(StringUtils.EMPTY)
-  //  var lastName: Option[String] = Some(StringUtils.EMPTY)
-  //  var birthDate: Option[Date] = Some(new Date)
-  //  var addresses: Option[List[Address]] = Some(List[Address](new Address, new Address))
-
-  //  def apply = this
-  //  def apply(
-  //    _id: Option[String],
-  //    firstName: Option[String],
-  //    lastName: Option[String],
-  //    birthDate: Option[Date],
-  //    addresses: Option[List[Address]]): Person = {
-  //    this._id = _id
-  //    this.firstName = firstName
-  //    this.lastName = lastName
-  //    this.birthDate = birthDate
-  //    this.addresses = addresses
-  //    this
-  //  }
-
   implicit val jodaDateReads = Reads.jodaDateReads("yyyy-MM-dd'T'HH:mm:ss'Z'")
   implicit val jodaDateWrites = Writes.jodaDateWrites("yyyy-MM-dd'T'HH:mm:ss'Z'")
 

@@ -15,11 +15,14 @@ import scala.concurrent.{ ExecutionContext, Future }
 import v1.utils.MongoDbUtil
 import reactivemongo.bson.BSONWriter
 import reactivemongo.api.QueryOpts
+import reactivemongo.core.commands.Count
 
 trait PersonRepo {
   def find(sort: Option[Seq[String]], fields: Option[Seq[String]], offset: Option[Int], limit: Option[Int])(implicit ec: ExecutionContext): Future[List[Person]]
 
   def select(id: String)(implicit ec: ExecutionContext): Future[Option[Person]]
+  
+  def getTotalCount()(implicit ec: ExecutionContext): Future[Int]
 
   def update(id: String, person: Person)(implicit ec: ExecutionContext): Future[WriteResult]
 
@@ -37,9 +40,13 @@ class PersonRepoImpl @Inject() (val reactiveMongoApi: ReactiveMongoApi)(implicit
   override def find(sort: Option[Seq[String]], fields: Option[Seq[String]], offset: Option[Int], limit: Option[Int])(implicit ec: ExecutionContext): Future[List[Person]] = {
     val sortBson = MongoDbUtil.createSortBson(sort)
     val projectionBson = MongoDbUtil.createProjectionBson(fields)
-    val query = collection.map(_.find(Json.obj(), projectionBson))
-    val cursor = query.map(_.options(QueryOpts(skipN = offset.getOrElse(0))).sort(sortBson).cursor[Person]())
+    val query = collection.map(_.find(Json.obj()).projection(projectionBson))
+    val cursor = query.map(_.options(QueryOpts(skipN = MongoDbUtil.getSafeOffset(offset))).sort(sortBson).cursor[Person]())
     cursor.flatMap(_.collect[List](limit.getOrElse(0)))
+  }
+
+  def getTotalCount()(implicit ec: ExecutionContext):Future[Int] = {
+    collection.flatMap(_.count(Some(BSONDocument())))
   }
 
   override def select(id: String)(implicit ec: ExecutionContext): Future[Option[Person]] = {
