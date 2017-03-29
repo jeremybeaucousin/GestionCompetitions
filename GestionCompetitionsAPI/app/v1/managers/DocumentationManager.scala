@@ -35,10 +35,10 @@ class DocumentationManager @Inject() (implicit val ec: ExecutionContext) {
     listPersonsRequest.parameters = Some(getGetPersonsRequestParameters)
     listPersonsOperation.request = Some(listPersonsRequest)
 
-    val listPersonsHeanders = RequestContents()
-    listPersonsHeanders.body = Some(jsonPersonExemple)
-    listPersonsHeanders.parameters = Some(getGetPersonsHeadersParameters)
-    listPersonsOperation.response = Some(listPersonsHeanders)
+    val listPersonsHeaders = RequestContents()
+    listPersonsHeaders.body = Some(jsonPersonExemple)
+    listPersonsHeaders.headers = Some(getGetPersonsHeadersParameters)
+    listPersonsOperation.response = Some(listPersonsHeaders)
 
     //      ,
     //      Some(listPersonsParams),
