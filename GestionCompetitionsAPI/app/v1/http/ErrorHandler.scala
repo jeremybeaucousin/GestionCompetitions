@@ -61,6 +61,7 @@ class ErrorHandler @Inject() (val messagesApi: MessagesApi)(implicit ec: Executi
     val preferedContentType = getPrefferedContentType(requestHeader)
 
     
+    // TODO Optimise that
     if (preferedContentType.accepts(MimeTypes.JSON)) {
       val json = Json.obj("errors" -> errors)
       if (isBusinessError) {
