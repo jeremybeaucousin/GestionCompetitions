@@ -21,6 +21,8 @@ class DocumentationManager @Inject() (implicit val ec: ExecutionContext) {
   final val jsonPersonExemple = (Json.toJson(new Person))
   final val jsonPersonArrayExemple = (Json.toJson(List[Person](new Person, new Person)))
   final val _idExemple = MongoDbUtil.generateId().stringify
+  final val sortExemple = Seq[String]("+" + Person.FIRST_NAME, "-" + Person.LAST_NAME)
+  final val fieldsExemple = Seq[String](Person._ID, Person.FIRST_NAME, Person.LAST_NAME)
 
   def getPersonOperations(implicit messages: Messages): Seq[Operation] = {
     var availableOperations: Seq[Operation] = Seq[Operation]()
@@ -45,8 +47,8 @@ class DocumentationManager @Inject() (implicit val ec: ExecutionContext) {
       val listPersonsOperation = Operation()
       listPersonsOperation.call =
         Some(routes.PersonController.index(
-          Some(Seq[String]("+" + Person.FIRST_NAME, "-" + Person.LAST_NAME)),
-          Some(Seq[String](Person._ID, Person.FIRST_NAME, Person.LAST_NAME)),
+          Some(sortExemple),
+          Some(fieldsExemple),
           Some(0),
           Some(0)))
       listPersonsOperation.description = Some(messages(MessageConstants.documentation.person.listPersonsDescription))
@@ -137,12 +139,13 @@ class DocumentationManager @Inject() (implicit val ec: ExecutionContext) {
 
     def getGetPersonOperation = {
       val getPersonOperation = Operation()
-      getPersonOperation.call = Some(routes.PersonController.getPerson(_idExemple))
+      getPersonOperation.call = Some(routes.PersonController.getPerson(_idExemple, Some(fieldsExemple)))
       getPersonOperation.description = Some(messages(MessageConstants.documentation.person.getPersonDescription))
 
       def getGetPersonRequestParameters(implicit messages: Messages): Map[String, String] = {
         var parameters: Map[String, String] = Map[String, String]()
         parameters += (Person._ID -> messages(MessageConstants.documentation.person.getPersonIdParameterDescription))
+        parameters += getFieldsDescription
         parameters
       }
 

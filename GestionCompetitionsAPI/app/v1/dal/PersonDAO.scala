@@ -31,8 +31,8 @@ class PersonDAO @Inject() (val personRepo: PersonRepoImpl)(implicit ec: Executio
     personRepo.find(Some(person), sortOption, fieldsOption, offsetOption, limitOption)
   }
 
-  def getPerson(id: String)(implicit messages: Messages): Future[Option[Person]] = {
-    personRepo.select(id)
+  def getPerson(id: String, fieldsOption: Option[Seq[String]])(implicit messages: Messages): Future[Option[Person]] = {
+    personRepo.select(id, fieldsOption)
   }
 
   def addPerson(person: Person)(implicit messages: Messages): Future[String] = {

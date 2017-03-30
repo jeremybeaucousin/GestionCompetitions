@@ -25,8 +25,8 @@ class PersonManager @Inject() (val personDAO: PersonDAO)(implicit val ec: Execut
     personDAO.searchPersons(person, sortOption, fieldsOption, offsetOption, limitOption)
   }
 
-  def getPerson(id: String)(implicit messages: Messages): Future[Option[Person]] = {
-    personDAO.getPerson(id)
+  def getPerson(id: String, fieldsOption: Option[Seq[String]])(implicit messages: Messages): Future[Option[Person]] = {
+    personDAO.getPerson(id, fieldsOption)
   }
 
   def addPerson(person: Person)(implicit messages: Messages): Future[String] = {

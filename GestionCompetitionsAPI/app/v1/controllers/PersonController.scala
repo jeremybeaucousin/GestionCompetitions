@@ -61,8 +61,8 @@ class PersonController @Inject() (val documentationManager: DocumentationManager
   }
 
   // TODO Add fields filters to ressource
-  def getPerson(id: String) = Action.async { implicit request =>
-    val futurePerson = personManager.getPerson(id)
+  def getPerson(id: String, fieldsOption: Option[Seq[String]]) = Action.async { implicit request =>
+    val futurePerson = personManager.getPerson(id, fieldsOption)
     futurePerson.map { person =>
       if (person.isDefined) {
         Ok(Json.toJson(person))
@@ -77,7 +77,7 @@ class PersonController @Inject() (val documentationManager: DocumentationManager
     val futureId = personManager.addPerson(request.body.as[Person])
     futureId.map { id =>
       if (id != null && !id.isEmpty()) {
-        Created.withHeaders(HttpConstants.headerFields.location -> (routes.PersonController.getPerson(id).absoluteURL()))
+        Created.withHeaders(HttpConstants.headerFields.location -> (routes.PersonController.getPerson(id, None).absoluteURL()))
       } else {
         UnprocessableEntity
       }

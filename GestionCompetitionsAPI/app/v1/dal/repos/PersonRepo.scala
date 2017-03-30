@@ -25,7 +25,7 @@ trait PersonRepo {
   
   def find(personOption: Option[Person], sortOption: Option[Seq[String]], fieldsOption: Option[Seq[String]], offsetOption: Option[Int], limitOption: Option[Int])(implicit ec: ExecutionContext): Future[List[Person]]
 
-  def select(id: String)(implicit ec: ExecutionContext): Future[Option[Person]]
+  def select(id: String, fieldsOption: Option[Seq[String]])(implicit ec: ExecutionContext): Future[Option[Person]]
 
   def update(id: String, person: Person)(implicit ec: ExecutionContext): Future[WriteResult]
 
@@ -54,8 +54,9 @@ class PersonRepoImpl @Inject() (val reactiveMongoApi: ReactiveMongoApi)(implicit
     collection.flatMap(_.count(Some(personSearch)))
   }
 
-  override def select(id: String)(implicit ec: ExecutionContext): Future[Option[Person]] = {
-    collection.flatMap(_.find(constructId(id)).one[Person])
+  override def select(id: String, fieldsOption: Option[Seq[String]])(implicit ec: ExecutionContext): Future[Option[Person]] = {
+    val projectionBson = MongoDbUtil.createProjectionBson(fieldsOption)
+    collection.flatMap(_.find(constructId(id)).projection(projectionBson).one[Person])
   }
 
   override def update(id: String, person: Person)(implicit ec: ExecutionContext): Future[WriteResult] = {
