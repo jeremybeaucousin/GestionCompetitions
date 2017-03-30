@@ -34,7 +34,7 @@ class PersonManager @Inject() (val personDAO: PersonDAO)(implicit val ec: Execut
   }
 
   def addPerson(person: Person)(implicit messages: Messages): Future[String] = {
-    searchHomonymeByFirstAndLastNames(person)
+    searchHomonyme(person)
     personDAO.addPerson(person)
   }
 
@@ -46,14 +46,15 @@ class PersonManager @Inject() (val personDAO: PersonDAO)(implicit val ec: Execut
     personDAO.deletePerson(id)
   }
 
-  private def searchHomonymeByFirstAndLastNames(person: Person)(implicit messages: Messages) = {
-    val personSearch = new Person(None, person.firstName, person.lastName, person.birthDate, None)
+  private def searchHomonyme(person: Person)(implicit messages: Messages) = {
     def searchPersons(personRequest: Person): Boolean = {
       val futurePersonResult = personDAO.searchPersons(Some(personRequest), None, None, None, None, None)
       val personResult = Await.ready(futurePersonResult, Duration.Inf).value.get.get
-      !personResult.isEmpty 
+      !personResult.isEmpty
     }
-    if(searchPersons(personSearch)) {
+    
+    val personSearch = new Person(None, person.firstName, person.lastName, person.birthDate, None)
+    if (searchPersons(personSearch)) {
       throw new HomonymeNamesAndBirthDateException(messages)
     } else {
       personSearch.birthDate = None

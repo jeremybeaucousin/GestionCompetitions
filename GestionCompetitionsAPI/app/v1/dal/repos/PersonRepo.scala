@@ -47,7 +47,7 @@ class PersonRepoImpl @Inject() (val reactiveMongoApi: ReactiveMongoApi)(implicit
       fieldsOption: Option[Seq[String]], 
       offsetOption: Option[Int], 
       limitOption: Option[Int])(implicit ec: ExecutionContext): Future[List[Person]] = {
-    val personSearch:BSONDocument = if(personOption.isDefined) BSON.write(personOption.get) else BSONDocument() 
+    val personSearch:BSONDocument = if(personOption.isDefined) MongoDbUtil.constructBSONDocumentWithRootFields(BSON.write(personOption.get)) else BSONDocument() 
     val valuesSearch: BSONDocument = if(searchInValues.isDefined && searchInValues.get) MongoDbUtil.createSearchInValuesBson(personSearch) else personSearch
     val sortBson = MongoDbUtil.createSortBson(sortOption)
     val projectionBson = MongoDbUtil.createProjectionBson(fieldsOption)
@@ -68,7 +68,7 @@ class PersonRepoImpl @Inject() (val reactiveMongoApi: ReactiveMongoApi)(implicit
   }
 
   override def update(id: String, person: Person)(implicit ec: ExecutionContext): Future[WriteResult] = {
-    val rebuildDocument = MongoDbUtil.constructBSONDocumentForPartialUpdate(BSON.write(person))
+    val rebuildDocument = MongoDbUtil.constructBSONDocumentWithRootFields(BSON.write(person))
     collection.flatMap(_.update(constructId(id), BSONDocument("$set" -> rebuildDocument)))
   }
 

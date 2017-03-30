@@ -83,7 +83,7 @@ object MongoDbUtil {
     }
   }
 
-  def constructBSONDocumentForPartialUpdate(document: BSONDocument): BSONDocument = {
+  def constructBSONDocumentWithRootFields(document: BSONDocument): BSONDocument = {
     var newDocument = document.copy()
     // Browse fields of the document
     document.elements.foreach(element => {
@@ -123,7 +123,6 @@ object MongoDbUtil {
       //        newDocument = newDocument.add(newSubObject)
       //      }
     })
-    Logger.info(BSONDocument.pretty(newDocument))
     newDocument
   }
 }
