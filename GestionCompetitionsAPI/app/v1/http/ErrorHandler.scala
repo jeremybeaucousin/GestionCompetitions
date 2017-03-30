@@ -21,6 +21,7 @@ import play.api.http.MediaRange
 import errors.BusinessException
 import play.api.http.Writeable
 
+// TODO Rethink message  importation
 @Singleton
 class ErrorHandler @Inject() (val messagesApi: MessagesApi)(implicit ec: ExecutionContext)
     extends HttpErrorHandler with I18nSupport {
