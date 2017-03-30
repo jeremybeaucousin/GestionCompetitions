@@ -15,10 +15,21 @@ import v1.utils.MongoDbUtil
 import v1.constantes.HttpConstants
 import org.apache.http.HttpStatus
 import play.mvc.Http
+import org.apache.commons.lang3.StringUtils
+import java.util.Date
 
 @Singleton
 class DocumentationManager @Inject() (implicit val ec: ExecutionContext) {
-  final val jsonPersonExemple = (Json.toJson(new Person))
+  final val jsonPersonCompleteExemple = (Json.toJson(new Person))
+  final val jsonPersonWithRootFieldsExemple = (Json.toJson(
+      new Person(
+          Some(StringUtils.EMPTY),
+          Some(StringUtils.EMPTY),
+          Some(StringUtils.EMPTY),
+          Some(new Date),
+          None
+          ))
+      )
   final val jsonPersonArrayExemple = (Json.toJson(List[Person](new Person, new Person)))
   final val _idExemple = MongoDbUtil.generateId().stringify
   final val sortExemple = Seq[String]("+" + Person.FIRST_NAME, "-" + Person.LAST_NAME)
@@ -110,7 +121,7 @@ class DocumentationManager @Inject() (implicit val ec: ExecutionContext) {
       }
 
       val searchPersonsRequest = RequestContents()
-      searchPersonsRequest.body = Some(jsonPersonExemple)
+      searchPersonsRequest.body = Some(jsonPersonCompleteExemple)
       searchPersonsRequest.parameters = Some(getSearchPersonsRequestParameters)
       searchPersonsOperation.request = Some(searchPersonsRequest)
 
@@ -154,7 +165,7 @@ class DocumentationManager @Inject() (implicit val ec: ExecutionContext) {
       getPersonOperation.request = Some(getPersonRequest)
 
       val getPersonsResponse = RequestContents()
-      getPersonsResponse.body = Some(jsonPersonExemple)
+      getPersonsResponse.body = Some(jsonPersonCompleteExemple)
       getPersonOperation.response = Some(getPersonsResponse)
 
       def getGetPersonsCodes: Map[String, String] = {
@@ -175,7 +186,7 @@ class DocumentationManager @Inject() (implicit val ec: ExecutionContext) {
       addPersonOperation.description = Some(messages(MessageConstants.documentation.person.addPersonDescription))
 
       val getPersonRequest = RequestContents()
-      getPersonRequest.body = Some(jsonPersonExemple)
+      getPersonRequest.body = Some(jsonPersonCompleteExemple)
       addPersonOperation.request = Some(getPersonRequest)
 
       def getAddPersonsResponseParameters: Map[String, String] = {
@@ -211,7 +222,7 @@ class DocumentationManager @Inject() (implicit val ec: ExecutionContext) {
       }
 
       val editPersonRequest = RequestContents()
-      editPersonRequest.body = Some(jsonPersonExemple)
+      editPersonRequest.body = Some(jsonPersonWithRootFieldsExemple)
       editPersonRequest.parameters = Some(getEditPersonRequestParameters)
       editPersonOperation.request = Some(editPersonRequest)
 
