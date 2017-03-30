@@ -18,6 +18,8 @@ import scala.util.parsing.json.JSONArray
 import play.api.i18n.Lang
 import v1.constantes.MessageConstants
 import play.api.http.MediaRange
+import errors.BusinessException
+import play.api.http.Writeable
 
 @Singleton
 class ErrorHandler @Inject() (val messagesApi: MessagesApi)(implicit ec: ExecutionContext)
@@ -35,34 +37,48 @@ class ErrorHandler @Inject() (val messagesApi: MessagesApi)(implicit ec: Executi
     errors = error :: errors
     val preferedContentType = getPrefferedContentType(requestHeader)
     if (preferedContentType.accepts(MimeTypes.JSON)) {
-      Future.successful(Status(statusCode)(Json.obj("errors" -> errors)))
+      Future(Status(statusCode)(Json.obj("errors" -> errors)))
     } else {
-      Future.successful(Status(statusCode)(v1.views.html.error(errors, messages)))
+      Future(Status(statusCode)(v1.views.html.error(errors, messages)))
     }
   }
 
   def onServerError(requestHeader: RequestHeader, exception: Throwable) = {
     val messages = messagesApi.preferred(requestHeader)
     val userMessage = messages(MessageConstants.error.server, requestHeader.path)
+    val isBusinessError = exception.isInstanceOf[BusinessException]
+    val code = if(isBusinessError) HttpStatus.SC_BAD_REQUEST else HttpStatus.SC_INTERNAL_SERVER_ERROR 
     var errors: List[Error] = List[Error]()
     val sw = new StringWriter
     exception.printStackTrace(new PrintWriter(sw))
     Logger.error(sw.toString)
     val error: Error = new Error(
-      Some(HttpStatus.SC_INTERNAL_SERVER_ERROR),
+      Some(code),
       Some(userMessage),
       Some(exception.getMessage),
       Some(sw.toString))
     errors = error :: errors
     val preferedContentType = getPrefferedContentType(requestHeader)
+
+    
     if (preferedContentType.accepts(MimeTypes.JSON)) {
-      Future.successful(InternalServerError(Json.obj("errors" -> errors)))
+      val json = Json.obj("errors" -> errors)
+      if (isBusinessError) {
+        Future(BadRequest(json))
+      } else {
+        Future(BadRequest(json))
+      }
     } else {
-      Future.successful(InternalServerError(v1.views.html.error(errors, messages)))
+      val page = v1.views.html.error(errors, messages)
+      if (isBusinessError) {
+        Future(InternalServerError(page))
+      } else {
+        Future(InternalServerError(page))
+      }
     }
   }
 
-  private def getPrefferedContentType(requestHeader: RequestHeader):MediaRange = {
+  private def getPrefferedContentType(requestHeader: RequestHeader): MediaRange = {
     val acceptedTypes = requestHeader.acceptedTypes
     if (!acceptedTypes.isEmpty) {
       acceptedTypes(0)

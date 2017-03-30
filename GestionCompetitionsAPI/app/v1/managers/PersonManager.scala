@@ -9,6 +9,14 @@ import reactivemongo.api.commands.WriteResult
 import scala.concurrent.Future
 import scala.concurrent.{ ExecutionContext, Future }
 import play.api.i18n.Messages
+import scala.concurrent.Await
+import scala.concurrent.duration.Duration
+import v1.constantes.MessageConstants
+import sun.net.httpserver.HttpError
+import play.api.mvc.Result
+import play.api.mvc.Results
+import errors.HomonymeNamesException
+import errors.HomonymeNamesAndBirthDateException
 
 @Singleton
 class PersonManager @Inject() (val personDAO: PersonDAO)(implicit val ec: ExecutionContext) {
@@ -26,6 +34,7 @@ class PersonManager @Inject() (val personDAO: PersonDAO)(implicit val ec: Execut
   }
 
   def addPerson(person: Person)(implicit messages: Messages): Future[String] = {
+    searchHomonymeByFirstAndLastNames(person)
     personDAO.addPerson(person)
   }
 
@@ -35,5 +44,22 @@ class PersonManager @Inject() (val personDAO: PersonDAO)(implicit val ec: Execut
 
   def deletePerson(id: String)(implicit messages: Messages): Future[Boolean] = {
     personDAO.deletePerson(id)
+  }
+
+  private def searchHomonymeByFirstAndLastNames(person: Person)(implicit messages: Messages) = {
+    val personSearch = new Person(None, person.firstName, person.lastName, person.birthDate, None)
+    def searchPersons(personRequest: Person): Boolean = {
+      val futurePersonResult = personDAO.searchPersons(Some(personRequest), None, None, None, None, None)
+      val personResult = Await.ready(futurePersonResult, Duration.Inf).value.get.get
+      !personResult.isEmpty 
+    }
+    if(searchPersons(personSearch)) {
+      throw new HomonymeNamesAndBirthDateException(messages)
+    } else {
+      personSearch.birthDate = None
+      if (searchPersons(personSearch)) {
+        throw HomonymeNamesException(messages)
+      }
+    }
   }
 }

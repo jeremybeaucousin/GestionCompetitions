@@ -5,6 +5,8 @@ title.documentation=Possible operations on the ressource {0}
 #errors
 error.server=An error occured on the server: {0}
 error.client=A client error occurred: {0}
+error.sameNamesHomonyme=An homonyme has been found
+error.sameNamesAndbirthDateHomonyme=An homonyme with the same birth date has been found  
 
 #http
 http.ok=Eyerything is working

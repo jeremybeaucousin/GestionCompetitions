@@ -14,9 +14,13 @@ final object MessageConstants {
     private final val PREFIX = "error."
     private final val SERVER = "server"
     private final val CLIENT = "client"
+    private final val SAME_NAMES_HOMONYME: String = "sameNamesHomonyme"
+    private final val SAME_NAMES_AND_BIRTH_HOMONYME: String = "sameNamesandbirthDateFound"
 
     def server: String = PREFIX + SERVER
     def client: String = PREFIX + CLIENT
+    def sameNamesHomonyme: String = PREFIX + SAME_NAMES_HOMONYME
+    def sameNamesAndbirthDateHomonyme: String = PREFIX + SAME_NAMES_HOMONYME
 
   }
 
@@ -75,7 +79,7 @@ final object MessageConstants {
       private final val X_TOTAL_COUNT_DESCRIPTION = "xTotalCountDescription"
       private final val LINK_DESCRIPTION = "linkDescription"
       private final val LOCATION_DESCRIPTION = "locationDescription"
-      
+
       def sortDescription: String = PREFIX + SORT_DESCRIPTION
       def fieldsDescription: String = PREFIX + FIELDS_DESCRIPTION
       def offsetDescription: String = PREFIX + OFFSET_DESCRIPTION
@@ -83,7 +87,7 @@ final object MessageConstants {
       def xTotalCountDescription: String = PREFIX + X_TOTAL_COUNT_DESCRIPTION
       def linkDescription: String = PREFIX + LINK_DESCRIPTION
       def locationDescription: String = PREFIX + LOCATION_DESCRIPTION
-      
+
     }
 
     final object Person {

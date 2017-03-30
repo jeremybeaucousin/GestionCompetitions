@@ -23,7 +23,13 @@ class PersonDAO @Inject() (val personRepo: PersonRepoImpl)(implicit ec: Executio
     personRepo.getTotalCount(personOption, searchInValues)
   }
 
-  def searchPersons(personOption: Option[Person], searchInValues: Option[Boolean], sortOption: Option[Seq[String]], fieldsOption: Option[Seq[String]], offsetOption: Option[Int], limitOption: Option[Int])(implicit messages: Messages): Future[List[Person]] = {
+  def searchPersons(
+      personOption: Option[Person],
+      searchInValues: Option[Boolean],
+      sortOption: Option[Seq[String]],
+      fieldsOption: Option[Seq[String]],
+      offsetOption: Option[Int],
+      limitOption: Option[Int]): Future[List[Person]] = {
     personRepo.find(personOption, searchInValues: Option[Boolean], sortOption, fieldsOption, offsetOption, limitOption)
   }
 
