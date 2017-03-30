@@ -68,7 +68,6 @@ class PersonRepoImpl @Inject() (val reactiveMongoApi: ReactiveMongoApi)(implicit
   }
 
   override def update(id: String, person: Person)(implicit ec: ExecutionContext): Future[WriteResult] = {
-    person._id = Some(id)
     val rebuildDocument = MongoDbUtil.constructBSONDocumentForPartialUpdate(BSON.write(person))
     collection.flatMap(_.update(constructId(id), BSONDocument("$set" -> rebuildDocument)))
   }
