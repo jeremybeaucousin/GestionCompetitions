@@ -19,16 +19,12 @@ import scala.concurrent.duration.Duration
 @Singleton
 class PersonDAO @Inject() (val personRepo: PersonRepoImpl)(implicit ec: ExecutionContext) {
 
-  def getTotalCount(personOption: Option[Person]): Future[Int] = {
-    personRepo.getTotalCount(personOption)
+  def getTotalCount(personOption: Option[Person], searchInValues: Option[Boolean]): Future[Int] = {
+    personRepo.getTotalCount(personOption, searchInValues)
   }
 
-  def listPersons(sort: Option[Seq[String]], fields: Option[Seq[String]], offset: Option[Int], limit: Option[Int])(implicit messages: Messages): Future[List[Person]] = {
-    personRepo.find(None, sort, fields, offset, limit)
-  }
-
-  def searchPersons(person: Person, sortOption: Option[Seq[String]], fieldsOption: Option[Seq[String]], offsetOption: Option[Int], limitOption: Option[Int])(implicit messages: Messages): Future[List[Person]] = {
-    personRepo.find(Some(person), sortOption, fieldsOption, offsetOption, limitOption)
+  def searchPersons(personOption: Option[Person], searchInValues: Option[Boolean], sortOption: Option[Seq[String]], fieldsOption: Option[Seq[String]], offsetOption: Option[Int], limitOption: Option[Int])(implicit messages: Messages): Future[List[Person]] = {
+    personRepo.find(personOption, searchInValues: Option[Boolean], sortOption, fieldsOption, offsetOption, limitOption)
   }
 
   def getPerson(id: String, fieldsOption: Option[Seq[String]])(implicit messages: Messages): Future[Option[Person]] = {

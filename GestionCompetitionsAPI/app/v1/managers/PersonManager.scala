@@ -13,16 +13,12 @@ import play.api.i18n.Messages
 @Singleton
 class PersonManager @Inject() (val personDAO: PersonDAO)(implicit val ec: ExecutionContext) {
 
-  def getTotalCount(personOption: Option[Person]): Future[Int] = {
-    personDAO.getTotalCount(personOption)
+  def getTotalCount(personOption: Option[Person], searchInValues: Option[Boolean]): Future[Int] = {
+    personDAO.getTotalCount(personOption, searchInValues)
   }
 
-  def listPersons(sortOption: Option[Seq[String]], fieldsOption: Option[Seq[String]], offsetOption: Option[Int], limitOption: Option[Int])(implicit messages: Messages): Future[List[Person]] = {
-    personDAO.listPersons(sortOption, fieldsOption, offsetOption, limitOption)
-  }
-
-  def searchPersons(person: Person, sortOption: Option[Seq[String]], fieldsOption: Option[Seq[String]], offsetOption: Option[Int], limitOption: Option[Int])(implicit messages: Messages): Future[List[Person]] = {
-    personDAO.searchPersons(person, sortOption, fieldsOption, offsetOption, limitOption)
+  def searchPersons(personOption: Option[Person], searchInValues: Option[Boolean], sortOption: Option[Seq[String]], fieldsOption: Option[Seq[String]], offsetOption: Option[Int], limitOption: Option[Int])(implicit messages: Messages): Future[List[Person]] = {
+    personDAO.searchPersons(personOption, searchInValues, sortOption, fieldsOption, offsetOption, limitOption)
   }
 
   def getPerson(id: String, fieldsOption: Option[Seq[String]])(implicit messages: Messages): Future[Option[Person]] = {

@@ -34,8 +34,8 @@ class PersonController @Inject() (val documentationManager: DocumentationManager
   }
 
   def listPersons(sortOption: Option[Seq[String]], fieldsOption: Option[Seq[String]], offsetOption: Option[Int], limitOption: Option[Int]) = Action.async { implicit request =>
-    val futurePersons = personManager.listPersons(sortOption, fieldsOption, offsetOption, limitOption)
-    val totalCount = personManager.getTotalCount(None)
+    val futurePersons = personManager.searchPersons(None, None, sortOption, fieldsOption, offsetOption, limitOption)
+    val totalCount = personManager.getTotalCount(None, None)
     futurePersons.map { persons =>
       if (persons.isEmpty) {
         NoContent
@@ -48,8 +48,8 @@ class PersonController @Inject() (val documentationManager: DocumentationManager
 
   def searchPersons(sortOption: Option[Seq[String]], fieldsOption: Option[Seq[String]], offsetOption: Option[Int], limitOption: Option[Int]) = Action.async(BodyParsers.parse.json) { implicit request =>
     val person = request.body.as[Person]
-    val futurePersons = personManager.searchPersons(person, sortOption, fieldsOption, offsetOption, limitOption)
-    val totalCount = personManager.getTotalCount(Some(person))
+    val futurePersons = personManager.searchPersons(Some(person), Some(true), sortOption, fieldsOption, offsetOption, limitOption)
+    val totalCount = personManager.getTotalCount(Some(person), Some(true))
     futurePersons.map { persons =>
       if (persons.isEmpty) {
         NoContent

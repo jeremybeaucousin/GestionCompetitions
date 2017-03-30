@@ -9,6 +9,8 @@ import reactivemongo.api.collections.bson.BSONCollection
 import reactivemongo.bson.{ BSON, BSONDocument, BSONObjectID }
 import reactivemongo.bson.BSONArray
 import reactivemongo.bson.BSONString
+import reactivemongo.bson.BSONRegex
+import reactivemongo.bson.BSONValue
 
 object MongoDbUtil {
   final val _ID = "_id"
@@ -17,6 +19,22 @@ object MongoDbUtil {
     BSONObjectID.generate
   }
 
+  def createSearchInValuesBson(searchValues: BSONDocument): BSONDocument =  {
+     var searchInValues = BSONDocument()
+    // Browse fields of the document
+    searchValues.elements.foreach(element => {
+      val fieldName = element._1
+      val fieldValue = element._2
+      // if the value of the current field is an object we begin rebuild
+      if (!fieldValue.isInstanceOf[BSONDocument] || !fieldValue.isInstanceOf[BSONArray]) {
+        // Handle and date
+        searchInValues ++= (fieldName -> BSONDocument("$regex" -> BSONRegex(fieldValue.asInstanceOf[BSONString].value, ""))) 
+      }
+    })
+    Logger.info(BSONDocument.pretty(searchInValues))
+    searchInValues
+  }
+  
   def createSortBson(fields: Option[Seq[String]]): BSONDocument = {
     var sortingBson = BSONDocument()
     val regex = """(\-|\+)([\w]+)""".r
