@@ -1,3 +1,2 @@
-D:
 cd GestionCompetitionsAPI
 activator

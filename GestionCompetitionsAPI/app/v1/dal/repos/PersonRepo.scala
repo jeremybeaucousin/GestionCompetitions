@@ -73,6 +73,7 @@ class PersonRepoImpl[T] @Inject() (val reactiveMongoApi: ReactiveMongoApi)(impli
   override def select(id: String, fieldsOption: Option[Seq[String]])(
     implicit bSONDocumentReader: BSONDocumentReader[T],
     bSONDocumentWriter: BSONDocumentWriter[T]): Future[Option[T]] = {
+    Logger.info(ec.toString())
     val projectionBson = MongoDbUtil.createProjectionBson(fieldsOption)
     collection.flatMap(_.find(constructId(id)).projection(projectionBson).one[T])
   }

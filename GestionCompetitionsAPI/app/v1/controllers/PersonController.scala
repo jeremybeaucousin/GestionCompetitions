@@ -16,7 +16,7 @@ import v1.bo.Person
 import v1.constantes.HttpConstants
 import v1.constantes.MessageConstants
 import v1.managers.DocumentationManager
-import v1.managers.PersonManager
+import v1.services.PersonManager
 import v1.utils.RequestUtil
 import play.Logger
 import reactivemongo.bson.BSONDocumentReader

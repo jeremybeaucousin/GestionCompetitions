@@ -1,24 +1,15 @@
-package v1.managers
+package v1.services
 
 import v1.bo.Person
 import v1.dal.PersonDAO
-import javax.inject.{ Inject, Singleton }
-import play.api.inject.ApplicationLifecycle
-import play.api.Logger
-import reactivemongo.api.commands.WriteResult
+import javax.inject.Inject
 import scala.concurrent.Future
 import scala.concurrent.{ ExecutionContext, Future }
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
-import v1.constantes.MessageConstants
-import sun.net.httpserver.HttpError
-import play.api.mvc.Result
-import play.api.mvc.Results
 import errors.HomonymeNamesException
 import errors.HomonymeNamesAndBirthDateException
-import play.api.i18n.MessagesApi
 import play.api.i18n.Messages
-import v1.bo.User
 import reactivemongo.bson.BSONDocumentReader
 import reactivemongo.bson.BSONDocumentWriter
 

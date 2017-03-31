@@ -6,7 +6,7 @@ import v1.services.Counter
 import v1.services.ApplicationTimer
 import v1.services.AtomicCounter
 import v1.dal.PersonDAO
-import v1.managers.PersonManager
+import v1.services.PersonManager
 import v1.managers.DocumentationManager
 import reactivemongo.bson.BSONDocumentReader
 import reactivemongo.bson.BSONDocumentWriter
