@@ -1,0 +1,17 @@
+﻿Roles :
+	- db.createRole({role: "Admin",privileges: [{resource:{db: "GestionCompetitions" , collection: ""}, actions: [ "collMod", "collStats", "compact", "convertToCapped", "createCollection", "createIndex", "dbHash", "dbStats", "dropCollection", "dropDatabase", "dropIndex", "emptycapped", "enableProfiler", "indexStats", "find", "insert", "killCursors", "listIndexes", "listCollections", "remove", "reIndex", "renameCollectionSameDB", "repairDatabase", "storageDetails", "update", "validate" ] }],roles: []})
+	- db.createRole({role: "ApplicationUser",privileges: [{resource:{db: "GestionCompetitions" , collection: ""}, actions: [ "collStats", "convertToCapped", "createCollection", "dbHash", "dbStats", "dropCollection", "createIndex", "dropIndex", "emptycapped", "find", "insert", "killCursors", "listIndexes", "listCollections", "remove", "renameCollectionSameDB", "update" ] }],roles: []})
+User :
+	- admin : 	
+		db.createUser({user: "admin",pwd: "admin_tkdhkd", roles: [ "userAdminAnyDatabase", "dbAdminAnyDatabase", "readWriteAnyDatabase"] })
+
+	- ApplicationUser : 
+		db.createUser({user: "sportsEventsManagerApi", pwd: "tkdhkd",  roles : [ { "role" : "readWrite", "db" : "sportsEventsManager"} ]});  
+	
+Méthode :
+	- db.getUsers()
+	- db.getRoles({ showPrivileges:true})
+	- enlever Rôles : db.revokeRolesFromUser("ApplicationUserGestionCompetitions", ["Admin"])
+	- ajouter Rôles : db.grantRolesToUser("ApplicationUserGestionCompetitions", ["ApplicationUser"])
+					db.grantRolesToUser("admin", ["userAdminAnyDatabase"])
+	- Drop Role : db.runCommand({dropRole: "readPrices",writeConcern: { w: "majority" }})

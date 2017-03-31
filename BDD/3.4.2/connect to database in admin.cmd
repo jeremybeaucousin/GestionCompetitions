@@ -1,0 +1,1 @@
+mongo localhost:27017/admin -u admin -p admin_tkdhkd --authenticationDatabase admin
