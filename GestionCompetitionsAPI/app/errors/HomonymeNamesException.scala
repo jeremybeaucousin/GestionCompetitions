@@ -1,10 +1,9 @@
 package errors
 
 import v1.constantes.MessageConstants
-import play.api.i18n.MessagesApi
+import play.api.i18n.Messages
 
-// TODO rethink that message importation
-case class HomonymeNamesException (implicit messages: MessagesApi)
+case class HomonymeNamesException (implicit val messages: Messages)
   extends BusinessException {
     override def getMessage = messages(MessageConstants.error.sameNamesHomonyme)
 }

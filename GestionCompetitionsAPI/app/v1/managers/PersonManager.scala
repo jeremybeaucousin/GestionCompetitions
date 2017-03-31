@@ -17,6 +17,7 @@ import play.api.mvc.Results
 import errors.HomonymeNamesException
 import errors.HomonymeNamesAndBirthDateException
 import play.api.i18n.MessagesApi
+import play.api.i18n.Messages
 
 @Singleton
 class PersonManager @Inject() (val personDAO: PersonDAO)(implicit val ec: ExecutionContext,  messages: MessagesApi) {
@@ -33,7 +34,7 @@ class PersonManager @Inject() (val personDAO: PersonDAO)(implicit val ec: Execut
     personDAO.getPerson(id, fieldsOption)
   }
 
-  def addPerson(person: Person): Future[String] = {
+  def addPerson(person: Person)(implicit messages: Messages): Future[String] = {
     searchHomonyme(person)
     personDAO.addPerson(person)
   }
@@ -46,7 +47,7 @@ class PersonManager @Inject() (val personDAO: PersonDAO)(implicit val ec: Execut
     personDAO.deletePerson(id)
   }
 
-  private def searchHomonyme(person: Person) = {
+  private def searchHomonyme(person: Person)(implicit messages: Messages) = {
     def searchPersons(personRequest: Person): Boolean = {
       val futurePersonResult = personDAO.searchPersons(Some(personRequest), None, None, None, None, None)
       val personResult = Await.ready(futurePersonResult, Duration.Inf).value.get.get

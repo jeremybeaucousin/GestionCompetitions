@@ -1,33 +1,54 @@
 package v1.http
 
-import akka.util.Switch
-import java.io.{ StringWriter, PrintWriter }
-import javax.inject.Inject
-import javax.inject.Singleton;
+import java.io.PrintWriter
+import java.io.StringWriter
+
+import scala.concurrent.Future
+
 import org.apache.http.HttpStatus
-import play.api.http.HttpErrorHandler
-import play.api.http.MimeTypes
-import play.api.i18n.I18nSupport
-import play.api.i18n.MessagesApi
-import play.api.libs.json.Json
+
+import errors.BusinessException
+import javax.inject.Inject
+import javax.inject.Singleton
 import play.api.Logger
+import play.api.http.MediaRange
+import play.api.http.MimeTypes
+import play.api.i18n.I18nComponents
+import play.api.i18n.Messages
+import play.api.libs.json.Json
+import play.api.mvc.RequestHeader
+import play.api.mvc.Results.BadRequest
+import play.api.mvc.Results.InternalServerError
+import play.api.mvc.Results.Status
+import v1.constantes.MessageConstants
+import scala.concurrent.ExecutionContext
+import play.api.http.DefaultHttpErrorHandler
+import play.api._
 import play.api.mvc._
 import play.api.mvc.Results._
+import play.api.routing.Router
 import scala.concurrent._
-import scala.util.parsing.json.JSONArray
-import play.api.i18n.Lang
-import v1.constantes.MessageConstants
-import play.api.http.MediaRange
-import errors.BusinessException
+import javax.inject.Provider
+import play.api.i18n.MessagesApi
 import play.api.http.Writeable
+import com.fasterxml.jackson.annotation.JsonValue
 
-// TODO Rethink message  importation
 @Singleton
-class ErrorHandler @Inject() (implicit ec: ExecutionContext, val messagesApi: MessagesApi)
-    extends HttpErrorHandler with I18nSupport  {
+class ErrorHandler @Inject() (
+  env: Environment,
+  config: Configuration,
+  sourceMapper: OptionalSourceMapper,
+  router: Provider[Router],
+  implicit val messagesApi: MessagesApi)
+    extends DefaultHttpErrorHandler(env, config, sourceMapper, router) {
 
-  def onClientError(requestHeader: RequestHeader, statusCode: Int, message: String) = {
-    val messages = messagesApi.preferred(requestHeader)
+  implicit private var messages: Messages = null
+
+  def messages_(requestHeader: RequestHeader): Unit = {
+    messages = messagesApi.preferred(requestHeader)
+  }
+  override def onClientError(requestHeader: RequestHeader, statusCode: Int, message: String) = {
+    messages_(requestHeader)
     val userMessage = messages(MessageConstants.error.client, requestHeader.path)
     var errors: List[Error] = List[Error]()
     val error: Error = new Error(
@@ -38,45 +59,44 @@ class ErrorHandler @Inject() (implicit ec: ExecutionContext, val messagesApi: Me
     errors = error :: errors
     val preferedContentType = getPrefferedContentType(requestHeader)
     if (preferedContentType.accepts(MimeTypes.JSON)) {
-      Future(Status(statusCode)(Json.obj("errors" -> errors)))
+      Future.successful(Status(statusCode)(Json.obj("errors" -> errors)))
     } else {
-      Future(Status(statusCode)(v1.views.html.error(errors)))
+      Future.successful(Status(statusCode)(v1.views.html.error(errors)))
     }
   }
 
-  def onServerError(requestHeader: RequestHeader, exception: Throwable) = {
-    val messages = messagesApi.preferred(requestHeader)
+  override def onServerError(requestHeader: RequestHeader, exception: Throwable) = {
+    messages_(requestHeader)
     val userMessage = messages(MessageConstants.error.server, requestHeader.path)
-    val isBusinessError = exception.isInstanceOf[BusinessException]
-    val code = if(isBusinessError) HttpStatus.SC_BAD_REQUEST else HttpStatus.SC_INTERNAL_SERVER_ERROR 
     var errors: List[Error] = List[Error]()
+    
     val sw = new StringWriter
     exception.printStackTrace(new PrintWriter(sw))
     Logger.error(sw.toString)
-    val error: Error = new Error(
-      Some(code),
-      Some(userMessage),
-      Some(exception.getMessage),
-      Some(sw.toString))
+    
+    val error: Error = Error()
+    error.userMessage = Some(userMessage)
+    error.internalMessage = Some(exception.getMessage)
+    error.moreInfo = Some(sw.toString)
+    
     errors = error :: errors
+    
     val preferedContentType = getPrefferedContentType(requestHeader)
 
-    
-    // TODO Optimise that
+    def result[T](contents: T)(implicit writeable: Writeable[T]) = {
+      if (exception.isInstanceOf[BusinessException]) {
+        error.code = Some(HttpStatus.SC_BAD_REQUEST)
+        Future.successful(BadRequest(contents))
+      } else {
+        error.code = Some(HttpStatus.SC_INTERNAL_SERVER_ERROR)
+        Future.successful(InternalServerError(contents))
+      }
+    }
+
     if (preferedContentType.accepts(MimeTypes.JSON)) {
-      val json = Json.obj("errors" -> errors)
-      if (isBusinessError) {
-        Future(BadRequest(json))
-      } else {
-        Future(BadRequest(json))
-      }
+      result(Json.obj("errors" -> errors))
     } else {
-      val page = v1.views.html.error(errors)
-      if (isBusinessError) {
-        Future(InternalServerError(page))
-      } else {
-        Future(InternalServerError(page))
-      }
+      result(v1.views.html.error(errors))
     }
   }
 

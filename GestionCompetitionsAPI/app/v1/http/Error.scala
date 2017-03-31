@@ -17,6 +17,8 @@ object Error {
   final val INTERNAL_MESSAGE: String = "internalMessage"
   final val MORE_INFO: String = "moreInfo"
 
+  def apply() = new Error(None, None, None, None)
+  
   implicit object ErrorWrites extends Writes[Error] {
     def writes(error: Error): JsObject = {
       var json = Json.obj()
