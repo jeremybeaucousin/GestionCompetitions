@@ -23,8 +23,8 @@ import play.api.http.Writeable
 
 // TODO Rethink message  importation
 @Singleton
-class ErrorHandler @Inject() (val messagesApi: MessagesApi)(implicit ec: ExecutionContext)
-    extends HttpErrorHandler with I18nSupport {
+class ErrorHandler @Inject() (implicit ec: ExecutionContext, val messagesApi: MessagesApi)
+    extends HttpErrorHandler with I18nSupport  {
 
   def onClientError(requestHeader: RequestHeader, statusCode: Int, message: String) = {
     val messages = messagesApi.preferred(requestHeader)
@@ -40,7 +40,7 @@ class ErrorHandler @Inject() (val messagesApi: MessagesApi)(implicit ec: Executi
     if (preferedContentType.accepts(MimeTypes.JSON)) {
       Future(Status(statusCode)(Json.obj("errors" -> errors)))
     } else {
-      Future(Status(statusCode)(v1.views.html.error(errors, messages)))
+      Future(Status(statusCode)(v1.views.html.error(errors)))
     }
   }
 
@@ -71,7 +71,7 @@ class ErrorHandler @Inject() (val messagesApi: MessagesApi)(implicit ec: Executi
         Future(BadRequest(json))
       }
     } else {
-      val page = v1.views.html.error(errors, messages)
+      val page = v1.views.html.error(errors)
       if (isBusinessError) {
         Future(InternalServerError(page))
       } else {

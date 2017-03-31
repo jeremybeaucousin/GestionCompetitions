@@ -19,7 +19,9 @@ import org.apache.commons.lang3.StringUtils
 import java.util.Date
 
 @Singleton
-class DocumentationManager @Inject() (implicit val ec: ExecutionContext) {
+class DocumentationManager @Inject() (
+    implicit val ec: ExecutionContext) {
+  
   final val jsonPersonCompleteExemple = (Json.toJson(new Person))
   final val jsonPersonWithRootFieldsExemple = (Json.toJson(
       new Person(
@@ -38,19 +40,19 @@ class DocumentationManager @Inject() (implicit val ec: ExecutionContext) {
   def getPersonOperations(implicit messages: Messages): Seq[Operation] = {
     var availableOperations: Seq[Operation] = Seq[Operation]()
 
-    def getSortDescription(implicit messages: Messages): (String, String) = {
+    def getSortDescription: (String, String) = {
       (HttpConstants.queryFields.sort -> messages(MessageConstants.documentation.common.sortDescription))
     }
 
-    def getFieldsDescription(implicit messages: Messages): (String, String) = {
+    def getFieldsDescription: (String, String) = {
       (HttpConstants.queryFields.fields -> messages(MessageConstants.documentation.common.fieldsDescription))
     }
 
-    def getOffsetDescription(implicit messages: Messages): (String, String) = {
+    def getOffsetDescription: (String, String) = {
       (HttpConstants.queryFields.offset -> messages(MessageConstants.documentation.common.offsetDescription))
     }
 
-    def getLimitDescription(implicit messages: Messages): (String, String) = {
+    def getLimitDescription: (String, String) = {
       (HttpConstants.queryFields.limit -> messages(MessageConstants.documentation.common.limitDescription))
     }
 
@@ -111,7 +113,7 @@ class DocumentationManager @Inject() (implicit val ec: ExecutionContext) {
           Some(0)))
       searchPersonsOperation.description = Some(messages(MessageConstants.documentation.person.searchPersonsDescription))
 
-      def getSearchPersonsRequestParameters(implicit messages: Messages): Map[String, String] = {
+      def getSearchPersonsRequestParameters: Map[String, String] = {
         var parameters: Map[String, String] = Map[String, String]()
         parameters += getSortDescription
         parameters += getFieldsDescription
@@ -125,7 +127,7 @@ class DocumentationManager @Inject() (implicit val ec: ExecutionContext) {
       searchPersonsRequest.parameters = Some(getSearchPersonsRequestParameters)
       searchPersonsOperation.request = Some(searchPersonsRequest)
 
-      def getSearchPersonsHeadersParameters(implicit messages: Messages): Map[String, String] = {
+      def getSearchPersonsHeadersParameters: Map[String, String] = {
         var parameters: Map[String, String] = Map[String, String]()
         parameters += (HttpConstants.headerFields.xTotalCount -> messages(MessageConstants.documentation.common.xTotalCountDescription))
         parameters += (HttpConstants.headerFields.link -> messages(MessageConstants.documentation.common.linkDescription))
@@ -153,7 +155,7 @@ class DocumentationManager @Inject() (implicit val ec: ExecutionContext) {
       getPersonOperation.call = Some(routes.PersonController.getPerson(_idExemple, Some(fieldsExemple)))
       getPersonOperation.description = Some(messages(MessageConstants.documentation.person.getPersonDescription))
 
-      def getGetPersonRequestParameters(implicit messages: Messages): Map[String, String] = {
+      def getGetPersonRequestParameters: Map[String, String] = {
         var parameters: Map[String, String] = Map[String, String]()
         parameters += (Person._ID -> messages(MessageConstants.documentation.person.getPersonIdParameterDescription))
         parameters += getFieldsDescription
@@ -215,7 +217,7 @@ class DocumentationManager @Inject() (implicit val ec: ExecutionContext) {
       editPersonOperation.call = Some(routes.PersonController.editPerson(_idExemple))
       editPersonOperation.description = Some(messages(MessageConstants.documentation.person.editPersonDescription))
 
-      def getEditPersonRequestParameters(implicit messages: Messages): Map[String, String] = {
+      def getEditPersonRequestParameters: Map[String, String] = {
         var parameters: Map[String, String] = Map[String, String]()
         parameters += (Person._ID -> messages(MessageConstants.documentation.person.getPersonIdParameterDescription))
         parameters
@@ -242,7 +244,7 @@ class DocumentationManager @Inject() (implicit val ec: ExecutionContext) {
       deletePersonOperation.call = Some(routes.PersonController.deletePerson(_idExemple))
       deletePersonOperation.description = Some(messages(MessageConstants.documentation.person.deletePersonDescription))
 
-      def getDeletePersonRequestParameters(implicit messages: Messages): Map[String, String] = {
+      def getDeletePersonRequestParameters: Map[String, String] = {
         var parameters: Map[String, String] = Map[String, String]()
         parameters += (Person._ID -> messages(MessageConstants.documentation.person.getPersonIdParameterDescription))
         parameters

@@ -11,13 +11,13 @@ import reactivemongo.api.ReadPreference
 import scala.concurrent.Future
 import scala.concurrent.{ ExecutionContext, Future, Promise }
 import scala.util.{ Failure, Success }
-import play.api.i18n.Messages
 import v1.constantes.MessageConstants
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
+import play.api.i18n.MessagesApi
 
 @Singleton
-class PersonDAO @Inject() (val personRepo: PersonRepoImpl)(implicit ec: ExecutionContext) {
+class PersonDAO @Inject() (val personRepo: PersonRepoImpl)(implicit ec: ExecutionContext, messagesApi: MessagesApi) {
 
   def getTotalCount(personOption: Option[Person], searchInValues: Option[Boolean]): Future[Int] = {
     personRepo.getTotalCount(personOption, searchInValues)
@@ -33,11 +33,11 @@ class PersonDAO @Inject() (val personRepo: PersonRepoImpl)(implicit ec: Executio
     personRepo.find(personOption, searchInValues: Option[Boolean], sortOption, fieldsOption, offsetOption, limitOption)
   }
 
-  def getPerson(id: String, fieldsOption: Option[Seq[String]])(implicit messages: Messages): Future[Option[Person]] = {
+  def getPerson(id: String, fieldsOption: Option[Seq[String]]): Future[Option[Person]] = {
     personRepo.select(id, fieldsOption)
   }
 
-  def addPerson(person: Person)(implicit messages: Messages): Future[String] = {
+  def addPerson(person: Person): Future[String] = {
     val futureWriteResult: Future[WriteResult] = personRepo.save(person)
     val noErrors: Boolean = Await.ready(handleWriteResult(futureWriteResult), Duration.Inf).value.get.getOrElse(false)
     if (noErrors) {
@@ -48,12 +48,12 @@ class PersonDAO @Inject() (val personRepo: PersonRepoImpl)(implicit ec: Executio
     }
   }
 
-  def editPerson(id: String, person: Person)(implicit messages: Messages): Future[Boolean] = {
+  def editPerson(id: String, person: Person): Future[Boolean] = {
     val futureWriteResult: Future[WriteResult] = personRepo.update(id, person)
     handleWriteResult(futureWriteResult)
   }
 
-  def deletePerson(id: String)(implicit messages: Messages): Future[Boolean] = {
+  def deletePerson(id: String): Future[Boolean] = {
     handleWriteResult(personRepo.remove(id))
   }
 

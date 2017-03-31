@@ -75,7 +75,6 @@ class PersonController @Inject() (val documentationManager: DocumentationManager
   def addPerson = Action.async(BodyParsers.parse.json) { implicit request =>
     val futureId = personManager.addPerson(request.body.as[Person])
     futureId.map { id =>
-      BAD_REQUEST
       if (id != null && !id.isEmpty()) {
         Created.withHeaders(HttpConstants.headerFields.location -> (routes.PersonController.getPerson(id, None).absoluteURL()))
       } else {

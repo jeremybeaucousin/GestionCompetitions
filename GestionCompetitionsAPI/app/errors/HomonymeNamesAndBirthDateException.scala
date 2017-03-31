@@ -1,10 +1,11 @@
 package errors
 
 import v1.constantes.MessageConstants
-import play.api.i18n.Messages
+import javax.inject.Inject
+import play.api.i18n.MessagesApi
 
-// TODO Rethink message  importation
-class HomonymeNamesAndBirthDateException(val messages: Messages)
+// TODO rethink that message importation
+class HomonymeNamesAndBirthDateException (implicit messages: MessagesApi)
   extends BusinessException {
     override def getMessage = messages(MessageConstants.error.sameNamesAndbirthDateHomonyme)
 }

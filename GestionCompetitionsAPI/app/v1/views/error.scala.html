@@ -2,7 +2,7 @@
 @import play.api.i18n.Messages
 @import v1.constantes.MessageConstants
 
-@(errors: List[Error], messages: Messages)
+@(errors: List[Error])(implicit messages: Messages)
 
 @defining(messages(MessageConstants.title.error)) { title =>
 	@main(title) {
