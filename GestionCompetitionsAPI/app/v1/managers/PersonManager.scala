@@ -20,7 +20,7 @@ import play.api.i18n.MessagesApi
 import play.api.i18n.Messages
 
 @Singleton
-class PersonManager @Inject() (val personDAO: PersonDAO)(implicit val ec: ExecutionContext,  messages: MessagesApi) {
+class PersonManager @Inject() (val personDAO: PersonDAO)(implicit val ec: ExecutionContext) {
 
   def getTotalCount(personOption: Option[Person], searchInValues: Option[Boolean]): Future[Int] = {
     personDAO.getTotalCount(personOption, searchInValues)

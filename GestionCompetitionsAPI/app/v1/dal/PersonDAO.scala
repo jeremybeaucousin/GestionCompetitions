@@ -17,7 +17,7 @@ import scala.concurrent.duration.Duration
 import play.api.i18n.MessagesApi
 
 @Singleton
-class PersonDAO @Inject() (val personRepo: PersonRepoImpl)(implicit ec: ExecutionContext, messagesApi: MessagesApi) {
+class PersonDAO @Inject() (val personRepo: PersonRepoImpl)(implicit ec: ExecutionContext) {
 
   def getTotalCount(personOption: Option[Person], searchInValues: Option[Boolean]): Future[Int] = {
     personRepo.getTotalCount(personOption, searchInValues)

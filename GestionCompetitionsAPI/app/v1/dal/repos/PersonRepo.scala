@@ -35,7 +35,7 @@ trait PersonRepo {
 }
 
 class PersonRepoImpl @Inject() (val reactiveMongoApi: ReactiveMongoApi)(implicit ec: ExecutionContext)
-    extends PersonRepo with MongoController with ReactiveMongoComponents {
+    extends PersonRepo {
 
   def collection = reactiveMongoApi.database.
     map(_.collection[BSONCollection]("persons"))
