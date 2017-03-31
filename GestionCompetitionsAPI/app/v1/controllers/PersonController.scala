@@ -19,8 +19,14 @@ import v1.managers.DocumentationManager
 import v1.managers.PersonManager
 import v1.utils.RequestUtil
 import play.Logger
+import reactivemongo.bson.BSONDocumentReader
+import v1.bo.Person.PersonReader
+import reactivemongo.bson.BSONDocumentWriter
 
-class PersonController @Inject() (val documentationManager: DocumentationManager, val personManager: PersonManager, val messagesApi: MessagesApi)
+class PersonController @Inject() (
+  val documentationManager: DocumentationManager,
+  val personManager: PersonManager[Person],
+  val messagesApi: MessagesApi)
     extends Controller with I18nSupport {
 
   def index(sort: Option[Seq[String]], fields: Option[Seq[String]], offset: Option[Int], limit: Option[Int]) = Action.async { implicit request =>
@@ -61,7 +67,7 @@ class PersonController @Inject() (val documentationManager: DocumentationManager
   }
 
   def getPerson(id: String, fieldsOption: Option[Seq[String]]) = Action.async { implicit request =>
-    val futurePerson = personManager.getPerson(id, fieldsOption)
+    val futurePerson: Future[Option[Person]] = personManager.getPerson(id, fieldsOption)
     futurePerson.map { person =>
       if (person.isDefined) {
         Ok(Json.toJson(person))

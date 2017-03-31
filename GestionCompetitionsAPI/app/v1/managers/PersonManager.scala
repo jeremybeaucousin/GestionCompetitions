@@ -18,9 +18,11 @@ import errors.HomonymeNamesException
 import errors.HomonymeNamesAndBirthDateException
 import play.api.i18n.MessagesApi
 import play.api.i18n.Messages
+import v1.bo.User
+import reactivemongo.bson.BSONDocumentReader
+import reactivemongo.bson.BSONDocumentWriter
 
-@Singleton
-class PersonManager @Inject() (val personDAO: PersonDAO)(implicit val ec: ExecutionContext) {
+class PersonManager[T] @Inject() (val personDAO: PersonDAO[T])(implicit val ec: ExecutionContext) {
 
   def getTotalCount(personOption: Option[Person], searchInValues: Option[Boolean]): Future[Int] = {
     personDAO.getTotalCount(personOption, searchInValues)
@@ -30,7 +32,9 @@ class PersonManager @Inject() (val personDAO: PersonDAO)(implicit val ec: Execut
     personDAO.searchPersons(personOption, searchInValues, sortOption, fieldsOption, offsetOption, limitOption)
   }
 
-  def getPerson(id: String, fieldsOption: Option[Seq[String]]): Future[Option[Person]] = {
+  def getPerson(id: String, fieldsOption: Option[Seq[String]])(
+    implicit bSONDocumentReader: BSONDocumentReader[T],
+    bSONDocumentWriter: BSONDocumentWriter[T]): Future[Option[T]] = {
     personDAO.getPerson(id, fieldsOption)
   }
 
@@ -53,7 +57,7 @@ class PersonManager @Inject() (val personDAO: PersonDAO)(implicit val ec: Execut
       val personResult = Await.ready(futurePersonResult, Duration.Inf).value.get.get
       !personResult.isEmpty
     }
-    
+
     val personSearch = new Person(None, person.firstName, person.lastName, person.birthDate, None)
     if (searchPersons(personSearch)) {
       throw new HomonymeNamesAndBirthDateException

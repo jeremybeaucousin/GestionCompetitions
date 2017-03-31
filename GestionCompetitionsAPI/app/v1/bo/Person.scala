@@ -2,7 +2,7 @@ package v1.bo
 
 import play.api.Logger
 import play.api.libs.json._
-import reactivemongo.bson
+import reactivemongo.bson._
 import reactivemongo.bson.BSONObjectID
 import java.util.Date
 import java.util.Formatter.DateTime
@@ -86,8 +86,6 @@ object Person {
       case _ => JsError("expected.jsobject")
     }
   }
-
-  import reactivemongo.bson._
 
   implicit object PersonWriter extends BSONDocumentWriter[Person] {
     def write(person: Person): BSONDocument = {
