@@ -1,12 +1,6 @@
 package v1.controllers
 
-import play.api.mvc.RequestHeader
-import play.api.mvc.Results
-import play.api.mvc.Security
-import play.api.mvc.Request
-import play.api.mvc.Result
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
+import play.api.mvc._
 import v1.bo.Person
 import v1.constantes.HttpConstants
 import models.ApiToken
@@ -22,30 +16,38 @@ trait Secured {
 
   def authTokenOpt(request: RequestHeader) = request.headers.get(HttpConstants.headerFields.HEADER_AUTH_TOKEN)
 
-  def onUnauthorized(request: RequestHeader) = Results.Forbidden
+  def onUnauthorized(request: RequestHeader): Result = Results.Forbidden
 
-  def withAuth(f: => String => Request[AnyContent] => Result) = {
-    Security.Authenticated(authTokenOpt, onUnauthorized) { user =>
-      Action.async(request => Future(f(user)(request)))
+  def withAuth(f: => String => Request[AnyContent] => Future[Result]) = {
+    Security.Authenticated(authTokenOpt, onUnauthorized) { authToken =>
+      Action.async(request => f(authToken)(request))
     }
   }
-
-  // TODO Find do not work yet
-  def withToken(apiToken: ApiToken => Request[AnyContent] => Result) = withAuth { authToken =>
+  // Action.async { implicit request =>
+  def withToken(apiToken: ApiToken => Request[AnyContent] => Future[Result]) = withAuth { authToken =>
     implicit request =>
-      Logger.info(apiKeyOpt(request).get)
-      Logger.info(authToken)
-      if ((apiKeyOpt(request)).isDefined) {
+      val apiKeyOption = (apiKeyOpt(request))
+      if (apiKeyOption.isDefined && ApiToken.apiKeysExists(apiKeyOption.get)) {
         val futureToken = ApiToken.findByTokenAndApiKey(authToken, apiKeyOpt(request).get)
-        val tokenTry = Await.ready(futureToken, Duration.Inf).value.get
-        if (tokenTry.isSuccess && tokenTry.get.isDefined && tokenTry.get.get.isExpired) {
-          val tokenTryOpt = tokenTry.get
-          apiToken(tokenTryOpt.get)(request)
+        //        futureToken.map(tokenOption => {
+        //          if (tokenOption.isDefined && !tokenOption.get.isExpired) {
+        //            val apiTokenFound = tokenOption.get
+        //            ApiToken.raiseTokenDuration(apiTokenFound)
+        //            apiToken(apiTokenFound)(request)
+        //          } else {
+        //            onUnauthorized(request)
+        //          }
+        //        })
+        val apiTokenOpt = Await.ready(futureToken, Duration.Inf).value.get.get
+        if (apiTokenOpt.isDefined && !apiTokenOpt.get.isExpired) {
+          val apiTokenFound = apiTokenOpt.get
+          ApiToken.raiseTokenDuration(apiTokenFound)
+          apiToken(apiTokenFound)(request)
         } else {
-          onUnauthorized(request)
+          Future(onUnauthorized(request))
         }
       } else {
-        onUnauthorized(request)
+        Future(onUnauthorized(request))
       }
   }
 }

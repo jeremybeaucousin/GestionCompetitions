@@ -27,7 +27,7 @@ class PersonController @Inject() (
   val documentationManager: DocumentationManager,
   val personManager: PersonManager[Person],
   val messagesApi: MessagesApi)
-    extends Controller with I18nSupport {
+    extends Controller with I18nSupport with Secured {
 
   def index(sort: Option[Seq[String]], fields: Option[Seq[String]], offset: Option[Int], limit: Option[Int]) = Action.async { implicit request =>
     val rootUrl: String = routes.PersonController.index(None, None, None, None).url
@@ -66,15 +66,16 @@ class PersonController @Inject() (
     }
   }
 
-  def getPerson(id: String, fieldsOption: Option[Seq[String]]) = Action.async { implicit request =>
-    val futurePerson: Future[Option[Person]] = personManager.getPerson(id, fieldsOption)
-    futurePerson.map { person =>
-      if (person.isDefined) {
-        Ok(Json.toJson(person))
-      } else {
-        NotFound
+  def getPerson(id: String, fieldsOption: Option[Seq[String]]) = withToken { authToken =>
+    { implicit request =>
+      val futurePerson: Future[Option[Person]] = personManager.getPerson(id, fieldsOption)
+      futurePerson.map { person =>
+        if (person.isDefined) {
+          Ok(Json.toJson(person))
+        } else {
+          NotFound
+        }
       }
-
     }
   }
 

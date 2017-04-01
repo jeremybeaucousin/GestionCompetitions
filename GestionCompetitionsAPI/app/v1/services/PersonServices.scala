@@ -38,7 +38,6 @@ class PersonManager[T] @Inject() (val personDAO: PersonDAO[T])(implicit val ec: 
     }
 
     val personSearch = new Person(None, person.firstName, person.lastName, person.birthDate, None)
-    Logger.info(person.birthDate.toString())
     if (person.birthDate.isDefined) {
       if (searchHomonyme(personSearch)) {
         throw new HomonymNamesAndBirthDateException

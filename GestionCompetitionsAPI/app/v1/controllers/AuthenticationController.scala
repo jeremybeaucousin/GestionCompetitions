@@ -24,7 +24,7 @@ class AuthenticationController @Inject() (
   def login = Action.async { implicit request =>
 
     val apiKeyOpt = request.headers.get(HttpConstants.headerFields.HEADER_API_KEY)
-    if (apiKeyOpt.isDefined) {
+    if (apiKeyOpt.isDefined && ApiToken.apiKeysExists(apiKeyOpt.get)) {
       ApiToken.create(apiKeyOpt.get, "Fake_ID").flatMap { token =>
         Future(Ok(
           Json.obj(
@@ -36,10 +36,10 @@ class AuthenticationController @Inject() (
     }
   }
 
-  def logout = withToken { authTokenOpt =>
+  def logout = withToken { authToken =>
     implicit request =>
-      val authTokenOpt = request.headers.get(HttpConstants.headerFields.HEADER_AUTH_TOKEN)
-      ApiToken.delete(authTokenOpt.get)
-      NoContent
+      Future(Ok(authToken.expirationTime.toString()))
+//      ApiToken.delete(authToken)
+//      NoContent
   }
 }
