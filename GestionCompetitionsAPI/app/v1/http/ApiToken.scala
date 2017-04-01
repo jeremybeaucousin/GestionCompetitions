@@ -6,6 +6,8 @@ import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.collection.mutable.Map
 import play.Logger
+import scala.concurrent.Await
+import scala.concurrent.duration.Duration
 
 /*
 * Stores the Auth Token information. Each token belongs to a Api Key and user
@@ -59,12 +61,15 @@ object ApiToken {
   }
 
   def delete(apiToken: ApiToken): Future[Unit] = Future.successful {
-    tokenStore = tokenStore.dropWhile(storedApiToken => storedApiToken.equals(apiToken))
+    val futurApiToken = findByTokenAndApiKey(apiToken.token, apiToken.apiKey)
+    val apiTokenFound = Await.ready(futurApiToken, Duration.Inf).value.get.get
+    if (apiTokenFound.isDefined) {
+      val tokenStoreIndex = tokenStore.indexOf(apiTokenFound.get)
+      tokenStore = tokenStore.patch(tokenStoreIndex, Nil, 1)
+    }
   }
 
   def cleanTokenStore = {
-    Logger.info(tokenStore.size.toString())
     tokenStore = tokenStore.dropWhile(storedApiToken => storedApiToken.isExpired)
-    Logger.info(tokenStore.size.toString())
   }
 }

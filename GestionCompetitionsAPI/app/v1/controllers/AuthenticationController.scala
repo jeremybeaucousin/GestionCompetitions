@@ -16,12 +16,42 @@ import play.api.libs.json.Json
 import play.mvc.Security
 import play.api.libs.json.JsValue
 import play.Logger
+import org.mindrot.jbcrypt.BCrypt
 
 class AuthenticationController @Inject() (
   val messagesApi: MessagesApi)
     extends Controller with I18nSupport with Secured {
 
-  def login = Action.async { implicit request =>
+  def createPassword(clearString: String): String = {
+    if (clearString == null) {
+      throw new Exception("empty.password");
+    }
+    BCrypt.hashpw(clearString, BCrypt.gensalt());
+  }
+
+  def checkPassword(candidate: String, encryptedPassword: String): Boolean = {
+    if (candidate == null) {
+      false
+    }
+    if (encryptedPassword == null) {
+      false
+    }
+    BCrypt.checkpw(candidate, encryptedPassword);
+  }
+
+  def signup = Action.async { implicit request =>
+    val ecryptedTest = createPassword("test")
+    Logger.info(ecryptedTest)
+    Logger.info(checkPassword("test", ecryptedTest).toString())
+    Logger.info(checkPassword("test2", ecryptedTest).toString())
+    Logger.info(checkPassword("test2", "test").toString())
+    
+    Future(Ok)
+  }
+
+  def signin = Action.async { implicit request =>
+
+    // TODO replace fake ID by real user
 
     val apiKeyOpt = request.headers.get(HttpConstants.headerFields.HEADER_API_KEY)
     if (apiKeyOpt.isDefined && ApiToken.apiKeysExists(apiKeyOpt.get)) {
@@ -36,7 +66,7 @@ class AuthenticationController @Inject() (
     }
   }
 
-  def logout = withToken { authToken =>
+  def signout = withToken { authToken =>
     implicit request =>
       ApiToken.delete(authToken)
       Future(NoContent)
