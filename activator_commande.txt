@@ -3,3 +3,4 @@ activator -jvm-debug 9999
 run
 compile
 start
+eclipse with-source=true
