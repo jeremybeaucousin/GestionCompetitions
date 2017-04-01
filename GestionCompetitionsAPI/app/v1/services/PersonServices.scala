@@ -7,11 +7,12 @@ import scala.concurrent.Future
 import scala.concurrent.{ ExecutionContext, Future }
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
-import errors.HomonymeNamesException
-import errors.HomonymeNamesAndBirthDateException
+import errors.HomonymNamesException
+import errors.HomonymNamesAndBirthDateException
 import play.api.i18n.Messages
 import reactivemongo.bson.BSONDocumentReader
 import reactivemongo.bson.BSONDocumentWriter
+import play.Logger
 
 class PersonManager[T] @Inject() (val personDAO: PersonDAO[T])(implicit val ec: ExecutionContext) {
 
@@ -30,7 +31,24 @@ class PersonManager[T] @Inject() (val personDAO: PersonDAO[T])(implicit val ec: 
   }
 
   def addPerson(person: Person)(implicit messages: Messages): Future[String] = {
-    searchHomonyme(person)
+    def searchHomonyme(personRequest: Person): Boolean = {
+      val futurePersonResult = personDAO.searchPersons(Some(personRequest), None, None, None, None, None)
+      val personResult = Await.ready(futurePersonResult, Duration.Inf).value.get.get
+      !personResult.isEmpty
+    }
+
+    val personSearch = new Person(None, person.firstName, person.lastName, person.birthDate, None)
+    Logger.info(person.birthDate.toString())
+    if (person.birthDate.isDefined) {
+      if (searchHomonyme(personSearch)) {
+        throw new HomonymNamesAndBirthDateException
+      }
+    } else {
+      personSearch.birthDate = None
+      if (searchHomonyme(personSearch)) {
+        throw new HomonymNamesException
+      }
+    }
     personDAO.addPerson(person)
   }
 
@@ -40,23 +58,5 @@ class PersonManager[T] @Inject() (val personDAO: PersonDAO[T])(implicit val ec: 
 
   def deletePerson(id: String): Future[Boolean] = {
     personDAO.deletePerson(id)
-  }
-
-  private def searchHomonyme(person: Person)(implicit messages: Messages) = {
-    def searchPersons(personRequest: Person): Boolean = {
-      val futurePersonResult = personDAO.searchPersons(Some(personRequest), None, None, None, None, None)
-      val personResult = Await.ready(futurePersonResult, Duration.Inf).value.get.get
-      !personResult.isEmpty
-    }
-
-    val personSearch = new Person(None, person.firstName, person.lastName, person.birthDate, None)
-    if (searchPersons(personSearch)) {
-      throw new HomonymeNamesAndBirthDateException
-    } else {
-      personSearch.birthDate = None
-      if (searchPersons(personSearch)) {
-        throw new HomonymeNamesException
-      }
-    }
   }
 }

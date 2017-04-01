@@ -5,8 +5,8 @@ title.documentation=Opérations possible sur la ressource /persons
 #errors
 error.server=Une erreur s''est produite sur le serveur: {0}
 error.client=Une erreur du client s''est produite: {0}
-error.sameNamesHomonyme=Un homonyme à été trouvée
-error.sameNamesAndbirthDateHomonyme=Un homonyme avec la même date de naissance à été trouvée
+error.sameNamesHomonym=Un homonyme à été trouvée
+error.sameNamesAndbirthDateHomonym=Un homonyme avec la même date de naissance à été trouvée
 
 #http
 http.ok=Tout fonctionne

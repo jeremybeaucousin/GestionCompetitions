@@ -28,6 +28,9 @@ object ApiToken {
   private var tokenStore: Seq[ApiToken] = Seq[ApiToken]()
 
   def findByTokenAndApiKey(token: String, apiKey: String): Future[Option[ApiToken]] = {
+    Logger.info(token)
+    Logger.info(apiKey)
+    Logger.info(tokenStore.toString())
     Future(tokenStore.find(tokenResult => tokenResult.token == token && tokenResult.apiKey == apiKey))
   }
 

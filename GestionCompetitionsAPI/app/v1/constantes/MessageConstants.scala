@@ -14,13 +14,13 @@ final object MessageConstants {
     private final val PREFIX = "error."
     private final val SERVER = "server"
     private final val CLIENT = "client"
-    private final val SAME_NAMES_HOMONYME: String = "sameNamesHomonyme"
-    private final val SAME_NAMES_AND_BIRTH_HOMONYME: String = "sameNamesAndbirthDateHomonyme"
+    private final val SAME_NAMES_HOMONYM: String = "sameNamesHomonym"
+    private final val SAME_NAMES_AND_BIRTH_HOMONYM: String = "sameNamesAndbirthDateHomonym"
 
     def server: String = PREFIX + SERVER
     def client: String = PREFIX + CLIENT
-    def sameNamesHomonyme: String = PREFIX + SAME_NAMES_HOMONYME
-    def sameNamesAndbirthDateHomonyme: String = PREFIX + SAME_NAMES_AND_BIRTH_HOMONYME
+    def sameNamesHomonym: String = PREFIX + SAME_NAMES_HOMONYM
+    def sameNamesAndbirthDateHomonym: String = PREFIX + SAME_NAMES_AND_BIRTH_HOMONYM
 
   }
 
