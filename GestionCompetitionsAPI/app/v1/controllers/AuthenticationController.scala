@@ -38,8 +38,7 @@ class AuthenticationController @Inject() (
 
   def logout = withToken { authToken =>
     implicit request =>
-      Future(Ok(authToken.expirationTime.toString()))
-//      ApiToken.delete(authToken)
-//      NoContent
+      ApiToken.delete(authToken)
+      Future(NoContent)
   }
 }

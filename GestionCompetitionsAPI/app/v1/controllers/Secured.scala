@@ -23,8 +23,15 @@ trait Secured {
       Action.async(request => f(authToken)(request))
     }
   }
-  // Action.async { implicit request =>
-  def withToken(apiToken: ApiToken => Request[AnyContent] => Future[Result]) = withAuth { authToken =>
+  // TODO D'ont know why a result is needed
+  /**
+   * Test if Api key exists and is valide, in that case check if the token exists and has not expired yet.
+   * 
+   * 
+ * @param apiToken
+ * @return
+ */
+def withToken(apiToken: ApiToken => Request[AnyContent] => Future[Result]) = withAuth { authToken =>
     implicit request =>
       val apiKeyOption = (apiKeyOpt(request))
       if (apiKeyOption.isDefined && ApiToken.apiKeysExists(apiKeyOption.get)) {

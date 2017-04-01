@@ -66,7 +66,8 @@ class PersonController @Inject() (
     }
   }
 
-  def getPerson(id: String, fieldsOption: Option[Seq[String]]) = withToken { authToken =>
+  // TODO def getPerson(id: String, fieldsOption: Option[Seq[String]]) = withToken { authToken =>
+  def getPerson(id: String, fieldsOption: Option[Seq[String]]) = Action.async {
     { implicit request =>
       val futurePerson: Future[Option[Person]] = personManager.getPerson(id, fieldsOption)
       futurePerson.map { person =>

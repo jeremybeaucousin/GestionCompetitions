@@ -20,7 +20,7 @@ case class ApiToken(
 
 object ApiToken {
 
-  final val TOKEN_DURATION = 1
+  final val TOKEN_DURATION = 30
 
   val apiKeys = Map[String, String](
     "Web-App" -> "tkdhkd44")
@@ -28,26 +28,26 @@ object ApiToken {
   private var tokenStore: Seq[ApiToken] = Seq[ApiToken]()
 
   private def setDuration = (new DateTime()) plusMinutes TOKEN_DURATION
-    
-  def apiKeysExists(apiKey: String):Boolean = apiKeys.values.exists(key => key.equals(apiKey))
-      
+
+  def apiKeysExists(apiKey: String): Boolean = apiKeys.values.exists(key => key.equals(apiKey))
+
   def findByTokenAndApiKey(token: String, apiKey: String): Future[Option[ApiToken]] = {
     val tokenResult = tokenStore.find(tokenResult => tokenResult.token.equals(token) && tokenResult.apiKey.equals(apiKey))
     Future(tokenResult)
   }
 
   def raiseTokenDuration(apiToken: ApiToken) = {
-    if(apiToken != null) {
+    if (apiToken != null) {
       val index = tokenStore.indexOf(apiToken)
-    val newApiToken = ApiToken(
+      val newApiToken = ApiToken(
         apiToken.token,
-        apiToken.apiKey, 
+        apiToken.apiKey,
         expirationTime = setDuration, apiToken.userId)
-    tokenStore = tokenStore.updated(index, newApiToken)
+      tokenStore = tokenStore.updated(index, newApiToken)
     }
-    
+
   }
-  
+
   def create(apiKey: String, userId: String): Future[String] = Future.successful {
     def newUUID: String = {
       val uuid = UUID.randomUUID().toString
@@ -55,13 +55,16 @@ object ApiToken {
     }
     val token = newUUID
     tokenStore = tokenStore :+ ApiToken(token, apiKey, expirationTime = setDuration, userId)
-    Logger.info(tokenStore.size.toString())
     token
   }
 
   def delete(apiToken: ApiToken): Future[Unit] = Future.successful {
-    Logger.info(tokenStore.size.toString())
     tokenStore = tokenStore.dropWhile(storedApiToken => storedApiToken.equals(apiToken))
+  }
+
+  def cleanTokenStore = {
+    Logger.info(tokenStore.size.toString())
+    tokenStore = tokenStore.dropWhile(storedApiToken => storedApiToken.isExpired)
     Logger.info(tokenStore.size.toString())
   }
 }
