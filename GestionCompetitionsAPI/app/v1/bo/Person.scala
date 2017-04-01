@@ -1,17 +1,9 @@
 package v1.bo
 
-import play.api.Logger
-import play.api.libs.json._
-import reactivemongo.bson._
-import reactivemongo.bson.BSONObjectID
 import java.util.Date
-import java.util.Formatter.DateTime
-import java.text.DateFormat
-import play.api.data.format.Formats
-import org.joda.time.DateTime
-import scala.concurrent.ExecutionContext
-import java.util.ArrayList
+
 import org.apache.commons.lang3.StringUtils
+import org.joda.time.DateTime
 
 abstract trait User {
   def _id: Option[String]
@@ -44,6 +36,8 @@ case class Person(
 }
 
 object Person {
+  import play.api.libs.json._
+
   implicit val jodaDateReads = Reads.jodaDateReads("yyyy-MM-dd'T'HH:mm:ss'Z'")
   implicit val jodaDateWrites = Writes.jodaDateWrites("yyyy-MM-dd'T'HH:mm:ss'Z'")
 
@@ -86,6 +80,8 @@ object Person {
       case _ => JsError("expected.jsobject")
     }
   }
+  
+  import reactivemongo.bson._
 
   implicit object PersonWriter extends BSONDocumentWriter[Person] {
     def write(person: Person): BSONDocument = {

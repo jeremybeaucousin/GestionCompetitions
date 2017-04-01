@@ -42,7 +42,9 @@ trait PersonRepo[T] {
   def save(person: Person): Future[WriteResult]
 }
 
-class PersonRepoImpl[T] @Inject() (val reactiveMongoApi: ReactiveMongoApi)(implicit ec: ExecutionContext)
+class PersonRepoImpl[T] @Inject() (val reactiveMongoApi: ReactiveMongoApi)(
+    implicit ec: ExecutionContext
+    )
     extends PersonRepo[T] {
 
   def collection = reactiveMongoApi.database.

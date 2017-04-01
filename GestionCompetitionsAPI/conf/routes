@@ -26,8 +26,8 @@ GET     /assets/*file               controllers.Assets.versioned(path="/public",
 #POST    /auth/authenticate          controllers.Auth.authenticate
 #GET     /auth/social/:providerId    controllers.Auth.socialAuthenticate(providerId:String)
 #GET     /auth/signout               controllers.Auth.signOut
-POST    /login                      v1.controllers.AuthenticationController.signIn()
-POST    /logout                     v1.controllers.AuthenticationController.signOut()
+POST    /v1/login                  	v1.controllers.AuthenticationController.login()
+POST    /v1/logout	                v1.controllers.AuthenticationController.logout()
 
 # Arbitres
 GET		/v1/persons					v1.controllers.PersonController.index(sort: Option[Seq[String]], fields: Option[Seq[String]], offset: Option[Int], limit: Option[Int])
