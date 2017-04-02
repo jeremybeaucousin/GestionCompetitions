@@ -5,6 +5,7 @@ import java.util.Date
 import org.apache.commons.lang3.StringUtils
 import org.joda.time.DateTime
 import v1.constantes.MessageConstants
+import v1.constantes.ValidationConstants
 
 abstract trait User {
   def _id: Option[String]
@@ -72,7 +73,7 @@ object Person {
     (JsPath \ LAST_NAME).readNullable[String](minLength[String](2)) and
     (JsPath \ BIRTH_DATE).readNullable[Date] and
     (JsPath \ EMAIL).readNullable[String](email) and
-    (JsPath \ PASSWORD).readNullable[String](pattern("""[a-zA-Z0-9@*#]{8,15}""".r, MessageConstants.error.password)) and
+    (JsPath \ PASSWORD).readNullable[String](pattern(ValidationConstants.regex.PASSWORD, MessageConstants.error.password)) and
     // Extract empty to not receive an encrypted password by clients (only for database)
     (JsPath \ StringUtils.EMPTY).readNullable[String] and
     (JsPath \ ADDRESSES).readNullable[List[Address]])(Person.apply _)
