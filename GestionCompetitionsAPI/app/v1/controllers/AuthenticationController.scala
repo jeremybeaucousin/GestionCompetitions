@@ -38,31 +38,29 @@ class AuthenticationController @Inject() (
     }
   }
 
-  def signup = Action.async { implicit request =>
-    val ecryptedTest = createPassword("test")
-    val ecryptedTest2 = createPassword("test2")
-    //    Logger.info(ecryptedTest)
-    //    Logger.info(checkPassword("test", ecryptedTest).toString())
-    //    Logger.info(checkPassword("test2", ecryptedTest).toString())
-    //    Logger.info(checkPassword("test1", ecryptedTest2).toString())
-    //    Logger.info(checkPassword("test2", ecryptedTest2).toString())
-    ApiToken.cleanTokenStore
-
+  def signup = Action.async(BodyParsers.parse.json) { implicit request =>
+    val person = request.body.as[Person]
+    personManager.createAccount(person)
     Future(Ok)
   }
 
-  def signin = Action.async { implicit request =>
-
-    // TODO replace fake ID by real user
-
+  // TODO Externalyse this
+  def signin = Action.async(BodyParsers.parse.json) { implicit request =>
     val apiKeyOpt = request.headers.get(HttpConstants.headerFields.apiKey)
     if (apiKeyOpt.isDefined && ApiToken.apiKeysExists(apiKeyOpt.get)) {
-      ApiToken.create(apiKeyOpt.get, "Fake_ID").flatMap { token =>
-        Future(Ok(
-          Json.obj(
-            ApiToken.TOKEN_FIELD  -> token,
-            ApiToken.DURATION_FIELD -> ApiToken.TOKEN_DURATION)))
-      }
+      val person = request.body.as[Person]
+      val futurePerson = personManager.authenticate(person)
+      futurePerson.flatMap(person => {
+        if (person.isDefined && person.get._id.isDefined) {
+          ApiToken.create(apiKeyOpt.get, person.get._id.get).map(token =>
+            Ok(
+              Json.obj(
+                ApiToken.TOKEN_FIELD -> token,
+                ApiToken.DURATION_FIELD -> ApiToken.TOKEN_DURATION)))
+        } else {
+          Future(Forbidden)
+        }
+      })
     } else {
       Future(Forbidden)
     }

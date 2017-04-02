@@ -13,6 +13,7 @@ import play.api.i18n.Messages
 import reactivemongo.bson.BSONDocumentReader
 import reactivemongo.bson.BSONDocumentWriter
 import play.Logger
+import v1.utils.SecurityUtil
 
 class PersonManager @Inject() (val personDAO: PersonDAO[Person])(implicit val ec: ExecutionContext) {
 
@@ -24,10 +25,44 @@ class PersonManager @Inject() (val personDAO: PersonDAO[Person])(implicit val ec
     personDAO.searchPersons(personOption, searchInValues, sortOption, fieldsOption, offsetOption, limitOption)
   }
 
+  // TODO Check if email is present and not exists, same for the person homonym
+  def createAccount(person: Person) = {
+    if(person.email.isDefined && person.password.isDefined) {
+      person.encryptedPassword = Some(SecurityUtil.createPassword(person.password.get))
+      personDAO.addPerson(person)
+    }
+  }
+
+  def searchPersonWithEmail(person: Person): Future[List[Person]] = {
+    val personWithEmainOnly = Person()
+    personWithEmainOnly.email = person.email
+    personDAO.searchPersons(Some(personWithEmainOnly), None, None, None, None, None)
+  }
+  def authenticate(person: Person): Future[Option[Person]] = {
+    if (person.email.isDefined && person.email.isDefined) {
+      val futurePersons = searchPersonWithEmail(person)
+      val persons = Await.ready(futurePersons, Duration.Inf).value.get.get
+      if (!persons.isEmpty) {
+        val firstPerson = persons(0)
+        if (firstPerson.encryptedPassword.isDefined && SecurityUtil.checkPassword(person.password.get, firstPerson.encryptedPassword.get)) {
+          Future(Some(firstPerson))
+        } else {
+          Future(None)
+        }
+      } else {
+        Future(None)
+      }
+    } else {
+      Future(None)
+    }
+
+  }
+
   def getPerson(id: String, fieldsOption: Option[Seq[String]]): Future[Option[Person]] = {
     personDAO.getPerson(id, fieldsOption)
   }
 
+  // TODO Check that email is present and not already exists
   def addPerson(person: Person)(implicit messages: Messages): Future[String] = {
     def searchHomonyme(personRequest: Person): Boolean = {
       val futurePersonResult = personDAO.searchPersons(Some(personRequest), None, None, None, None, None)
@@ -36,15 +71,9 @@ class PersonManager @Inject() (val personDAO: PersonDAO[Person])(implicit val ec
     }
 
     val personSearch = Person()
-    Logger.info(person.encryptedPassword.toString())
-    Logger.info(person.email.toString())
-    Logger.info(person.password.toString())
     personSearch.firstName = person.firstName
     personSearch.lastName = person.lastName
     personSearch.birthDate = person.birthDate
-//    personSearch.encryptedPassword = None
-//    personSearch.email = None
-    
     if (person.birthDate.isDefined) {
       if (searchHomonyme(personSearch)) {
         throw new HomonymNamesAndBirthDateException
