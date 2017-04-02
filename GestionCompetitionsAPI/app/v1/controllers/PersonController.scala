@@ -92,7 +92,6 @@ class PersonController @Inject() (
   }
 
   def editPerson(id: String) = Action.async(BodyParsers.parse.json) { implicit request =>
-    Logger.info(request.body.as[Person].encryptedPassword.toString())
     val futurBoolean: Future[Boolean] = personManager.editPerson(id, request.body.as[Person])
     futurBoolean.map { resultsOk =>
       if (resultsOk) {

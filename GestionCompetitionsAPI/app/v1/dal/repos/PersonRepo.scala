@@ -58,6 +58,7 @@ class PersonRepoImpl[T] @Inject() (val reactiveMongoApi: ReactiveMongoApi)(
     limitOption: Option[Int])(implicit ec: ExecutionContext): Future[List[Person]] = {
     val personSearch: BSONDocument = if (personOption.isDefined) MongoDbUtil.constructBSONDocumentWithRootFields(BSON.write(personOption.get)) else BSONDocument()
     val valuesSearch: BSONDocument = if (searchInValues.isDefined && searchInValues.get) MongoDbUtil.createSearchInValuesBson(personSearch) else personSearch
+    
     val sortBson = MongoDbUtil.createSortBson(sortOption)
     val projectionBson = MongoDbUtil.createProjectionBson(fieldsOption)
     val query = collection.map(_.find(valuesSearch).projection(projectionBson))
@@ -74,7 +75,6 @@ class PersonRepoImpl[T] @Inject() (val reactiveMongoApi: ReactiveMongoApi)(
   override def select(id: String, fieldsOption: Option[Seq[String]])(
     implicit bSONDocumentReader: BSONDocumentReader[T],
     bSONDocumentWriter: BSONDocumentWriter[T]): Future[Option[T]] = {
-    Logger.info(ec.toString())
     val projectionBson = MongoDbUtil.createProjectionBson(fieldsOption)
     collection.flatMap(_.find(constructId(id)).projection(projectionBson).one[T])
   }

@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils
 import org.joda.time.DateTime
 import v1.constantes.MessageConstants
 import v1.constantes.ValidationConstants
+import play.Logger
 
 abstract trait User {
   def _id: Option[String]
@@ -42,7 +43,7 @@ case class Person(
 
   @Override
   override def toString(): String = {
-    "id : " + _id + "; firstName : " + firstName + "; lastName : " + lastName + "; birthDate : " + birthDate + "; addresses: " + addresses + ";"
+    ""+ _id + firstName + lastName + birthDate + email + password + encryptedPassword + addresses 
   }
 }
 

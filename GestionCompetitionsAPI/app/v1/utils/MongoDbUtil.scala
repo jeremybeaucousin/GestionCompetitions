@@ -92,6 +92,11 @@ object MongoDbUtil {
       // if the value of the current field is an object we begin rebuild
       if (fieldValue.isInstanceOf[BSONDocument] || fieldValue.isInstanceOf[BSONArray] || _ID.equals(fieldName)) {
         newDocument = newDocument.remove(fieldName)
+      } else if (fieldValue.isInstanceOf[BSONString]) {
+        val stringValue = fieldValue.asInstanceOf[BSONString]
+        if (stringValue.value.isEmpty()) {
+          newDocument = newDocument.remove(fieldName)
+        }
       }
       // Handleing of subdocument
       //      if (fieldValue.isInstanceOf[BSONDocument]) {

@@ -65,9 +65,7 @@ object ApiToken {
     val futurApiToken = findByTokenAndApiKey(apiToken.token, apiToken.apiKey)
     val apiTokenFound = Await.ready(futurApiToken, Duration.Inf).value.get.get
     if (apiTokenFound.isDefined) {
-      Logger.info(tokenStore.size.toString())
       tokenStore = SeqUtil.removeElementFromSeq(apiTokenFound.get, tokenStore)
-      Logger.info(tokenStore.size.toString())
     }
   }
 
