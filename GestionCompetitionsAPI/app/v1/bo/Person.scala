@@ -37,6 +37,8 @@ case class Person(
 
 object Person {
   import play.api.libs.json._
+  import play.api.libs.json.Reads._
+  import play.api.libs.functional.syntax._
 
   implicit val jodaDateReads = Reads.jodaDateReads("yyyy-MM-dd'T'HH:mm:ss'Z'")
   implicit val jodaDateWrites = Writes.jodaDateWrites("yyyy-MM-dd'T'HH:mm:ss'Z'")
@@ -47,7 +49,32 @@ object Person {
   final val BIRTH_DATE: String = "birthDate"
   final val ADDRESSES: String = "addresses"
 
-  implicit object PersonWrites extends Writes[Person] {
+  //Reads.email
+  val personReads: Reads[Person] = (
+    (JsPath \ _ID).readNullable[String](minLength[String](24) keepAnd maxLength[String](24)) and
+    (JsPath \ FIRST_NAME).readNullable[String](minLength[String](2)) and
+    (JsPath \ LAST_NAME).readNullable[String](minLength[String](2)) and
+    (JsPath \ BIRTH_DATE).readNullable[Date] and
+    (JsPath \ ADDRESSES).readNullable[List[Address]])(Person.apply _)
+
+  //  object PersonReads extends Reads[Person] {
+  //    def reads(json: JsValue): JsResult[Person] = json match {
+  //      case obj: JsValue => try {
+  //        JsSuccess(Person(
+  //          (obj \ _ID).asOpt[String],
+  //          (obj \ FIRST_NAME).asOpt[String],
+  //          (obj \ LAST_NAME).asOpt[String],
+  //          (obj \ BIRTH_DATE).asOpt[Date],
+  //          (obj \ ADDRESSES).asOpt[List[Address]]))
+  //      } catch {
+  //        case cause: Throwable => JsError(cause.getMessage)
+  //      }
+  //
+  //      case _ => JsError("expected.jsobject")
+  //    }
+  //  }
+
+  object PersonWrites extends Writes[Person] {
     def writes(person: Person): JsObject = {
       var json = Json.obj()
       if (person._id.isDefined)
@@ -64,23 +91,21 @@ object Person {
     }
   }
 
-  implicit object PersonReads extends Reads[Person] {
-    def reads(json: JsValue): JsResult[Person] = json match {
-      case obj: JsValue => try {
-        JsSuccess(Person(
-          (obj \ _ID).asOpt[String],
-          (obj \ FIRST_NAME).asOpt[String],
-          (obj \ LAST_NAME).asOpt[String],
-          (obj \ BIRTH_DATE).asOpt[Date],
-          (obj \ ADDRESSES).asOpt[List[Address]]))
-      } catch {
-        case cause: Throwable => JsError(cause.getMessage)
-      }
-
-      case _ => JsError("expected.jsobject")
-    }
+  implicit object personFormat extends Format[Person] {
+    def reads(json: JsValue) = personReads.reads(json)
+//    {
+//      json.validate[Person] match {
+//        case personResults: JsSuccess[Person] => {
+//          JsSuccess(personResults.get)
+//        }
+//        case e: JsError => {
+//          JsError("expected.jsobject")
+//        }
+//      }
+//    }
+    def writes(person: Person) = PersonWrites.writes(person)
   }
-  
+
   import reactivemongo.bson._
 
   implicit object PersonWriter extends BSONDocumentWriter[Person] {

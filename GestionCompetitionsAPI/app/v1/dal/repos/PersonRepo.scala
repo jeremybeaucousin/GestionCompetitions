@@ -16,7 +16,6 @@ import v1.utils.MongoDbUtil
 import reactivemongo.bson.BSONWriter
 import reactivemongo.api.QueryOpts
 import reactivemongo.core.commands.Count
-import v1.bo.Person.PersonReads
 import v1.bo.Person.PersonWrites
 import v1.bo.User
 import reactivemongo.bson.BSONDocumentReader

@@ -32,6 +32,7 @@ import javax.inject.Provider
 import play.api.i18n.MessagesApi
 import play.api.http.Writeable
 import com.fasterxml.jackson.annotation.JsonValue
+import play.api.libs.json.JsResultException
 
 @Singleton
 class ErrorHandler @Inject() (
@@ -69,24 +70,36 @@ class ErrorHandler @Inject() (
     messages_(requestHeader)
     val userMessage = messages(MessageConstants.error.server, requestHeader.path)
     var errors: List[Error] = List[Error]()
-    
+
     val sw = new StringWriter
     exception.printStackTrace(new PrintWriter(sw))
     Logger.error(sw.toString)
-    
+
     val error: Error = Error()
     error.userMessage = Some(userMessage)
     error.internalMessage = Some(exception.getMessage)
     error.moreInfo = Some(sw.toString)
-    
+
     errors = error :: errors
-    
+
     val preferedContentType = getPrefferedContentType(requestHeader)
 
     def result[T](contents: T)(implicit writeable: Writeable[T]) = {
+      error.code = Some(HttpStatus.SC_BAD_REQUEST)
       if (exception.isInstanceOf[BusinessException]) {
-        error.code = Some(HttpStatus.SC_BAD_REQUEST)
         Future.successful(BadRequest(contents))
+      } else if (exception.isInstanceOf[JsResultException]) {
+        val jsError = exception.asInstanceOf[JsResultException]
+        jsError.errors.foreach(jsError => {
+          Logger.info(jsError._1.toJsonString)
+          jsError._2.foreach(fields => {
+            Logger.info(fields.toString())
+            Logger.info("args : " + fields.args.toString())
+            Logger.info("message : " + fields.message.toString())
+            Logger.info("messages : " + fields.messages.toString())
+          })
+        })
+        Future.successful(BadRequest(jsError.toString()))
       } else {
         error.code = Some(HttpStatus.SC_INTERNAL_SERVER_ERROR)
         Future.successful(InternalServerError(contents))

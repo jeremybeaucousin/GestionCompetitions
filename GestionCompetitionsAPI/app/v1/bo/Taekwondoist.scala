@@ -6,10 +6,10 @@ import play.api.libs.json._
 import reactivemongo.bson
 import reactivemongo.bson.BSONObjectID
 import v1.bo.Person.PersonWrites
-import v1.bo.Person.PersonReads
 import v1.bo.Person.PersonWriter
 import v1.bo.Person.PersonReader
 import org.apache.commons.lang3.StringUtils
+import v1.bo.Person.personFormat
 
 case class Taekwondoist(
     var _id: Option[String] = Some(StringUtils.EMPTY),
@@ -48,7 +48,7 @@ object Taekwondoist {
   implicit object TaekwondoistReads extends Reads[Taekwondoist] {
     def reads(json: JsValue): JsResult[Taekwondoist] = json match {
       case obj: JsValue => try {
-        val person = PersonReads.reads(obj).get
+        val person = personFormat.reads(obj).get
         var taekwondoist = person.toTaekwondoist
         taekwondoist.passportNumber = (obj \ PASSEPORT_NUMBER).asOpt[Int]
         taekwondoist.grade = (obj \ GRADE).asOpt[String]
