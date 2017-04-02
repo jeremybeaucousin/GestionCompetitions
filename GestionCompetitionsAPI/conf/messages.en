@@ -6,7 +6,8 @@ title.documentation=Possible operations on the ressource {0}
 error.server=An error occured on the server: {0}
 error.client=A client error occurred: {0}
 error.sameNamesHomonym=An homonym has been found
-error.sameNamesAndbirthDateHomonym=An homonym with the same birth date has been found  
+error.sameNamesAndbirthDateHomonym=An homonym with the same birth date has been found 
+error.emailAlreadyRegistered=This email address is already registered for another account
     
 #http
 http.ok=Eyerything is working

@@ -18,11 +18,13 @@ final object MessageConstants {
     private final val SAME_NAMES_AND_BIRTH_HOMONYM: String = "sameNamesAndbirthDateHomonym"
     private final val PASSWORD: String = "password"
     private final val POSTALCODE: String = "postalCode"
+    private final val EMAIL_ALREADY_REGISTERED: String = "emailAlreadyRegistered"
 
     def server: String = PREFIX + SERVER
     def client: String = PREFIX + CLIENT
     def sameNamesHomonym: String = PREFIX + SAME_NAMES_HOMONYM
     def sameNamesAndbirthDateHomonym: String = PREFIX + SAME_NAMES_AND_BIRTH_HOMONYM
+    def emailAlreadyRegistered: String = PREFIX + EMAIL_ALREADY_REGISTERED
     def password: String = PREFIX + PASSWORD
     def postalCode: String = PREFIX + POSTALCODE
   }
@@ -90,7 +92,7 @@ final object MessageConstants {
       private final val LOCATION_DESCRIPTION = "locationDescription"
       private final val API_KEY_DESCRIPTION = "apiKeyDescription"
       private final val AUTH_TOKEN_DESCRIPTION = "authTokenDescription"
-      
+
       def sortDescription: String = PREFIX + SORT_DESCRIPTION
       def fieldsDescription: String = PREFIX + FIELDS_DESCRIPTION
       def offsetDescription: String = PREFIX + OFFSET_DESCRIPTION
