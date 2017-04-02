@@ -34,12 +34,14 @@ final object MessageConstants {
     private final val UNPROCESSABLE_ENTITY = "unprocessableEntity"
     private final val OK = "ok"
     private final val CREATED = "created"
+    private final val FORBIDDEN = "forbidden"
 
     def notFound: String = PREFIX + NOT_FOUND
     def noContent: String = PREFIX + NO_CONTENT
     def unprocessableEntity: String = PREFIX + UNPROCESSABLE_ENTITY
     def ok: String = PREFIX + OK
     def created: String = PREFIX + CREATED
+    def forbidden: String = PREFIX + FORBIDDEN
   }
 
   final object Database {
@@ -83,18 +85,21 @@ final object MessageConstants {
       private final val FIELDS_DESCRIPTION = "fieldsDescription"
       private final val OFFSET_DESCRIPTION = "offsetDescription"
       private final val LIMIT_DESCRIPTION = "limitDescription"
-      private final val X_TOTAL_COUNT_DESCRIPTION = "xTotalCountDescription"
+      private final val TOTAL_COUNT_DESCRIPTION = "totalCountDescription"
       private final val LINK_DESCRIPTION = "linkDescription"
       private final val LOCATION_DESCRIPTION = "locationDescription"
-
+      private final val API_KEY_DESCRIPTION = "apiKeyDescription"
+      private final val AUTH_TOKEN_DESCRIPTION = "authTokenDescription"
+      
       def sortDescription: String = PREFIX + SORT_DESCRIPTION
       def fieldsDescription: String = PREFIX + FIELDS_DESCRIPTION
       def offsetDescription: String = PREFIX + OFFSET_DESCRIPTION
       def limitDescription: String = PREFIX + LIMIT_DESCRIPTION
-      def xTotalCountDescription: String = PREFIX + X_TOTAL_COUNT_DESCRIPTION
+      def totalCountDescription: String = PREFIX + TOTAL_COUNT_DESCRIPTION
       def linkDescription: String = PREFIX + LINK_DESCRIPTION
       def locationDescription: String = PREFIX + LOCATION_DESCRIPTION
-
+      def apiKeyDescription: String = PREFIX + API_KEY_DESCRIPTION
+      def authTokenDescription: String = PREFIX + AUTH_TOKEN_DESCRIPTION
     }
 
     final object Person {
@@ -114,11 +119,20 @@ final object MessageConstants {
       def addPersonDescription: String = PREFIX + ADD_PERSON_DESCRIPTION
       def editPersonDescription: String = PREFIX + EDIT_PERSON_DESCRIPTION
       def deletePersonDescription: String = PREFIX + DELETE_PERSON_DESCRIPTION
-      searchPersonsDescription
+    }
+
+    final object Authentication {
+      private final val PREFIX = Documentation.PREFIX + "authentication."
+      private final val SIGN_IN_DESCRIPTION = "signInDescription"
+      private final val SIGN_OUT_DESCRIPTION = "signOutDescription"
+
+      def signInDescription: String = PREFIX + SIGN_IN_DESCRIPTION
+      def signOutDescription: String = PREFIX + SIGN_OUT_DESCRIPTION
     }
 
     final val common = Common
     final val person = Person
+    final val authentication = Authentication
 
   }
 

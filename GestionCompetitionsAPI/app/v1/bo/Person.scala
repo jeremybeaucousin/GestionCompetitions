@@ -20,14 +20,14 @@ abstract trait User {
 }
 
 case class Person(
-    var _id: Option[String] = Some(StringUtils.EMPTY),
-    var firstName: Option[String] = Some(StringUtils.EMPTY),
-    var lastName: Option[String] = Some(StringUtils.EMPTY),
-    var birthDate: Option[Date] = Some(new Date),
-    var email: Option[String] = Some(StringUtils.EMPTY),
-    var password: Option[String] = Some(StringUtils.EMPTY),
-    var encryptedPassword: Option[String] = Some(StringUtils.EMPTY),
-    var addresses: Option[List[Address]] = Some(List[Address](new Address, new Address))) extends User {
+    var _id: Option[String] = None,
+    var firstName: Option[String] = None,
+    var lastName: Option[String] = None,
+    var birthDate: Option[Date] = None,
+    var email: Option[String] = None,
+    var password: Option[String] = None,
+    var encryptedPassword: Option[String] = None,
+    var addresses: Option[List[Address]] = None) extends User {
 
   def toTaekwondoist(): Taekwondoist = {
     Taekwondoist(

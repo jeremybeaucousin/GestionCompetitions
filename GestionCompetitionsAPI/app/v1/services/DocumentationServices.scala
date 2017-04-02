@@ -17,22 +17,37 @@ import org.apache.http.HttpStatus
 import play.mvc.Http
 import org.apache.commons.lang3.StringUtils
 import java.util.Date
+import models.ApiToken
+import v1.bo.Address
+import play.Logger
 
 @Singleton
 class DocumentationManager @Inject() (
     implicit val ec: ExecutionContext) {
-  
-  final val jsonPersonCompleteExemple = (Json.toJson(new Person))
-  final val jsonPersonWithRootFieldsExemple = (Json.toJson(
-      new Person(
-          Some(StringUtils.EMPTY),
-          Some(StringUtils.EMPTY),
-          Some(StringUtils.EMPTY),
-          Some(new Date),
-          None
-          ))
-      )
-  final val jsonPersonArrayExemple = (Json.toJson(List[Person](new Person, new Person)))
+
+  final val personCompleteExemple = new Person(
+    Some(StringUtils.EMPTY),
+    Some(StringUtils.EMPTY),
+    Some(StringUtils.EMPTY),
+    Some(new Date),
+    Some(StringUtils.EMPTY),
+    Some(StringUtils.EMPTY),
+    Some(StringUtils.EMPTY),
+    Some(List[Address](new Address, new Address)))
+
+  final val jsonPersonCompleteExemple = (Json.toJson(personCompleteExemple))
+
+  final val personWithRootFieldsExemple = new Person(
+    Some(StringUtils.EMPTY),
+    Some(StringUtils.EMPTY),
+    Some(StringUtils.EMPTY),
+    Some(new Date),
+    Some(StringUtils.EMPTY),
+    None,
+    Some(StringUtils.EMPTY),
+    None)
+  final val jsonPersonWithRootFieldsExemple = (Json.toJson(personWithRootFieldsExemple))
+  final val jsonPersonArrayExemple = (Json.toJson(List[Person](personCompleteExemple, personCompleteExemple)))
   final val _idExemple = MongoDbUtil.generateId().stringify
   final val sortExemple = Seq[String]("+" + Person.FIRST_NAME, "-" + Person.LAST_NAME)
   final val fieldsExemple = Seq[String](Person._ID, Person.FIRST_NAME, Person.LAST_NAME)
@@ -81,7 +96,7 @@ class DocumentationManager @Inject() (
 
       def getGetPersonsResponseParameters: Map[String, String] = {
         var parameters: Map[String, String] = Map[String, String]()
-        parameters += (HttpConstants.headerFields.xTotalCount -> messages(MessageConstants.documentation.common.xTotalCountDescription))
+        parameters += (HttpConstants.headerFields.xTotalCount -> messages(MessageConstants.documentation.common.totalCountDescription))
         parameters += (HttpConstants.headerFields.link -> messages(MessageConstants.documentation.common.linkDescription))
         parameters
       }
@@ -129,7 +144,7 @@ class DocumentationManager @Inject() (
 
       def getSearchPersonsHeadersParameters: Map[String, String] = {
         var parameters: Map[String, String] = Map[String, String]()
-        parameters += (HttpConstants.headerFields.xTotalCount -> messages(MessageConstants.documentation.common.xTotalCountDescription))
+        parameters += (HttpConstants.headerFields.xTotalCount -> messages(MessageConstants.documentation.common.totalCountDescription))
         parameters += (HttpConstants.headerFields.link -> messages(MessageConstants.documentation.common.linkDescription))
         parameters
       }
@@ -264,6 +279,84 @@ class DocumentationManager @Inject() (
       deletePersonOperation
     }
     availableOperations :+= getDeletePersonOperation
+
+    availableOperations
+  }
+
+  def getAuthenticationOperations(implicit messages: Messages): Seq[Operation] = {
+    var availableOperations: Seq[Operation] = Seq[Operation]()
+
+    def getSignInOperation = {
+      val signInOperation = Operation()
+      signInOperation.call = Some(routes.AuthenticationController.signin())
+      signInOperation.description = Some(messages(MessageConstants.documentation.authentication.signInDescription))
+
+      def getSignInParameters: Map[String, String] = {
+        var parameters: Map[String, String] = Map[String, String]()
+        parameters += (HttpConstants.headerFields.apiKey -> messages(MessageConstants.documentation.common.apiKeyDescription))
+        parameters
+      }
+
+      val signInpersonJson = Json.obj(
+        Person.EMAIL -> StringUtils.EMPTY,
+        Person.PASSWORD -> StringUtils.EMPTY)
+
+      val signInRequest = RequestContents()
+      signInRequest.headers = Some(getSignInParameters)
+      signInRequest.body = Some(signInpersonJson)
+      signInOperation.request = Some(signInRequest)
+
+      val jsonResponse = Json.obj(
+        ApiToken.TOKEN_FIELD -> StringUtils.EMPTY,
+        ApiToken.DURATION_FIELD -> 0)
+
+      val signInResponse = RequestContents()
+      signInResponse.body = Some(jsonResponse)
+      signInOperation.response = Some(signInResponse)
+
+      def signInPersonsCodes: Map[String, String] = {
+        var codes: Map[String, String] = Map[String, String]()
+        codes += (Http.Status.OK.toString() -> messages(MessageConstants.http.ok))
+        codes += (Http.Status.UNPROCESSABLE_ENTITY.toString() -> messages(MessageConstants.http.unprocessableEntity))
+        codes += (Http.Status.FORBIDDEN.toString() -> messages(MessageConstants.http.forbidden))
+        codes
+      }
+
+      signInOperation.codes = Some(signInPersonsCodes)
+      signInOperation
+    }
+    availableOperations :+= getSignInOperation
+
+    def getSignOutOperation = {
+      val signOutOperation = Operation()
+      signOutOperation.call = Some(routes.AuthenticationController.signout())
+      signOutOperation.description = Some(messages(MessageConstants.documentation.authentication.signOutDescription))
+
+      def getSignOutParameters: Map[String, String] = {
+        var parameters: Map[String, String] = Map[String, String]()
+        parameters += (HttpConstants.headerFields.apiKey -> messages(MessageConstants.documentation.common.apiKeyDescription))
+        parameters += (HttpConstants.headerFields.authToken -> messages(MessageConstants.documentation.common.authTokenDescription))
+        parameters
+      }
+
+      val signOutRequest = RequestContents()
+      signOutRequest.headers = Some(getSignOutParameters)
+      signOutOperation.request = Some(signOutRequest)
+
+      val signOutResponse = RequestContents()
+      signOutOperation.response = Some(signOutResponse)
+
+      def signOutPersonsCodes: Map[String, String] = {
+        var codes: Map[String, String] = Map[String, String]()
+        codes += (Http.Status.FORBIDDEN.toString() -> messages(MessageConstants.http.forbidden))
+        codes += (Http.Status.NO_CONTENT.toString() -> messages(MessageConstants.http.noContent))
+        codes
+      }
+
+      signOutOperation.codes = Some(signOutPersonsCodes)
+      signOutOperation
+    }
+    availableOperations :+= getSignOutOperation
 
     availableOperations
   }

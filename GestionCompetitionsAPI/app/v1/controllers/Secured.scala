@@ -12,9 +12,9 @@ import play.Logger
 
 trait Secured {
 
-  def apiKeyOpt(request: RequestHeader) = request.headers.get(HttpConstants.headerFields.HEADER_API_KEY)
+  def apiKeyOpt(request: RequestHeader) = request.headers.get(HttpConstants.headerFields.apiKey)
 
-  def authTokenOpt(request: RequestHeader) = request.headers.get(HttpConstants.headerFields.HEADER_AUTH_TOKEN)
+  def authTokenOpt(request: RequestHeader) = request.headers.get(HttpConstants.headerFields.authToken)
 
   def onUnauthorized(request: RequestHeader): Result = Results.Forbidden
 

@@ -23,6 +23,8 @@ case class ApiToken(
 
 object ApiToken {
 
+  final val TOKEN_FIELD = "token"
+  final val DURATION_FIELD = "minutes"
   final val TOKEN_DURATION = 1
 
   val apiKeys = Map[String, String](
