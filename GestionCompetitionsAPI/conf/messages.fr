@@ -27,6 +27,8 @@ template.empty=Rien à afficher
 template.errors=Erreur(s)
 template.response=Réponse
 template.codes=Code(s)
+template.mainError=Erreur principale
+template.subErrors= Sous erreur(s)
 
 #Documentation
 #Common
@@ -46,3 +48,6 @@ documentation.person.getPersonIdParameterDescription=L''identifiant de la person
 documentation.person.addPersonDescription=Ajoute une nouvelle personne à la base de données
 documentation.person.editPersonDescription=Met à jour la personne avec l''identifiant renseigné dans les paramètres
 documentation.person.deletePersonDescription=Supprime la personne avec l''identifiant renseigné dans les paramètres
+
+#Not defined in french (Json Validation)
+error.minLength=La longueur minimum est de {0}

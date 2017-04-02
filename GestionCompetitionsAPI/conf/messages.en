@@ -27,6 +27,8 @@ template.empty=Nothing to display
 template.errors=Error(s)
 template.response=Response
 template.codes=Code(s)
+template.mainError=Main error
+template.subErrors= Sub error(s)
 
 #Documentation
 #Common

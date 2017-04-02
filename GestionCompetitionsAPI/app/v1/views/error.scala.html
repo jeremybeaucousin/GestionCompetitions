@@ -2,12 +2,12 @@
 @import play.api.i18n.Messages
 @import v1.constantes.MessageConstants
 
-@(errors: List[Error])(implicit messages: Messages)
+@(error: Error)(implicit messages: Messages)
 
 @defining(messages(MessageConstants.title.error)) { title =>
 	@main(title) {
 		@titleTemplate(title)
-		@for(error <- errors) {
+		<h2>@messages(MessageConstants.template.mainError)</h2>
 		<div class="panel panel-danger">
 			<div class="panel-heading">
 				<strong>Code</strong> : @error.code; 
@@ -16,6 +16,18 @@
 				<strong>Message</strong> : @error.userMessage
 			</div>
 		</div>
+		@if(error.errors.isDefined) {
+			<h2>@messages(MessageConstants.template.subErrors)</h2>
+			@for(subError <- error.errors.get) {
+			<div class="panel panel-danger">
+				<div class="panel-heading">
+					<strong>Code</strong> : @subError.field; 
+				</div>
+				<div class="panel-body">
+					<strong>Message</strong> : @subError.userMessage
+				</div>
+			</div>
+			}
 		}
 	}
 }

@@ -3,36 +3,33 @@ package v1.http
 import java.io.PrintWriter
 import java.io.StringWriter
 
+import scala.concurrent._
 import scala.concurrent.Future
 
 import org.apache.http.HttpStatus
 
 import errors.BusinessException
 import javax.inject.Inject
+import javax.inject.Provider
 import javax.inject.Singleton
+import play.api._
 import play.api.Logger
+import play.api.http.DefaultHttpErrorHandler
 import play.api.http.MediaRange
 import play.api.http.MimeTypes
-import play.api.i18n.I18nComponents
+import play.api.http.Writeable
 import play.api.i18n.Messages
+import play.api.i18n.MessagesApi
+import play.api.libs.json.JsResultException
 import play.api.libs.json.Json
+import play.api.mvc._
 import play.api.mvc.RequestHeader
+import play.api.mvc.Results._
 import play.api.mvc.Results.BadRequest
 import play.api.mvc.Results.InternalServerError
 import play.api.mvc.Results.Status
-import v1.constantes.MessageConstants
-import scala.concurrent.ExecutionContext
-import play.api.http.DefaultHttpErrorHandler
-import play.api._
-import play.api.mvc._
-import play.api.mvc.Results._
 import play.api.routing.Router
-import scala.concurrent._
-import javax.inject.Provider
-import play.api.i18n.MessagesApi
-import play.api.http.Writeable
-import com.fasterxml.jackson.annotation.JsonValue
-import play.api.libs.json.JsResultException
+import v1.constantes.MessageConstants
 
 @Singleton
 class ErrorHandler @Inject() (
@@ -48,68 +45,70 @@ class ErrorHandler @Inject() (
   def messages_(requestHeader: RequestHeader): Unit = {
     messages = messagesApi.preferred(requestHeader)
   }
+
   override def onClientError(requestHeader: RequestHeader, statusCode: Int, message: String) = {
     messages_(requestHeader)
     val userMessage = messages(MessageConstants.error.client, requestHeader.path)
-    var errors: List[Error] = List[Error]()
-    val error: Error = new Error(
-      Some(statusCode),
-      Some(userMessage),
-      Some(message),
-      None)
-    errors = error :: errors
-    val preferedContentType = getPrefferedContentType(requestHeader)
-    if (preferedContentType.accepts(MimeTypes.JSON)) {
-      Future.successful(Status(statusCode)(Json.obj("errors" -> errors)))
+    val error: Error = Error()
+    error.code = Some(statusCode)
+    error.userMessage = Some(userMessage)
+    error.internalMessage = Some(message)
+    if (getPrefferedContentType(requestHeader).accepts(MimeTypes.JSON)) {
+      Future.successful(Status(statusCode)(Json.toJson(error)))
     } else {
-      Future.successful(Status(statusCode)(v1.views.html.error(errors)))
+      Future.successful(Status(statusCode)(v1.views.html.error(error)))
     }
   }
 
   override def onServerError(requestHeader: RequestHeader, exception: Throwable) = {
     messages_(requestHeader)
     val userMessage = messages(MessageConstants.error.server, requestHeader.path)
-    var errors: List[Error] = List[Error]()
 
     val sw = new StringWriter
     exception.printStackTrace(new PrintWriter(sw))
     Logger.error(sw.toString)
 
-    val error: Error = Error()
+    var error: Error = Error()
     error.userMessage = Some(userMessage)
     error.internalMessage = Some(exception.getMessage)
     error.moreInfo = Some(sw.toString)
 
-    errors = error :: errors
-
-    val preferedContentType = getPrefferedContentType(requestHeader)
-
-    def result[T](contents: T)(implicit writeable: Writeable[T]) = {
-      error.code = Some(HttpStatus.SC_BAD_REQUEST)
-      if (exception.isInstanceOf[BusinessException]) {
-        Future.successful(BadRequest(contents))
-      } else if (exception.isInstanceOf[JsResultException]) {
-        val jsError = exception.asInstanceOf[JsResultException]
-        jsError.errors.foreach(jsError => {
-          Logger.info(jsError._1.toJsonString)
-          jsError._2.foreach(fields => {
-            Logger.info(fields.toString())
-            Logger.info("args : " + fields.args.toString())
-            Logger.info("message : " + fields.message.toString())
-            Logger.info("messages : " + fields.messages.toString())
-          })
+    var result = InternalServerError
+    if (exception.isInstanceOf[BusinessException]) {
+      error.code = Some(HttpStatus.SC_UNPROCESSABLE_ENTITY)
+      result = UnprocessableEntity
+      // Error coming from form validation
+    } else if (exception.isInstanceOf[JsResultException]) {
+      error.code = Some(HttpStatus.SC_UNPROCESSABLE_ENTITY)
+      val jsError = exception.asInstanceOf[JsResultException]
+      // Create the list containing the sub errors
+      var errors: List[Error] = List[Error]()
+      jsError.errors.foreach(jsError => {
+        val subError = Error()
+        // Add field
+        subError.field = Some(jsError._1.toJsonString)
+        jsError._2.foreach(details => {
+          val sw = new StringWriter
+          // The messages and arguments are in two differents lists
+          for (i <- 0 to details.messages.size - 1) {
+            Logger.info(details.messages(i))
+            sw.append(messages(details.messages(i), details.args(i)))
+          }
+          subError.userMessage = Some(sw.toString())
         })
-        Future.successful(BadRequest(jsError.toString()))
-      } else {
-        error.code = Some(HttpStatus.SC_INTERNAL_SERVER_ERROR)
-        Future.successful(InternalServerError(contents))
-      }
+        errors = subError :: errors
+      })
+      error.errors = Some(errors)
+      result = UnprocessableEntity
+    } else {
+      error.code = Some(HttpStatus.SC_INTERNAL_SERVER_ERROR)
+      result = InternalServerError
     }
 
-    if (preferedContentType.accepts(MimeTypes.JSON)) {
-      result(Json.obj("errors" -> errors))
+    if (getPrefferedContentType(requestHeader).accepts(MimeTypes.JSON)) {
+      Future.successful(result(Json.toJson(error)))
     } else {
-      result(v1.views.html.error(errors))
+      Future.successful(result(v1.views.html.error(error)))
     }
   }
 
@@ -121,5 +120,4 @@ class ErrorHandler @Inject() (
       MediaRange.parse(MimeTypes.JSON)(0)
     }
   }
-
 }

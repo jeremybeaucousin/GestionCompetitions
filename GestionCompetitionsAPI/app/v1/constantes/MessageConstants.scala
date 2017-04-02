@@ -56,6 +56,8 @@ final object MessageConstants {
     private final val ERRORS = "errors"
     private final val RESPONSE = "response"
     private final val CODES = "codes"
+    private final val MAIN_ERROR = "mainError"
+    private final val SUB_ERRORS = "subErrors"
 
     def headers: String = PREFIX + HEADERS
     def request: String = PREFIX + REQUEST
@@ -65,6 +67,8 @@ final object MessageConstants {
     def errors: String = PREFIX + ERRORS
     def response: String = PREFIX + RESPONSE
     def codes: String = PREFIX + CODES
+    def mainError: String = PREFIX + MAIN_ERROR
+    def subErrors: String = PREFIX + SUB_ERRORS
   }
 
   final object Documentation {
