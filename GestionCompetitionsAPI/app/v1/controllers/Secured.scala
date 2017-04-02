@@ -18,6 +18,7 @@ trait Secured {
 
   def onUnauthorized(request: RequestHeader): Result = Results.Forbidden
 
+  // TODO SEE why comments code do not work
   def withToken(apiToken: ApiToken => Request[AnyContent] => Future[Result]) = {
     Action.async(
       request => {

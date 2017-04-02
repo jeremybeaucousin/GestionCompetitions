@@ -16,7 +16,7 @@ import play.Logger
 import v1.utils.SecurityUtil
 import errors.EmailAlreadyRegisterdException
 
-class PersonManager @Inject() (val personDAO: PersonDAO[Person])(implicit val ec: ExecutionContext) {
+class PersonServices @Inject() (val personDAO: PersonDAO[Person])(implicit val ec: ExecutionContext) {
 
   def getTotalCount(personOption: Option[Person], searchInValues: Option[Boolean]): Future[Int] = {
     personDAO.getTotalCount(personOption, searchInValues)
@@ -39,6 +39,8 @@ class PersonManager @Inject() (val personDAO: PersonDAO[Person])(implicit val ec
     personWithEmainOnly.email = person.email
     personDAO.searchPersons(Some(personWithEmainOnly), None, None, None, None, None)
   }
+
+  // TODO Optimize to avoid successive else
   def authenticate(person: Person): Future[Option[Person]] = {
     if (person.email.isDefined && person.email.isDefined) {
       val futurePersons = searchPersonWithEmail(person)
@@ -46,17 +48,11 @@ class PersonManager @Inject() (val personDAO: PersonDAO[Person])(implicit val ec
       if (!persons.isEmpty) {
         val firstPerson = persons(0)
         if (firstPerson.encryptedPassword.isDefined && SecurityUtil.checkPassword(person.password.get, firstPerson.encryptedPassword.get)) {
-          Future(Some(firstPerson))
-        } else {
-          Future(None)
+          return Future(Some(firstPerson))
         }
-      } else {
-        Future(None)
       }
-    } else {
-      Future(None)
     }
-
+    Future(None)
   }
 
   def getPerson(id: String, fieldsOption: Option[Seq[String]]): Future[Option[Person]] = {
@@ -72,15 +68,15 @@ class PersonManager @Inject() (val personDAO: PersonDAO[Person])(implicit val ec
     }
 
     if (person.email.isDefined) {
-      Logger.info(person.email.get)
       val futurePersons = searchPersonWithEmail(person)
       val personResult = Await.ready(futurePersons, Duration.Inf).value.get.get
-      Logger.info(personResult.toString())
       if (!personResult.isEmpty) {
         val personWithActiveAccount = personResult.find(person => person.encryptedPassword.isDefined)
         if (personWithActiveAccount.isDefined) {
-          Logger.info(personWithActiveAccount.get.email.get)
           throw new EmailAlreadyRegisterdException
+        } else {
+          // TODO send the persons back
+          return Future("Fake_ID")
         }
       }
     }

@@ -22,7 +22,7 @@ import v1.bo.Address
 import play.Logger
 
 @Singleton
-class DocumentationManager @Inject() (
+class DocumentationServices @Inject() (
     implicit val ec: ExecutionContext) {
 
   final val personCompleteExemple = new Person(

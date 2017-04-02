@@ -8,7 +8,7 @@ import akka.actor.ActorSystem
 import javax.inject.Inject
 import javax.inject.Singleton
 import play.api.inject.ApplicationLifecycle
-import v1.managers.DocumentationManager
+import v1.managers.DocumentationServices
 import v1.services.ApplicationTimer
 import v1.services.AtomicCounter
 import v1.services.Counter
@@ -21,7 +21,7 @@ class Module extends AbstractModule {
     bind(classOf[Clock]).toInstance(Clock.systemDefaultZone)
     bind(classOf[ApplicationTimer]).asEagerSingleton()
     bind(classOf[Counter]).to(classOf[AtomicCounter])
-    bind(classOf[DocumentationManager]).asEagerSingleton()
+    bind(classOf[DocumentationServices]).asEagerSingleton()
     bind(classOf[RecurrentTask]).asEagerSingleton()
   }
 

@@ -10,7 +10,7 @@ import reactivemongo.bson.BSONArray
 import reactivemongo.bson.BSONString
 import play.api.mvc.Result
 import javax.inject.Inject
-import v1.services.PersonManager
+import v1.services.PersonServices
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.util.Failure

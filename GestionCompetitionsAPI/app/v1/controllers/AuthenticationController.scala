@@ -18,21 +18,21 @@ import play.api.libs.json.JsValue
 import play.Logger
 import org.mindrot.jbcrypt.BCrypt
 import v1.utils.SecurityUtil._
-import v1.managers.DocumentationManager
-import v1.services.PersonManager
+import v1.managers.DocumentationServices
+import v1.services.PersonServices
 import v1.constantes.MessageConstants
 import v1.bo.Operation
 
 class AuthenticationController @Inject() (
-  val documentationManager: DocumentationManager,
-  val personManager: PersonManager,
+  val documentationServices: DocumentationServices,
+  val personServices: PersonServices,
   val messagesApi: MessagesApi)
     extends Controller with I18nSupport with Secured {
 
   def index = Action.async { implicit request =>
     val rootUrl: String = routes.AuthenticationController.index.url
     val title: String = messagesApi(MessageConstants.title.documentation, rootUrl)
-    val availableOperations: Seq[Operation] = documentationManager.getAuthenticationOperations
+    val availableOperations: Seq[Operation] = documentationServices.getAuthenticationOperations
     render.async {
       case Accepts.Html() => Future.successful(Ok(v1.views.html.documentation(title, availableOperations)))
     }
@@ -40,16 +40,16 @@ class AuthenticationController @Inject() (
 
   def signup = Action.async(BodyParsers.parse.json) { implicit request =>
     val person = request.body.as[Person]
-    personManager.createAccount(person)
+    personServices.createAccount(person)
     Future(Ok)
   }
 
-  // TODO Externalyse this
+  // TODO Externalyse this or opimize to avoir successive else
   def signin = Action.async(BodyParsers.parse.json) { implicit request =>
     val apiKeyOpt = request.headers.get(HttpConstants.headerFields.apiKey)
     if (apiKeyOpt.isDefined && ApiToken.apiKeysExists(apiKeyOpt.get)) {
       val person = request.body.as[Person]
-      val futurePerson = personManager.authenticate(person)
+      val futurePerson = personServices.authenticate(person)
       futurePerson.flatMap(person => {
         if (person.isDefined && person.get._id.isDefined) {
           ApiToken.create(apiKeyOpt.get, person.get._id.get).map(token =>
