@@ -39,14 +39,16 @@ class AuthenticationController @Inject() (
     BCrypt.checkpw(candidate, encryptedPassword);
   }
 
-  def signup = Action.async { implicit request =>
+  def signup = withToken { authToken =>
+    implicit request =>
     val ecryptedTest = createPassword("test")
     val ecryptedTest2 = createPassword("test2")
-    Logger.info(ecryptedTest)
-    Logger.info(checkPassword("test", ecryptedTest).toString())
-    Logger.info(checkPassword("test2", ecryptedTest).toString())
-    Logger.info(checkPassword("test1", ecryptedTest2).toString())
-    Logger.info(checkPassword("test2", ecryptedTest2).toString())
+//    Logger.info(ecryptedTest)
+//    Logger.info(checkPassword("test", ecryptedTest).toString())
+//    Logger.info(checkPassword("test2", ecryptedTest).toString())
+//    Logger.info(checkPassword("test1", ecryptedTest2).toString())
+//    Logger.info(checkPassword("test2", ecryptedTest2).toString())
+    ApiToken.cleanTokenStore
     
     Future(Ok)
   }

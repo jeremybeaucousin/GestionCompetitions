@@ -18,43 +18,33 @@ trait Secured {
 
   def onUnauthorized(request: RequestHeader): Result = Results.Forbidden
 
-  def withAuth(f: => String => Request[AnyContent] => Future[Result]) = {
-    Security.Authenticated(authTokenOpt, onUnauthorized) { authToken =>
-      Action.async(request => f(authToken)(request))
-    }
-  }
-  // TODO D'ont know why a result is needed
-  /**
-   * Test if Api key exists and is valide, in that case check if the token exists and has not expired yet.
-   * 
-   * 
- * @param apiToken
- * @return
- */
-def withToken(apiToken: ApiToken => Request[AnyContent] => Future[Result]) = withAuth { authToken =>
-    implicit request =>
-      val apiKeyOption = (apiKeyOpt(request))
-      if (apiKeyOption.isDefined && ApiToken.apiKeysExists(apiKeyOption.get)) {
-        val futureToken = ApiToken.findByTokenAndApiKey(authToken, apiKeyOpt(request).get)
-        //        futureToken.map(tokenOption => {
-        //          if (tokenOption.isDefined && !tokenOption.get.isExpired) {
-        //            val apiTokenFound = tokenOption.get
-        //            ApiToken.raiseTokenDuration(apiTokenFound)
-        //            apiToken(apiTokenFound)(request)
-        //          } else {
-        //            onUnauthorized(request)
-        //          }
-        //        })
-        val apiTokenOpt = Await.ready(futureToken, Duration.Inf).value.get.get
-        if (apiTokenOpt.isDefined && !apiTokenOpt.get.isExpired) {
-          val apiTokenFound = apiTokenOpt.get
-          ApiToken.raiseTokenDuration(apiTokenFound)
-          apiToken(apiTokenFound)(request)
+  def withToken(apiToken: ApiToken => Request[AnyContent] => Future[Result]) = {
+    Action.async(
+      request => {
+        val apiKeyOption = (apiKeyOpt(request))
+        val authTokenOption = (authTokenOpt(request))
+        if (apiKeyOption.isDefined && ApiToken.apiKeysExists(apiKeyOption.get) && authTokenOption.isDefined) {
+          val futureToken = ApiToken.findByTokenAndApiKey(authTokenOption.get, apiKeyOption.get)
+          //          futureToken.map(tokenOption => {
+          //            if (tokenOption.isDefined && !tokenOption.get.isExpired) {
+          //              val apiTokenFound = tokenOption.get
+          //              ApiToken.raiseTokenDuration(apiTokenFound)
+          //              apiToken(apiTokenFound)(request)
+          //            } else {
+          //              onUnauthorized(request)
+          //            }
+          //          })
+          val apiTokenOpt = Await.ready(futureToken, Duration.Inf).value.get.get
+          if (apiTokenOpt.isDefined && !apiTokenOpt.get.isExpired) {
+            val apiTokenFound = apiTokenOpt.get
+            ApiToken.raiseTokenDuration(apiTokenFound)
+            apiToken(apiTokenFound)(request)
+          } else {
+            Future(onUnauthorized(request))
+          }
         } else {
           Future(onUnauthorized(request))
         }
-      } else {
-        Future(onUnauthorized(request))
-      }
+      })
   }
 }

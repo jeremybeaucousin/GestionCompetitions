@@ -22,7 +22,7 @@ case class ApiToken(
 
 object ApiToken {
 
-  final val TOKEN_DURATION = 30
+  final val TOKEN_DURATION = 1
 
   val apiKeys = Map[String, String](
     "Web-App" -> "tkdhkd44")
@@ -70,6 +70,8 @@ object ApiToken {
   }
 
   def cleanTokenStore = {
+    Logger.info(tokenStore.size.toString())
     tokenStore = tokenStore.dropWhile(storedApiToken => storedApiToken.isExpired)
+    Logger.info(tokenStore.size.toString())
   }
 }
