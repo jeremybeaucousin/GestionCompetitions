@@ -16,11 +16,13 @@ final object MessageConstants {
     private final val CLIENT = "client"
     private final val SAME_NAMES_HOMONYM: String = "sameNamesHomonym"
     private final val SAME_NAMES_AND_BIRTH_HOMONYM: String = "sameNamesAndbirthDateHomonym"
+    private final val PASSWORD: String = "password"
 
     def server: String = PREFIX + SERVER
     def client: String = PREFIX + CLIENT
     def sameNamesHomonym: String = PREFIX + SAME_NAMES_HOMONYM
     def sameNamesAndbirthDateHomonym: String = PREFIX + SAME_NAMES_AND_BIRTH_HOMONYM
+    def password: String = PREFIX + PASSWORD
 
   }
 

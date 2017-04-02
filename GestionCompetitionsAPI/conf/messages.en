@@ -48,3 +48,6 @@ documentation.person.getPersonIdParameterDescription=the person identifier as st
 documentation.person.addPersonDescription=Add a new person to the database
 documentation.person.editPersonDescription=Update the person with the identifier set in parameters
 documentation.person.deletePersonDescription=Delete the person with the identifier set in parameters
+
+#Some not defined in french (Json Validation)
+error.password=A valide password is required between 8 and 15 characters

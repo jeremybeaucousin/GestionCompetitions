@@ -4,12 +4,16 @@ import java.util.Date
 
 import org.apache.commons.lang3.StringUtils
 import org.joda.time.DateTime
+import v1.constantes.MessageConstants
 
 abstract trait User {
   def _id: Option[String]
   def firstName: Option[String]
   def lastName: Option[String]
   def birthDate: Option[Date]
+  def email: Option[String]
+  def password: Option[String]
+  def encryptedPassword: Option[String]
   def addresses: Option[List[Address]]
 }
 
@@ -18,6 +22,9 @@ case class Person(
     var firstName: Option[String] = Some(StringUtils.EMPTY),
     var lastName: Option[String] = Some(StringUtils.EMPTY),
     var birthDate: Option[Date] = Some(new Date),
+    var email: Option[String] = Some(StringUtils.EMPTY),
+    var password: Option[String] = Some(StringUtils.EMPTY),
+    var encryptedPassword: Option[String] = Some(StringUtils.EMPTY),
     var addresses: Option[List[Address]] = Some(List[Address](new Address, new Address))) extends User {
 
   def toTaekwondoist(): Taekwondoist = {
@@ -26,6 +33,9 @@ case class Person(
       firstName,
       lastName,
       birthDate,
+      email,
+      password,
+      encryptedPassword,
       addresses)
   }
 
@@ -47,33 +57,30 @@ object Person {
   final val FIRST_NAME: String = "firstName"
   final val LAST_NAME: String = "lastName"
   final val BIRTH_DATE: String = "birthDate"
+  final val EMAIL = "email"
+  final val PASSWORD = "password"
+  final val ENCRYPTED_PASSWORD = "encryptedPassword"
   final val ADDRESSES: String = "addresses"
 
-  //Reads.email
+  /**
+   * Convert a json into a Person
+   * @return
+   */
   val personReads: Reads[Person] = (
     (JsPath \ _ID).readNullable[String](minLength[String](24) keepAnd maxLength[String](24)) and
     (JsPath \ FIRST_NAME).readNullable[String](minLength[String](2)) and
     (JsPath \ LAST_NAME).readNullable[String](minLength[String](2)) and
     (JsPath \ BIRTH_DATE).readNullable[Date] and
+    (JsPath \ EMAIL).readNullable[String](email) and
+    (JsPath \ PASSWORD).readNullable[String](pattern("""[a-zA-Z0-9@*#]{8,15}""".r, MessageConstants.error.password)) and
+    // Extract empty to not receive an encrypted password by clients (only for database)
+    (JsPath \ StringUtils.EMPTY).readNullable[String] and
     (JsPath \ ADDRESSES).readNullable[List[Address]])(Person.apply _)
 
-  //  object PersonReads extends Reads[Person] {
-  //    def reads(json: JsValue): JsResult[Person] = json match {
-  //      case obj: JsValue => try {
-  //        JsSuccess(Person(
-  //          (obj \ _ID).asOpt[String],
-  //          (obj \ FIRST_NAME).asOpt[String],
-  //          (obj \ LAST_NAME).asOpt[String],
-  //          (obj \ BIRTH_DATE).asOpt[Date],
-  //          (obj \ ADDRESSES).asOpt[List[Address]]))
-  //      } catch {
-  //        case cause: Throwable => JsError(cause.getMessage)
-  //      }
-  //
-  //      case _ => JsError("expected.jsobject")
-  //    }
-  //  }
-
+  /**
+   * Convert a Person into a json, passwords are not sent to the clients
+   * @return
+   */
   object PersonWrites extends Writes[Person] {
     def writes(person: Person): JsObject = {
       var json = Json.obj()
@@ -85,6 +92,8 @@ object Person {
         json += (LAST_NAME -> JsString(person.lastName.get))
       if (person.birthDate.isDefined)
         json += (BIRTH_DATE -> JsString(new DateTime(person.birthDate.get).toString()))
+      if (person.email.isDefined)
+        json += (EMAIL -> JsString(person.email.get))
       if (person.addresses.isDefined)
         json += (ADDRESSES -> Json.toJson(person.addresses.get))
       json
@@ -93,21 +102,15 @@ object Person {
 
   implicit object personFormat extends Format[Person] {
     def reads(json: JsValue) = personReads.reads(json)
-//    {
-//      json.validate[Person] match {
-//        case personResults: JsSuccess[Person] => {
-//          JsSuccess(personResults.get)
-//        }
-//        case e: JsError => {
-//          JsError("expected.jsobject")
-//        }
-//      }
-//    }
     def writes(person: Person) = PersonWrites.writes(person)
   }
 
   import reactivemongo.bson._
 
+  /**
+   * Convert a Person into a Bson for MongoDb, only the encrypted password is stored
+   * @return
+   */
   implicit object PersonWriter extends BSONDocumentWriter[Person] {
     def write(person: Person): BSONDocument = {
       var bson = BSONDocument()
@@ -119,12 +122,20 @@ object Person {
         bson ++= (LAST_NAME -> person.lastName.get)
       if (person.birthDate.isDefined)
         bson ++= (BIRTH_DATE -> person.birthDate.get)
+      if (person.email.isDefined)
+        bson ++= (EMAIL -> person.email.get)
+      if (person.encryptedPassword.isDefined)
+        bson ++= (ENCRYPTED_PASSWORD -> person.encryptedPassword.get)
       if (person.addresses.isDefined)
         bson ++= (ADDRESSES -> person.addresses.get)
       bson
     }
   }
 
+  /**
+   * Convert a Bson from MongoDb into a Person, , only the encrypted password is read
+   * @return
+   */
   implicit object PersonReader extends BSONDocumentReader[Person] {
     def read(bson: BSONDocument): Person = {
       Person(
@@ -132,6 +143,9 @@ object Person {
         bson.getAs[String](FIRST_NAME),
         bson.getAs[String](LAST_NAME),
         bson.getAs[Date](BIRTH_DATE),
+        bson.getAs[String](EMAIL),
+        None,
+        bson.getAs[String](ENCRYPTED_PASSWORD),
         bson.getAs[List[Address]](ADDRESSES))
     }
   }

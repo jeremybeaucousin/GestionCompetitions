@@ -49,5 +49,7 @@ documentation.person.addPersonDescription=Ajoute une nouvelle personne à la bas
 documentation.person.editPersonDescription=Met à jour la personne avec l''identifiant renseigné dans les paramètres
 documentation.person.deletePersonDescription=Supprime la personne avec l''identifiant renseigné dans les paramètres
 
-#Not defined in french (Json Validation)
+#Some not defined in french (Json Validation)
 error.minLength=La longueur minimum est de {0}
+error.email=Une addresse mail valide est requise
+error.password=Une mot de passe valide est requis entre 8 et 15 caractères

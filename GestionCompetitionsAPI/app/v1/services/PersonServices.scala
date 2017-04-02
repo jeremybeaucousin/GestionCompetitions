@@ -14,7 +14,7 @@ import reactivemongo.bson.BSONDocumentReader
 import reactivemongo.bson.BSONDocumentWriter
 import play.Logger
 
-class PersonManager[T] @Inject() (val personDAO: PersonDAO[T])(implicit val ec: ExecutionContext) {
+class PersonManager @Inject() (val personDAO: PersonDAO[Person])(implicit val ec: ExecutionContext) {
 
   def getTotalCount(personOption: Option[Person], searchInValues: Option[Boolean]): Future[Int] = {
     personDAO.getTotalCount(personOption, searchInValues)
@@ -24,9 +24,7 @@ class PersonManager[T] @Inject() (val personDAO: PersonDAO[T])(implicit val ec: 
     personDAO.searchPersons(personOption, searchInValues, sortOption, fieldsOption, offsetOption, limitOption)
   }
 
-  def getPerson(id: String, fieldsOption: Option[Seq[String]])(
-    implicit bSONDocumentReader: BSONDocumentReader[T],
-    bSONDocumentWriter: BSONDocumentWriter[T]): Future[Option[T]] = {
+  def getPerson(id: String, fieldsOption: Option[Seq[String]]): Future[Option[Person]] = {
     personDAO.getPerson(id, fieldsOption)
   }
 

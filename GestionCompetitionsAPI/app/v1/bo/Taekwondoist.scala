@@ -16,6 +16,9 @@ case class Taekwondoist(
     var firstName: Option[String] = Some(StringUtils.EMPTY),
     var lastName: Option[String] = Some(StringUtils.EMPTY),
     var birthDate: Option[Date] = Some(new Date),
+    var email: Option[String] = Some(StringUtils.EMPTY),
+    var password: Option[String] = Some(StringUtils.EMPTY),
+    var encryptedPassword: Option[String] = Some(StringUtils.EMPTY),
     var addresses: Option[List[Address]] = Some(List[Address](new Address, new Address)),
     var passportNumber: Option[Int] = Some(0),
     var grade: Option[String] = Some(null)) extends User {
@@ -26,6 +29,9 @@ case class Taekwondoist(
       firstName,
       lastName,
       birthDate,
+      email,
+      password,
+      encryptedPassword,
       addresses)
   }
 }

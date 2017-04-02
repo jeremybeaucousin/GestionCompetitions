@@ -30,6 +30,7 @@ import play.api.mvc.Results.InternalServerError
 import play.api.mvc.Results.Status
 import play.api.routing.Router
 import v1.constantes.MessageConstants
+import org.apache.commons.lang3.StringUtils
 
 @Singleton
 class ErrorHandler @Inject() (
@@ -91,8 +92,8 @@ class ErrorHandler @Inject() (
           val sw = new StringWriter
           // The messages and arguments are in two differents lists
           for (i <- 0 to details.messages.size - 1) {
-            Logger.info(details.messages(i))
-            sw.append(messages(details.messages(i), details.args(i)))
+            val argument = if(details.args.isDefinedAt(i)) details.args(i) else StringUtils.EMPTY
+            sw.append(messages(details.messages(i), argument))
           }
           subError.userMessage = Some(sw.toString())
         })
