@@ -8,6 +8,7 @@ import scala.collection.mutable.Map
 import play.Logger
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
+import v1.utils.SeqUtil
 
 /*
 * Stores the Auth Token information. Each token belongs to a Api Key and user
@@ -64,14 +65,19 @@ object ApiToken {
     val futurApiToken = findByTokenAndApiKey(apiToken.token, apiToken.apiKey)
     val apiTokenFound = Await.ready(futurApiToken, Duration.Inf).value.get.get
     if (apiTokenFound.isDefined) {
-      val tokenStoreIndex = tokenStore.indexOf(apiTokenFound.get)
-      tokenStore = tokenStore.patch(tokenStoreIndex, Nil, 1)
+      Logger.info(tokenStore.size.toString())
+      tokenStore = SeqUtil.removeElementFromSeq(apiTokenFound.get, tokenStore)
+      Logger.info(tokenStore.size.toString())
     }
   }
 
+  /**
+   * Remove all expired token from the store
+   */
   def cleanTokenStore = {
-    Logger.info(tokenStore.size.toString())
-    tokenStore = tokenStore.dropWhile(storedApiToken => storedApiToken.isExpired)
-    Logger.info(tokenStore.size.toString())
+    def expiredToken = tokenStore.find(tokenResult => tokenResult.isExpired)
+    while (expiredToken.isDefined) {
+      tokenStore = SeqUtil.removeElementFromSeq(expiredToken.get, tokenStore)
+    }
   }
 }
