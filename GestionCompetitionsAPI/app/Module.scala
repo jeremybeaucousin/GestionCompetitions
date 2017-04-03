@@ -1,16 +1,17 @@
 import java.time.Clock
 
 import scala.concurrent.Future
+import scala.concurrent.duration.DurationInt
 
 import com.google.inject.AbstractModule
-import play.api.libs.concurrent.Execution.Implicits.defaultContext
+
 import akka.actor.ActorSystem
 import javax.inject.Inject
 import javax.inject.Singleton
-import play.api.inject.ApplicationLifecycle
-import v1.managers.DocumentationServices
 import models.ApiToken
-import scala.concurrent.duration._
+import play.api.inject.ApplicationLifecycle
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
+import v1.managers.DocumentationServices
 
 class Module extends AbstractModule {
 

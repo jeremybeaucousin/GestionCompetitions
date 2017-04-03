@@ -24,7 +24,6 @@ import reactivemongo.bson.BSONDocumentWriter
 import v1.bo.Person.PersonReader
 import reactivemongo.bson.BSONDocumentReader
 import scala.concurrent.duration.Duration
-import scala.concurrent.Await
 
 trait PersonRepo[T] {
 
@@ -60,7 +59,7 @@ trait PersonRepo[T] {
    * @return
    */
   def save(person: Person)(implicit bSONDocumentReader: BSONDocumentReader[T],
-                           bSONDocumentWriter: BSONDocumentWriter[T]): Future[Option[T]]
+                           bSONDocumentWriter: BSONDocumentWriter[T]): Future[WriteResult]
 }
 
 class PersonRepoImpl[T] @Inject() (val reactiveMongoApi: ReactiveMongoApi)(
@@ -113,23 +112,15 @@ class PersonRepoImpl[T] @Inject() (val reactiveMongoApi: ReactiveMongoApi)(
   }
 
   override def save(person: Person)(implicit bSONDocumentReader: BSONDocumentReader[T],
-                                    bSONDocumentWriter: BSONDocumentWriter[T]): Future[Option[T]] = {
-    val _id = MongoDbUtil.generateId().stringify
-    person._id = Some(_id)
-    val futureWriteResult = collection.flatMap(_.insert(person))
-    var futureResult = handleWriteResult(futureWriteResult)
-    val hasNoError = Await.ready(futureResult, Duration.Inf).value.get.getOrElse(false)
-    if (hasNoError) {
-      select(_id, None)
-    } else {
-      Future(None)
-    }
+                                    bSONDocumentWriter: BSONDocumentWriter[T]): Future[WriteResult] = {
+    collection.flatMap(_.insert(person))
   }
 
   private def constructId(id: String): BSONDocument = {
     BSONDocument("_id" -> id)
   }
 
+  // TODO Problem of return from mongo
   def handleWriteResult(FutureWriteResult: Future[WriteResult]): Future[Boolean] = {
     FutureWriteResult.map(writeResult => {
       !writeResult.hasErrors && writeResult.n > 0
