@@ -9,9 +9,6 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import play.api.inject.ApplicationLifecycle
 import v1.managers.DocumentationServices
-import v1.services.ApplicationTimer
-import v1.services.AtomicCounter
-import v1.services.Counter
 import models.ApiToken
 import scala.concurrent.duration._
 
@@ -19,8 +16,6 @@ class Module extends AbstractModule {
 
   override def configure() = {
     bind(classOf[Clock]).toInstance(Clock.systemDefaultZone)
-    bind(classOf[ApplicationTimer]).asEagerSingleton()
-    bind(classOf[Counter]).to(classOf[AtomicCounter])
     bind(classOf[DocumentationServices]).asEagerSingleton()
     bind(classOf[RecurrentTask]).asEagerSingleton()
   }

@@ -1,2 +1,2 @@
-d:
+D:
 mongod --dbpath sportsEventsManager 

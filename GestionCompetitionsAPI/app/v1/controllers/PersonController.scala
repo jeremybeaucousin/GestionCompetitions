@@ -81,13 +81,19 @@ class PersonController @Inject() (
   }
 
   def addPerson = Action.async(BodyParsers.parse.json) { implicit request =>
-    val futureId = personServices.addPerson(request.body.as[Person])
-    futureId.map { id =>
-      if (id != null && !id.isEmpty()) {
-        Created.withHeaders(HttpConstants.headerFields.location -> (routes.PersonController.getPerson(id, None).absoluteURL()))
-      } else {
-        UnprocessableEntity
-      }
+    val futurePerson = personServices.addPerson(request.body.as[Person])
+    futurePerson.map {
+      case (personOption, isNew) =>
+        if (personOption.isDefined && personOption.get._id.isDefined) {
+          var returnedLocation = HttpConstants.headerFields.location -> (routes.PersonController.getPerson(personOption.get._id.get, None).absoluteURL())
+          if (isNew) {
+            Created.withHeaders(returnedLocation)
+          } else {
+            Conflict.withHeaders(returnedLocation)
+          }
+        } else {
+          UnprocessableEntity
+        }
     }
   }
 

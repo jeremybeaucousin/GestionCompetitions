@@ -42,29 +42,17 @@ class PersonDAO[T] @Inject() (val personRepo: PersonRepoImpl[T])(
     personRepo.select(id, fieldsOption)
   }
 
-  def addPerson(person: Person): Future[String] = {
-    val futureWriteResult: Future[WriteResult] = personRepo.save(person)
-    val noErrors: Boolean = Await.ready(handleWriteResult(futureWriteResult), Duration.Inf).value.get.getOrElse(false)
-    if (noErrors) {
-      futureWriteResult.map(writeRes =>
-        person._id.get)
-    } else {
-      null
-    }
+  def addPerson(person: Person)(
+    implicit bSONDocumentReader: BSONDocumentReader[T],
+    bSONDocumentWriter: BSONDocumentWriter[T]): Future[Option[T]] = {
+    personRepo.save(person)
   }
 
   def editPerson(id: String, person: Person): Future[Boolean] = {
-    val futureWriteResult: Future[WriteResult] = personRepo.update(id, person)
-    handleWriteResult(futureWriteResult)
+    personRepo.update(id, person)
   }
 
   def deletePerson(id: String): Future[Boolean] = {
-    handleWriteResult(personRepo.remove(id))
-  }
-
-  def handleWriteResult(FutureWriteResult: Future[WriteResult]): Future[Boolean] = {
-    FutureWriteResult.map(writeResult => {
-      !writeResult.hasErrors && writeResult.n > 0
-    })
+    personRepo.remove(id)
   }
 }

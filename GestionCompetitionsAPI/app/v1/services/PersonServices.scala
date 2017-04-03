@@ -26,59 +26,47 @@ class PersonServices @Inject() (val personDAO: PersonDAO[Person])(implicit val e
     personDAO.searchPersons(personOption, searchInValues, sortOption, fieldsOption, offsetOption, limitOption)
   }
 
-  // send back the personn such as Add person
-  def createAccount(person: Person)(implicit messages: Messages) = {
-    if (person.email.isDefined && person.password.isDefined) {
-      person.encryptedPassword = Some(SecurityUtil.createPassword(person.password.get))
-      addPerson(person)
-    }
-  }
-
   def searchPersonWithEmail(person: Person): Future[List[Person]] = {
     val personWithEmainOnly = Person()
     personWithEmainOnly.email = person.email
     personDAO.searchPersons(Some(personWithEmainOnly), None, None, None, None, None)
   }
 
-  // TODO Optimize to avoid successive else
-  def authenticate(person: Person): Future[Option[Person]] = {
-    if (person.email.isDefined && person.email.isDefined) {
-      val futurePersons = searchPersonWithEmail(person)
-      val persons = Await.ready(futurePersons, Duration.Inf).value.get.get
-      if (!persons.isEmpty) {
-        val firstPerson = persons(0)
-        if (firstPerson.encryptedPassword.isDefined && SecurityUtil.checkPassword(person.password.get, firstPerson.encryptedPassword.get)) {
-          return Future(Some(firstPerson))
-        }
-      }
-    }
-    Future(None)
-  }
-
   def getPerson(id: String, fieldsOption: Option[Seq[String]]): Future[Option[Person]] = {
     personDAO.getPerson(id, fieldsOption)
   }
 
-  // TODO Send back a person instead of just the ID
-  def addPerson(person: Person)(implicit messages: Messages): Future[String] = {
+  /**
+   * Add the person only if :
+   * - The email note exists and is not registered (with encrypted password)
+   * - There is no homonym in the data base (firstName, lastName, BirthDate)
+   *
+   * If there is an existing email which is no active (without encrypted password) send back this user else
+   * add the save the new Person
+   * @param person
+   * @param messages
+   * @return
+   */
+  // TODO add test one first name and last Name
+  def addPerson(person: Person)(implicit messages: Messages): Future[(Option[Person], Boolean)] = {
     def searchHomonyme(personRequest: Person): Boolean = {
       val futurePersonResult = personDAO.searchPersons(Some(personRequest), None, None, None, None, None)
       val personResult = Await.ready(futurePersonResult, Duration.Inf).value.get.get
       !personResult.isEmpty
     }
-
+    
     if (person.email.isDefined) {
       val futurePersons = searchPersonWithEmail(person)
-      val personResult = Await.ready(futurePersons, Duration.Inf).value.get.get
-      if (!personResult.isEmpty) {
-        val personWithActiveAccount = personResult.find(person => person.encryptedPassword.isDefined)
-        if (personWithActiveAccount.isDefined) {
-          throw new EmailAlreadyRegisterdException
-        } else {
-          // TODO send the persons back
-          return Future("Fake_ID")
+      futurePersons.map(personsWithSameEmail => {
+        if (!personsWithSameEmail.isEmpty) {
+          val personWithActiveAccount = personsWithSameEmail.find(person => person.encryptedPassword.isDefined)
+          if (personWithActiveAccount.isDefined) {
+            throw new EmailAlreadyRegisterdException
+          } else {
+            return Future(personWithActiveAccount, false)
+          }
         }
-      }
+      })
     }
     val personSearch = Person()
     personSearch.firstName = person.firstName
@@ -94,7 +82,9 @@ class PersonServices @Inject() (val personDAO: PersonDAO[Person])(implicit val e
         throw new HomonymNamesException
       }
     }
-    personDAO.addPerson(person)
+    personDAO.addPerson(person).map(personOption => {
+      return Future(personOption, true)
+    })
   }
 
   def editPerson(id: String, person: Person): Future[Boolean] = {

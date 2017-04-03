@@ -9,14 +9,14 @@ import v1.constantes.ValidationConstants
 import play.Logger
 
 abstract trait User {
-  def _id: Option[String]
-  def firstName: Option[String]
-  def lastName: Option[String]
-  def birthDate: Option[Date]
-  def email: Option[String]
-  def password: Option[String]
-  def encryptedPassword: Option[String]
-  def addresses: Option[List[Address]]
+  var _id: Option[String]
+  var firstName: Option[String]
+  var lastName: Option[String]
+  var birthDate: Option[Date]
+  var email: Option[String]
+  var password: Option[String]
+  var encryptedPassword: Option[String]
+  var addresses: Option[List[Address]]
 }
 
 case class Person(
@@ -29,6 +29,8 @@ case class Person(
     var encryptedPassword: Option[String] = None,
     var addresses: Option[List[Address]] = None) extends User {
 
+  def email_(email: String) =  { this.email = Some(email.toLowerCase())}
+    
   def toTaekwondoist(): Taekwondoist = {
     Taekwondoist(
       _id,
@@ -43,7 +45,7 @@ case class Person(
 
   @Override
   override def toString(): String = {
-    ""+ _id + firstName + lastName + birthDate + email + password + encryptedPassword + addresses 
+    "" + _id + firstName + lastName + birthDate + email + password + encryptedPassword + addresses
   }
 }
 

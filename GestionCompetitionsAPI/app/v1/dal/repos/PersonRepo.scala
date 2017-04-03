@@ -23,6 +23,8 @@ import reactivemongo.bson.BSONDocumentWriter
 import reactivemongo.bson.BSONDocumentWriter
 import v1.bo.Person.PersonReader
 import reactivemongo.bson.BSONDocumentReader
+import scala.concurrent.duration.Duration
+import scala.concurrent.Await
 
 trait PersonRepo[T] {
 
@@ -34,16 +36,35 @@ trait PersonRepo[T] {
     implicit bSONDocumentReader: BSONDocumentReader[T],
     bSONDocumentWriter: BSONDocumentWriter[T]): Future[Option[T]]
 
-  def update(id: String, person: Person): Future[WriteResult]
+  /**
+   * Update the person and send back the insciption result.
+   * @param id
+   * @param person
+   * @return
+   */
+  def update(id: String, person: Person): Future[Boolean]
 
-  def remove(id: String): Future[WriteResult]
+  /**
+   * Delete the person and send back the insciption result.
+   * @param id
+   * @param person
+   * @return
+   */
+  def remove(id: String): Future[Boolean]
 
-  def save(person: Person): Future[WriteResult]
+  /**
+   * Send back the inserted person if no error
+   * @param person
+   * @param bSONDocumentReader
+   * @param bSONDocumentWriter
+   * @return
+   */
+  def save(person: Person)(implicit bSONDocumentReader: BSONDocumentReader[T],
+                           bSONDocumentWriter: BSONDocumentWriter[T]): Future[Option[T]]
 }
 
 class PersonRepoImpl[T] @Inject() (val reactiveMongoApi: ReactiveMongoApi)(
-    implicit ec: ExecutionContext
-    )
+  implicit ec: ExecutionContext)
     extends PersonRepo[T] {
 
   def collection = reactiveMongoApi.database.
@@ -58,7 +79,7 @@ class PersonRepoImpl[T] @Inject() (val reactiveMongoApi: ReactiveMongoApi)(
     limitOption: Option[Int])(implicit ec: ExecutionContext): Future[List[Person]] = {
     val personSearch: BSONDocument = if (personOption.isDefined) MongoDbUtil.constructBSONDocumentWithRootFields(BSON.write(personOption.get)) else BSONDocument()
     val valuesSearch: BSONDocument = if (searchInValues.isDefined && searchInValues.get) MongoDbUtil.createSearchInValuesBson(personSearch) else personSearch
-    
+
     val sortBson = MongoDbUtil.createSortBson(sortOption)
     val projectionBson = MongoDbUtil.createProjectionBson(fieldsOption)
     val query = collection.map(_.find(valuesSearch).projection(projectionBson))
@@ -79,21 +100,39 @@ class PersonRepoImpl[T] @Inject() (val reactiveMongoApi: ReactiveMongoApi)(
     collection.flatMap(_.find(constructId(id)).projection(projectionBson).one[T])
   }
 
-  override def update(id: String, person: Person): Future[WriteResult] = {
+  override def update(id: String, person: Person): Future[Boolean] = {
     val rebuildDocument = MongoDbUtil.constructBSONDocumentWithRootFields(BSON.write(person))
-    collection.flatMap(_.update(constructId(id), BSONDocument("$set" -> rebuildDocument)))
+    val futureWriteResult = collection.flatMap(_.update(constructId(id), BSONDocument("$set" -> rebuildDocument)))
+    handleWriteResult(futureWriteResult)
   }
 
-  override def remove(id: String): Future[WriteResult] = {
-    collection.flatMap(_.remove(constructId(id)))
+  override def remove(id: String): Future[Boolean] = {
+    val futureWriteResult = collection.flatMap(_.remove(constructId(id)))
+    handleWriteResult(futureWriteResult)
+
   }
 
-  override def save(person: Person): Future[WriteResult] = {
-    person._id = Some(MongoDbUtil.generateId().stringify)
-    collection.flatMap(_.insert(person))
+  override def save(person: Person)(implicit bSONDocumentReader: BSONDocumentReader[T],
+                                    bSONDocumentWriter: BSONDocumentWriter[T]): Future[Option[T]] = {
+    val _id = MongoDbUtil.generateId().stringify
+    person._id = Some(_id)
+    val futureWriteResult = collection.flatMap(_.insert(person))
+    var futureResult = handleWriteResult(futureWriteResult)
+    val hasNoError = Await.ready(futureResult, Duration.Inf).value.get.getOrElse(false)
+    if (hasNoError) {
+      select(_id, None)
+    } else {
+      Future(None)
+    }
   }
 
   private def constructId(id: String): BSONDocument = {
     BSONDocument("_id" -> id)
+  }
+
+  def handleWriteResult(FutureWriteResult: Future[WriteResult]): Future[Boolean] = {
+    FutureWriteResult.map(writeResult => {
+      !writeResult.hasErrors && writeResult.n > 0
+    })
   }
 }

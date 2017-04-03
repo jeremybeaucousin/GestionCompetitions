@@ -22,10 +22,11 @@ import v1.managers.DocumentationServices
 import v1.services.PersonServices
 import v1.constantes.MessageConstants
 import v1.bo.Operation
+import v1.services.AuthenticationServices
 
 class AuthenticationController @Inject() (
   val documentationServices: DocumentationServices,
-  val personServices: PersonServices,
+  val authenticationServices: AuthenticationServices,
   val messagesApi: MessagesApi)
     extends Controller with I18nSupport with Secured {
 
@@ -39,9 +40,20 @@ class AuthenticationController @Inject() (
   }
 
   def signup = Action.async(BodyParsers.parse.json) { implicit request =>
-    val person = request.body.as[Person]
-    personServices.createAccount(person)
-    Future(Ok)
+    val futurePerson = authenticationServices.createAccount(request.body.as[Person])
+    futurePerson.map {
+      case (personOption, isNew) =>
+        if (personOption.isDefined && personOption.get._id.isDefined) {
+          var returnedLocation = HttpConstants.headerFields.location -> (routes.PersonController.getPerson(personOption.get._id.get, None).absoluteURL())
+          if (isNew) {
+            Created.withHeaders(returnedLocation)
+          } else {
+            Conflict.withHeaders(returnedLocation)
+          }
+        } else {
+          UnprocessableEntity
+        }
+    }
   }
 
   // TODO Externalyse this or opimize to avoir successive else
@@ -49,7 +61,7 @@ class AuthenticationController @Inject() (
     val apiKeyOpt = request.headers.get(HttpConstants.headerFields.apiKey)
     if (apiKeyOpt.isDefined && ApiToken.apiKeysExists(apiKeyOpt.get)) {
       val person = request.body.as[Person]
-      val futurePerson = personServices.authenticate(person)
+      val futurePerson = authenticationServices.authenticate(person)
       futurePerson.flatMap(person => {
         if (person.isDefined && person.get._id.isDefined) {
           ApiToken.create(apiKeyOpt.get, person.get._id.get).map(token =>
