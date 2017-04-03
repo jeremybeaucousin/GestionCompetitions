@@ -17,6 +17,7 @@ http.notFound=Not found
 http.noContent=No Content
 http.unprocessableEntity=Unprocessable Entity
 http.forbidden=Forbidden
+http.conflict=Conflict
 
 #databases
 database.inserted=successfully inserted document with result: {0}
@@ -57,6 +58,7 @@ documentation.person.deletePersonDescription=Delete the person with the identifi
 #Authentication
 documentation.authentication.signInDescription=Allow to a user to authenticate on the server
 documentation.authentication.signOutDescription=Allow to a user to disconnect from the server
+documentation.authentication.signUpDescription=Allow the account creation
 
 #Some not defined in french (Json Validation)
 error.password=A valid password is required between 8 and 15 characters

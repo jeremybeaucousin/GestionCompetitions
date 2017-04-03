@@ -39,6 +39,7 @@ class PersonServices @Inject() (val personDAO: PersonDAO[Person])(implicit val e
 
   /**
    * Add the person only if :
+   * - Both first name and last name are filled
    * - The email note exists and is not registered (with encrypted password)
    * - There is no homonym in the data base (firstName, lastName, BirthDate)
    *
@@ -48,7 +49,6 @@ class PersonServices @Inject() (val personDAO: PersonDAO[Person])(implicit val e
    * @param messages
    * @return
    */
-  // TODO add test one first name and last Name
   def addPerson(person: Person)(implicit messages: Messages): Future[(Option[Person], Boolean)] = {
     def searchHomonyme(personRequest: Person): Boolean = {
       val futurePersonResult = personDAO.searchPersons(Some(personRequest), None, None, None, None, None)

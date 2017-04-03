@@ -39,6 +39,7 @@ final object MessageConstants {
     private final val OK = "ok"
     private final val CREATED = "created"
     private final val FORBIDDEN = "forbidden"
+    private final val CONFLICT = "conflict"
 
     def notFound: String = PREFIX + NOT_FOUND
     def noContent: String = PREFIX + NO_CONTENT
@@ -46,6 +47,7 @@ final object MessageConstants {
     def ok: String = PREFIX + OK
     def created: String = PREFIX + CREATED
     def forbidden: String = PREFIX + FORBIDDEN
+    def conflict: String = PREFIX + CONFLICT
   }
 
   final object Database {
@@ -129,9 +131,11 @@ final object MessageConstants {
       private final val PREFIX = Documentation.PREFIX + "authentication."
       private final val SIGN_IN_DESCRIPTION = "signInDescription"
       private final val SIGN_OUT_DESCRIPTION = "signOutDescription"
+      private final val SIGN_UP_DESCRIPTION = "signUpDescription"
 
       def signInDescription: String = PREFIX + SIGN_IN_DESCRIPTION
       def signOutDescription: String = PREFIX + SIGN_OUT_DESCRIPTION
+      def signUpDescription: String = PREFIX + SIGN_UP_DESCRIPTION
     }
 
     final val common = Common

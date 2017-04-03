@@ -38,7 +38,6 @@ object Address {
    * Convert a json into an Address
    * @return
    */
-  // TODO Implements validation
   val addressReads: Reads[Address] = (
     (JsPath \ NAME).readNullable[String] and
     (JsPath \ NUMBER).readNullable[Int] and

@@ -1,30 +1,33 @@
 package v1.managers
 
+import java.util.Date
+
 import scala.concurrent.ExecutionContext
-import v1.bo.Operation
-import v1.bo.RequestContents
-import v1.bo.Person
-import v1.constantes.MessageConstants
-import v1.controllers.routes
+
+import org.apache.commons.lang3.StringUtils
+
 import javax.inject.Inject
 import javax.inject.Singleton
-import play.api.i18n.Messages
-import play.api.libs.json.Json
-import reactivemongo.bson.BSONObjectID
-import v1.utils.MongoDbUtil
-import v1.constantes.HttpConstants
-import org.apache.http.HttpStatus
-import play.mvc.Http
-import org.apache.commons.lang3.StringUtils
-import java.util.Date
 import models.ApiToken
+import play.api.i18n.Messages
+import play.api.libs.json.JsObject
+import play.api.libs.json.JsString
+import play.api.libs.json.Json
+import play.mvc.Http
 import v1.bo.Address
-import play.Logger
+import v1.bo.Operation
+import v1.bo.Person
+import v1.bo.RequestContents
+import v1.constantes.HttpConstants
+import v1.constantes.MessageConstants
+import v1.controllers.routes
+import v1.utils.MongoDbUtil
 
 @Singleton
 class DocumentationServices @Inject() (
     implicit val ec: ExecutionContext) {
 
+  final val addressesExemple = List[Address](new Address, new Address)
   final val personCompleteExemple = new Person(
     Some(StringUtils.EMPTY),
     Some(StringUtils.EMPTY),
@@ -33,7 +36,7 @@ class DocumentationServices @Inject() (
     Some(StringUtils.EMPTY),
     Some(StringUtils.EMPTY),
     Some(StringUtils.EMPTY),
-    Some(List[Address](new Address, new Address)))
+    Some(addressesExemple))
 
   final val jsonPersonCompleteExemple = (Json.toJson(personCompleteExemple))
 
@@ -202,26 +205,28 @@ class DocumentationServices @Inject() (
       addPersonOperation.call = Some(routes.PersonController.addPerson())
       addPersonOperation.description = Some(messages(MessageConstants.documentation.person.addPersonDescription))
 
-      val getPersonRequest = RequestContents()
-      getPersonRequest.body = Some(jsonPersonCompleteExemple)
-      addPersonOperation.request = Some(getPersonRequest)
+      val addPersonRequest = RequestContents()
+      addPersonRequest.body = Some(jsonPersonCompleteExemple)
+      addPersonOperation.request = Some(addPersonRequest)
 
-      def getAddPersonsResponseParameters: Map[String, String] = {
+      def getAddPersonResponseParameters: Map[String, String] = {
         var parameters: Map[String, String] = Map[String, String]()
         parameters += (HttpConstants.headerFields.location -> messages(MessageConstants.documentation.common.locationDescription))
         parameters
       }
 
-      val addPersonsResponse = RequestContents()
-      addPersonsResponse.headers = Some(getAddPersonsResponseParameters)
+      val addPersonResponse = RequestContents()
+      addPersonResponse.body = Some(jsonPersonCompleteExemple)
+      addPersonResponse.headers = Some(getAddPersonResponseParameters)
 
-      def getAddPersonsCodes: Map[String, String] = {
+      def getAddPersonCodes: Map[String, String] = {
         var codes: Map[String, String] = Map[String, String]()
         codes += (Http.Status.OK.toString() -> messages(MessageConstants.http.ok))
         codes += (Http.Status.UNPROCESSABLE_ENTITY.toString() -> messages(MessageConstants.http.unprocessableEntity))
+        codes += (Http.Status.CONFLICT.toString() -> messages(MessageConstants.http.conflict))
         codes
       }
-      addPersonOperation.codes = Some(getAddPersonsCodes)
+      addPersonOperation.codes = Some(getAddPersonCodes)
       addPersonOperation
     }
     availableOperations :+= getAddPersonOperation
@@ -352,11 +357,46 @@ class DocumentationServices @Inject() (
         codes += (Http.Status.NO_CONTENT.toString() -> messages(MessageConstants.http.noContent))
         codes
       }
-
       signOutOperation.codes = Some(signOutPersonsCodes)
       signOutOperation
     }
     availableOperations :+= getSignOutOperation
+
+    def getSignUpPersonOperation = {
+
+      val signUpOperation = Operation()
+      signUpOperation.call = Some(routes.AuthenticationController.signup())
+      signUpOperation.description = Some(messages(MessageConstants.documentation.authentication.signUpDescription))
+
+      var personWithPassword = jsonPersonWithRootFieldsExemple.asInstanceOf[JsObject]
+      personWithPassword += (Person.PASSWORD, JsString(StringUtils.EMPTY))
+      personWithPassword += (Person.ADDRESSES, Json.toJson(addressesExemple))
+
+      val signUpRequest = RequestContents()
+      signUpRequest.body = Some(personWithPassword)
+      signUpOperation.request = Some(signUpRequest)
+
+      def getSignUpResponseParameters: Map[String, String] = {
+        var parameters: Map[String, String] = Map[String, String]()
+        parameters += (HttpConstants.headerFields.location -> messages(MessageConstants.documentation.common.locationDescription))
+        parameters
+      }
+
+      val signUpResponse = RequestContents()
+      signUpResponse.body = Some(jsonPersonCompleteExemple)
+      signUpResponse.headers = Some(getSignUpResponseParameters)
+
+      def getSignUpCodes: Map[String, String] = {
+        var codes: Map[String, String] = Map[String, String]()
+        codes += (Http.Status.OK.toString() -> messages(MessageConstants.http.ok))
+        codes += (Http.Status.UNPROCESSABLE_ENTITY.toString() -> messages(MessageConstants.http.unprocessableEntity))
+        codes += (Http.Status.CONFLICT.toString() -> messages(MessageConstants.http.conflict))
+        codes
+      }
+      signUpOperation.codes = Some(getSignUpCodes)
+      signUpOperation
+    }
+    availableOperations :+= getSignUpPersonOperation
 
     availableOperations
   }

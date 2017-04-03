@@ -17,6 +17,7 @@ http.notFound=Non trouvé
 http.noContent=Pas de contenu
 http.unprocessableEntity=Entité non traitée
 http.forbidden=Interdit
+http.conflict=En conflit
 
 #databases
 database.inserted=Le document à été enregistré avec succés avec le resultat suivant : {0}
@@ -57,6 +58,7 @@ documentation.person.deletePersonDescription=Supprime la personne avec l''identi
 #Authentication
 documentation.authentication.signInDescription=Permet à un utilisateur de s'authentifier sur le serveur
 documentation.authentication.signOutDescription=Permet à l''utilisateur de se déconnecter du serveur
+documentation.authentication.signUpDescription=Permet la création d'un compte
 
 #Some not defined in french (Json Validation)
 error.minLength=La longueur minimum est de {0}

@@ -27,6 +27,7 @@ case class Operation(
   var codes: Option[Map[String,String]]
   )
   
+// TODO Add Exceptions
 object Operation {
   def apply() = new Operation(None, None, None, None, None)
 }
