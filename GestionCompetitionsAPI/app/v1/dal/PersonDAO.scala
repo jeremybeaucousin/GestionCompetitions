@@ -14,7 +14,6 @@ import scala.util.{ Failure, Success }
 import v1.constantes.MessageConstants
 import scala.concurrent.duration.Duration
 import play.api.i18n.MessagesApi
-import v1.bo.User
 import reactivemongo.bson.BSONDocumentReader
 import reactivemongo.bson.BSONDocumentWriter
 import v1.utils.MongoDbUtil
@@ -51,6 +50,7 @@ class PersonDAO[T] @Inject() (val personRepo: PersonRepoImpl[T])(
     val futureWriteResult = personRepo.save(person)
     var futureResult = handleWriteResult(futureWriteResult)
     val hasNoError = Await.ready(futureResult, Duration.Inf).value.get.get
+    Logger.info(hasNoError.toString())
     if (hasNoError) {
         personRepo.select(_id, None)
       } else {

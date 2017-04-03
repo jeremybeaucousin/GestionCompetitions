@@ -12,16 +12,16 @@ import org.apache.commons.lang3.StringUtils
 import v1.bo.Person.personFormat
 
 case class Taekwondoist(
-    var _id: Option[String] = Some(StringUtils.EMPTY),
-    var firstName: Option[String] = Some(StringUtils.EMPTY),
-    var lastName: Option[String] = Some(StringUtils.EMPTY),
-    var birthDate: Option[Date] = Some(new Date),
-    var email: Option[String] = Some(StringUtils.EMPTY),
-    var password: Option[String] = Some(StringUtils.EMPTY),
-    var encryptedPassword: Option[String] = Some(StringUtils.EMPTY),
-    var addresses: Option[List[Address]] = Some(List[Address](new Address, new Address)),
-    var passportNumber: Option[Int] = Some(0),
-    var grade: Option[String] = Some(null)) extends User {
+  var _id: Option[String] = Some(StringUtils.EMPTY),
+  var firstName: Option[String] = Some(StringUtils.EMPTY),
+  var lastName: Option[String] = Some(StringUtils.EMPTY),
+  var birthDate: Option[Date] = Some(new Date),
+  var email: Option[String] = Some(StringUtils.EMPTY),
+  var password: Option[String] = Some(StringUtils.EMPTY),
+  var encryptedPassword: Option[String] = Some(StringUtils.EMPTY),
+  var addresses: Option[List[Address]] = Some(List[Address](new Address, new Address)),
+  var passportNumber: Option[Int] = Some(0),
+  var grade: Option[String] = Some(null)) {
 
   def toPerson(): Person = {
     Person(
@@ -39,6 +39,17 @@ case class Taekwondoist(
 object Taekwondoist {
   final val PASSEPORT_NUMBER: String = "passportNumber"
   final val GRADE: String = "grade"
+
+  //  def eval(e: Expr, env: Env): Value = e match {
+  //  case Var (x) =>
+  //    env(x)
+  //  case Apply(f, g) =>
+  //    val Value(Lambda (x, e1), env1) = eval(f, env)
+  //    val v = eval(g, env)
+  //    eval (e1, (y => if (y == x) v else env1(y)))
+  //  case Lambda(_, _) =>
+  //    Value(e, env)
+  //}
 
   implicit object TaekwondoistWrites extends Writes[Taekwondoist] {
     def writes(taekwondoist: Taekwondoist): JsObject = {

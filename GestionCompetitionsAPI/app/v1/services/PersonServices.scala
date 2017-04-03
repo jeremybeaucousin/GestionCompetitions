@@ -59,11 +59,12 @@ class PersonServices @Inject() (val personDAO: PersonDAO[Person])(implicit val e
       val futurePersons = searchPersonWithEmail(person)
       val personsWithSameEmail = Await.ready(futurePersons, Duration.Inf).value.get.get
       if (!personsWithSameEmail.isEmpty) {
-        val personWithActiveAccount = personsWithSameEmail.find(person => person.encryptedPassword.isDefined)
-        if (personWithActiveAccount.isDefined) {
+        val personWithSameEmail = personsWithSameEmail.find(personWithSameEmail => personWithSameEmail.email.get.equals(person.email.get))
+        Logger.info(personWithSameEmail.isDefined.toString())
+        if (personWithSameEmail.isDefined && personWithSameEmail.get.encryptedPassword.isDefined) {
           throw new EmailAlreadyRegisterdException
         } else {
-          return Future(personWithActiveAccount, false)
+          return Future(personWithSameEmail, false)
         }
       }
     }

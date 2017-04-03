@@ -8,17 +8,6 @@ import v1.constantes.MessageConstants
 import v1.constantes.ValidationConstants
 import play.Logger
 
-abstract trait User {
-  var _id: Option[String]
-  var firstName: Option[String]
-  var lastName: Option[String]
-  var birthDate: Option[Date]
-  var email: Option[String]
-  var password: Option[String]
-  var encryptedPassword: Option[String]
-  var addresses: Option[List[Address]]
-}
-
 case class Person(
     var _id: Option[String] = None,
     var firstName: Option[String] = None,
@@ -27,10 +16,8 @@ case class Person(
     var email: Option[String] = None,
     var password: Option[String] = None,
     var encryptedPassword: Option[String] = None,
-    var addresses: Option[List[Address]] = None) extends User {
+    var addresses: Option[List[Address]] = None) {
 
-  def email_(email: String) =  { this.email = Some(email.toLowerCase())}
-    
   def toTaekwondoist(): Taekwondoist = {
     Taekwondoist(
       _id,
@@ -80,7 +67,7 @@ object Person {
     // Extract empty to not receive an encrypted password by clients (only for database)
     (JsPath \ StringUtils.EMPTY).readNullable[String] and
     (JsPath \ ADDRESSES).readNullable[List[Address]])(Person.apply _)
-
+  //emailOption => if(emailOption.isDefined) emailOption.get.toUpperCase()
   /**
    * Convert a Person into a json, passwords are not sent to the clients
    * @return
@@ -104,8 +91,29 @@ object Person {
     }
   }
 
+  //  implicit object PersonReads extends Reads[Person] {
+  //    def reads(json: JsValue): JsResult[Person] = json match {
+  //      case obj: JsValue => try {
+  //        JsSuccess(Person(
+  //          (obj \ _ID).asOpt[String],
+  //          (obj \ FIRST_NAME).asOpt[String],
+  //          (obj \ LAST_NAME).asOpt[String],
+  //          (obj \ BIRTH_DATE).asOpt[Date],
+  //          (obj \ ADDRESSES).asOpt[List[Address]]))
+  //      } catch {
+  //        case cause: Throwable => JsError(cause.getMessage)
+  //      }
+
   implicit object personFormat extends Format[Person] {
-    def reads(json: JsValue) = personReads.reads(json)
+    def reads(json: JsValue) = {
+      val personRead = personReads.reads(json)
+      personRead.map(person => {
+        if (person.email.isDefined) {
+          person.email = Some(person.email.get.toLowerCase())
+        }
+        person
+      })
+    }
     def writes(person: Person) = PersonWrites.writes(person)
   }
 

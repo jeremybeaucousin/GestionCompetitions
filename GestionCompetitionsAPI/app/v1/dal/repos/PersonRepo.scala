@@ -1,29 +1,19 @@
 package v1.dal.repos
 
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
+
 import javax.inject.Inject
-import v1.bo.Person
-import play.api.libs.json.{ JsObject, Json }
-import play.api.Logger
-import play.modules.reactivemongo.json._
-import play.modules.reactivemongo.{ MongoController, ReactiveMongoApi, ReactiveMongoComponents }
-import reactivemongo.api.collections.bson
+import play.modules.reactivemongo.ReactiveMongoApi
+import reactivemongo.api.QueryOpts
 import reactivemongo.api.collections.bson.BSONCollection
 import reactivemongo.api.commands.WriteResult
-import reactivemongo.bson.{ BSON, BSONDocument, BSONObjectID }
-
-import scala.concurrent.{ ExecutionContext, Future }
+import reactivemongo.bson.BSON
+import reactivemongo.bson.BSONDocument
+import reactivemongo.bson.BSONDocumentReader
+import reactivemongo.bson.BSONDocumentWriter
+import v1.bo.Person
 import v1.utils.MongoDbUtil
-import reactivemongo.bson.BSONWriter
-import reactivemongo.api.QueryOpts
-import reactivemongo.core.commands.Count
-import v1.bo.Person.PersonWrites
-import v1.bo.User
-import reactivemongo.bson.BSONDocumentReader
-import reactivemongo.bson.BSONDocumentWriter
-import reactivemongo.bson.BSONDocumentWriter
-import v1.bo.Person.PersonReader
-import reactivemongo.bson.BSONDocumentReader
-import scala.concurrent.duration.Duration
 
 trait PersonRepo[T] {
 
