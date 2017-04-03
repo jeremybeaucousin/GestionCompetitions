@@ -18,6 +18,7 @@ import v1.bo.User
 import reactivemongo.bson.BSONDocumentReader
 import reactivemongo.bson.BSONDocumentWriter
 import v1.utils.MongoDbUtil
+import scala.concurrent.Await
 
 class PersonDAO[T] @Inject() (val personRepo: PersonRepoImpl[T])(
     implicit ec: ExecutionContext) {
@@ -49,13 +50,12 @@ class PersonDAO[T] @Inject() (val personRepo: PersonRepoImpl[T])(
     person._id = Some(_id)
     val futureWriteResult = personRepo.save(person)
     var futureResult = handleWriteResult(futureWriteResult)
-    futureResult.flatMap(hasNoError => {
-      if (hasNoError) {
+    val hasNoError = Await.ready(futureResult, Duration.Inf).value.get.get
+    if (hasNoError) {
         personRepo.select(_id, None)
       } else {
         Future(None)
       }
-    })
   }
 
   def editPerson(id: String, person: Person): Future[Boolean] = {
@@ -66,9 +66,8 @@ class PersonDAO[T] @Inject() (val personRepo: PersonRepoImpl[T])(
     personRepo.remove(id)
   }
 
-  // TODO Problem of return from mongo
-  private def handleWriteResult(FutureWriteResult: Future[WriteResult]): Future[Boolean] = {
-    FutureWriteResult.map(writeResult => {
+  private def handleWriteResult(futureWriteResult: Future[WriteResult]): Future[Boolean] = {
+    futureWriteResult.map(writeResult => {
       !writeResult.hasErrors && writeResult.n > 0
     })
   }

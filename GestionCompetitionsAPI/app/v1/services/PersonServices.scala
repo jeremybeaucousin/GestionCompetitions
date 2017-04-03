@@ -54,19 +54,18 @@ class PersonServices @Inject() (val personDAO: PersonDAO[Person])(implicit val e
       val personResult = Await.ready(futurePersonResult, Duration.Inf).value.get.get
       !personResult.isEmpty
     }
-    
+
     if (person.email.isDefined) {
       val futurePersons = searchPersonWithEmail(person)
-      futurePersons.map(personsWithSameEmail => {
-        if (!personsWithSameEmail.isEmpty) {
-          val personWithActiveAccount = personsWithSameEmail.find(person => person.encryptedPassword.isDefined)
-          if (personWithActiveAccount.isDefined) {
-            throw new EmailAlreadyRegisterdException
-          } else {
-            return Future(personWithActiveAccount, false)
-          }
+      val personsWithSameEmail = Await.ready(futurePersons, Duration.Inf).value.get.get
+      if (!personsWithSameEmail.isEmpty) {
+        val personWithActiveAccount = personsWithSameEmail.find(person => person.encryptedPassword.isDefined)
+        if (personWithActiveAccount.isDefined) {
+          throw new EmailAlreadyRegisterdException
+        } else {
+          return Future(personWithActiveAccount, false)
         }
-      })
+      }
     }
     val personSearch = Person()
     personSearch.firstName = person.firstName
@@ -82,9 +81,8 @@ class PersonServices @Inject() (val personDAO: PersonDAO[Person])(implicit val e
         throw new HomonymNamesException
       }
     }
-    personDAO.addPerson(person).map(personOption => {
-      return Future(personOption, true)
-    })
+    val personOption =  Await.ready(personDAO.addPerson(person), Duration.Inf).value.get.get
+    Future(personOption, true)
   }
 
   def editPerson(id: String, person: Person): Future[Boolean] = {

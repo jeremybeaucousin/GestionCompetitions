@@ -120,9 +120,8 @@ class PersonRepoImpl[T] @Inject() (val reactiveMongoApi: ReactiveMongoApi)(
     BSONDocument("_id" -> id)
   }
 
-  // TODO Problem of return from mongo
-  def handleWriteResult(FutureWriteResult: Future[WriteResult]): Future[Boolean] = {
-    FutureWriteResult.map(writeResult => {
+  def handleWriteResult(futureWriteResult: Future[WriteResult]): Future[Boolean] = {
+    futureWriteResult.map(writeResult => {
       !writeResult.hasErrors && writeResult.n > 0
     })
   }
