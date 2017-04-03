@@ -15,6 +15,7 @@ import reactivemongo.bson.BSONDocumentWriter
 import play.Logger
 import v1.utils.SecurityUtil
 import errors.EmailAlreadyRegisterdException
+import errors.FirstNameAndLastNameRequiredException
 
 class PersonServices @Inject() (val personDAO: PersonDAO[Person])(implicit val ec: ExecutionContext) {
 
@@ -55,6 +56,10 @@ class PersonServices @Inject() (val personDAO: PersonDAO[Person])(implicit val e
       !personResult.isEmpty
     }
 
+    if(!person.firstName.isDefined || !person.lastName.isDefined) {
+      throw new FirstNameAndLastNameRequiredException
+    }
+    
     if (person.email.isDefined) {
       val futurePersons = searchPersonWithEmail(person)
       val personsWithSameEmail = Await.ready(futurePersons, Duration.Inf).value.get.get

@@ -8,6 +8,7 @@ error.client=Une erreur du client s''est produite: {0}
 error.sameNamesHomonym=Un homonyme à été trouvée
 error.sameNamesAndbirthDateHomonym=Un homonyme avec la même date de naissance à été trouvée
 error.emailAlreadyRegistered=Cette adresse mail est déjà enregistré sur un autre compte
+error.firstNameAndLastNameRequired=Le nom et le prénom sont obligatoires
 
 #http
 http.ok=Tout fonctionne

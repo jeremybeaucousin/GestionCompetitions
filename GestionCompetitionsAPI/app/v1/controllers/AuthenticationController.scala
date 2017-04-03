@@ -48,7 +48,7 @@ class AuthenticationController @Inject() (
           if (isNew) {
             Created.withHeaders(returnedLocation)
           } else {
-            Conflict.withHeaders(returnedLocation)
+            Conflict(Json.toJson(personOption.get)).withHeaders(returnedLocation)
           }
         } else {
           UnprocessableEntity
