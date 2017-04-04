@@ -55,8 +55,6 @@ class PersonServices @Inject() (val personDAO: PersonDAO[Person])(implicit val e
       futurePersonResult.map(personResult => {
         !personResult.isEmpty
       })
-      //      val personResult = Await.ready(futurePersonResult, Duration.Inf).value.get.get
-      //      !personResult.isEmpty
     }
 
     if (!person.firstName.isDefined || !person.lastName.isDefined) {
@@ -68,7 +66,6 @@ class PersonServices @Inject() (val personDAO: PersonDAO[Person])(implicit val e
       val personsWithSameEmail = Await.ready(futurePersons, Duration.Inf).value.get.get
       if (!personsWithSameEmail.isEmpty) {
         val personWithSameEmail = personsWithSameEmail.find(personWithSameEmail => personWithSameEmail.email.get.equals(person.email.get))
-        Logger.info(personWithSameEmail.isDefined.toString())
         if (personWithSameEmail.isDefined && personWithSameEmail.get.encryptedPassword.isDefined) {
           throw new EmailAlreadyRegisterdException
         } else {
@@ -86,9 +83,6 @@ class PersonServices @Inject() (val personDAO: PersonDAO[Person])(implicit val e
           throw new HomonymNamesAndBirthDateException
         }
       })
-      //      if (searchHomonyme(personSearch)) {
-      //        throw new HomonymNamesAndBirthDateException
-      //      }
     } else {
       personSearch.birthDate = None
       searchHomonyme(personSearch).map(personsFound => {
@@ -96,16 +90,28 @@ class PersonServices @Inject() (val personDAO: PersonDAO[Person])(implicit val e
           throw new HomonymNamesException
         }
       })
-      //      if (searchHomonyme(personSearch)) {
-      //        throw new HomonymNamesException
-      //      }
     }
     val personOption = Await.ready(personDAO.addPerson(person), Duration.Inf).value.get.get
     Future(personOption, true)
   }
 
+  /**
+   * Update the person, the email is modify only id it's not an active account
+   * @param id
+   * @param person
+   * @return
+   */
   def editPerson(id: String, person: Person): Future[Boolean] = {
-    personDAO.editPerson(id, person)
+    val futurePerson = personDAO.getPerson(id, None)
+    val existingPerson = Await.ready(futurePerson, Duration.Inf).value.get.get
+    if (existingPerson.isDefined) {
+      Logger.info(existingPerson.toString())
+      if (existingPerson.get.encryptedPassword.isDefined) {
+        person.email = None
+      }
+      return personDAO.editPerson(id, person)
+    }
+    Future(false)
   }
 
   def deletePerson(id: String): Future[Boolean] = {

@@ -52,7 +52,7 @@ documentation.person.searchPersonsDescription=Retourne les personnes enregistré
 documentation.person.getPersonDescription=Retourne la personne avec l''identifiant renseigné en paramètres
 documentation.person.getPersonIdParameterDescription=L''identifiant de la personne telle qu''enregistré en base de données
 documentation.person.addPersonDescription=Ajoute une nouvelle personne à la base de données
-documentation.person.editPersonDescription=Met à jour la personne avec l''identifiant renseigné dans les paramètres
+documentation.person.editPersonDescription=Met à jour la personne avec l''identifiant renseigné dans les paramètres (l''adresse email ne peut être modifié si elle est associée à un compte actif)
 documentation.person.deletePersonDescription=Supprime la personne avec l''identifiant renseigné dans les paramètres
 
 #Authentication

@@ -14,6 +14,7 @@ import reactivemongo.bson.BSONDocumentReader
 import reactivemongo.bson.BSONDocumentWriter
 import v1.bo.Person
 import v1.utils.MongoDbUtil
+import play.Logger
 
 trait PersonRepo[T] {
 
@@ -101,8 +102,9 @@ class PersonRepoImpl[T] @Inject() (val reactiveMongoApi: ReactiveMongoApi)(
 
   }
 
-  override def save(person: Person)(implicit bSONDocumentReader: BSONDocumentReader[T],
-                                    bSONDocumentWriter: BSONDocumentWriter[T]): Future[WriteResult] = {
+  override def save(person: Person)(
+      implicit bSONDocumentReader: BSONDocumentReader[T],
+      bSONDocumentWriter: BSONDocumentWriter[T]): Future[WriteResult] = {
     collection.flatMap(_.insert(person))
   }
 
