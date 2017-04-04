@@ -3,12 +3,12 @@ package v1.controllers
 import play.api.mvc._
 import v1.bo.Person
 import v1.constantes.HttpConstants
-import models.ApiToken
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import scala.concurrent.Future
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 import play.Logger
+import v1.http.ApiToken
 
 trait Secured {
 

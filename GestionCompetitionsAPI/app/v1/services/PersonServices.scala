@@ -50,16 +50,19 @@ class PersonServices @Inject() (val personDAO: PersonDAO[Person])(implicit val e
    * @return
    */
   def addPerson(person: Person)(implicit messages: Messages): Future[(Option[Person], Boolean)] = {
-    def searchHomonyme(personRequest: Person): Boolean = {
+    def searchHomonyme(personRequest: Person): Future[Boolean] = {
       val futurePersonResult = personDAO.searchPersons(Some(personRequest), None, None, None, None, None)
-      val personResult = Await.ready(futurePersonResult, Duration.Inf).value.get.get
-      !personResult.isEmpty
+      futurePersonResult.map(personResult => {
+        !personResult.isEmpty
+      })
+      //      val personResult = Await.ready(futurePersonResult, Duration.Inf).value.get.get
+      //      !personResult.isEmpty
     }
 
-    if(!person.firstName.isDefined || !person.lastName.isDefined) {
+    if (!person.firstName.isDefined || !person.lastName.isDefined) {
       throw new FirstNameAndLastNameRequiredException
     }
-    
+
     if (person.email.isDefined) {
       val futurePersons = searchPersonWithEmail(person)
       val personsWithSameEmail = Await.ready(futurePersons, Duration.Inf).value.get.get
@@ -78,16 +81,26 @@ class PersonServices @Inject() (val personDAO: PersonDAO[Person])(implicit val e
     personSearch.lastName = person.lastName
     personSearch.birthDate = person.birthDate
     if (person.birthDate.isDefined) {
-      if (searchHomonyme(personSearch)) {
-        throw new HomonymNamesAndBirthDateException
-      }
+      searchHomonyme(personSearch).map(personsFound => {
+        if (personsFound) {
+          throw new HomonymNamesAndBirthDateException
+        }
+      })
+      //      if (searchHomonyme(personSearch)) {
+      //        throw new HomonymNamesAndBirthDateException
+      //      }
     } else {
       personSearch.birthDate = None
-      if (searchHomonyme(personSearch)) {
-        throw new HomonymNamesException
-      }
+      searchHomonyme(personSearch).map(personsFound => {
+        if (personsFound) {
+          throw new HomonymNamesException
+        }
+      })
+      //      if (searchHomonyme(personSearch)) {
+      //        throw new HomonymNamesException
+      //      }
     }
-    val personOption =  Await.ready(personDAO.addPerson(person), Duration.Inf).value.get.get
+    val personOption = Await.ready(personDAO.addPerson(person), Duration.Inf).value.get.get
     Future(personOption, true)
   }
 

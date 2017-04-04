@@ -8,10 +8,10 @@ import com.google.inject.AbstractModule
 import akka.actor.ActorSystem
 import javax.inject.Inject
 import javax.inject.Singleton
-import models.ApiToken
 import play.api.inject.ApplicationLifecycle
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import v1.managers.DocumentationServices
+import v1.http.ApiToken
 
 class Module extends AbstractModule {
 

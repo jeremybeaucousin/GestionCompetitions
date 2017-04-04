@@ -24,10 +24,11 @@ case class Operation(
   var description: Option[String],
   var request: Option[RequestContents],
   var response: Option[RequestContents],
-  var codes: Option[Map[String,String]]
+  var codes: Option[Map[String,String]],
+  var errors: Option[Map[String,String]]
   )
   
 // TODO Add Exceptions
 object Operation {
-  def apply() = new Operation(None, None, None, None, None)
+  def apply() = new Operation(None, None, None, None, None, None)
 }

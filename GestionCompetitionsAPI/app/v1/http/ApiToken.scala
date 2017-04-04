@@ -1,4 +1,4 @@
-package models
+package v1.http
 
 import org.joda.time.DateTime
 import java.util.UUID

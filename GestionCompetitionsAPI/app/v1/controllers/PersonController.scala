@@ -114,7 +114,7 @@ class PersonController @Inject() (
       if (resultsOk) {
         Ok
       } else {
-        UnprocessableEntity
+        NotFound
       }
     }
   }

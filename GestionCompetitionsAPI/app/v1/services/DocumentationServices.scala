@@ -8,7 +8,6 @@ import org.apache.commons.lang3.StringUtils
 
 import javax.inject.Inject
 import javax.inject.Singleton
-import models.ApiToken
 import play.api.i18n.Messages
 import play.api.libs.json.JsObject
 import play.api.libs.json.JsString
@@ -22,6 +21,8 @@ import v1.constantes.HttpConstants
 import v1.constantes.MessageConstants
 import v1.controllers.routes
 import v1.utils.MongoDbUtil
+import errors.FirstNameAndLastNameRequiredException
+import v1.http.ApiToken
 
 @Singleton
 class DocumentationServices @Inject() (
@@ -227,6 +228,17 @@ class DocumentationServices @Inject() (
         codes
       }
       addPersonOperation.codes = Some(getAddPersonCodes)
+
+      def getAddPersonErrors: Map[String, String] = {
+        var codes: Map[String, String] = Map[String, String]()
+//        FirstNameAndLastNameRequiredException.toString()
+        codes += ( "" -> messages(MessageConstants.http.ok))
+        codes += (Http.Status.UNPROCESSABLE_ENTITY.toString() -> messages(MessageConstants.http.unprocessableEntity))
+        codes += (Http.Status.CONFLICT.toString() -> messages(MessageConstants.http.conflict))
+        codes
+      }
+      addPersonOperation.errors = Some(getAddPersonErrors)
+
       addPersonOperation
     }
     availableOperations :+= getAddPersonOperation
