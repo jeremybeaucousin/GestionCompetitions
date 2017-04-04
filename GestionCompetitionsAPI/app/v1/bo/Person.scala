@@ -14,6 +14,7 @@ case class Person(
     var lastName: Option[String] = None,
     var birthDate: Option[Date] = None,
     var email: Option[String] = None,
+    var emailToken: Option[String] = None,
     var password: Option[String] = None,
     var encryptedPassword: Option[String] = None,
     var addresses: Option[List[Address]] = None) {
@@ -25,6 +26,7 @@ case class Person(
       lastName,
       birthDate,
       email,
+      emailToken,
       password,
       encryptedPassword,
       addresses)
@@ -49,12 +51,13 @@ object Person {
   final val LAST_NAME: String = "lastName"
   final val BIRTH_DATE: String = "birthDate"
   final val EMAIL = "email"
+  final val EMAILTOKEN = "emailToken"
   final val PASSWORD = "password"
   final val ENCRYPTED_PASSWORD = "encryptedPassword"
   final val ADDRESSES: String = "addresses"
 
   /**
-   * Convert a json into a Person
+   * Convert a json into a Person, extract empty values when we this is information that clients do not have to send
    * @return
    */
   val personReads: Reads[Person] = (
@@ -63,8 +66,8 @@ object Person {
     (JsPath \ LAST_NAME).readNullable[String](minLength[String](2)) and
     (JsPath \ BIRTH_DATE).readNullable[Date] and
     (JsPath \ EMAIL).readNullable[String](email) and
+    (JsPath \ StringUtils.EMPTY).readNullable[String] and
     (JsPath \ PASSWORD).readNullable[String](pattern(ValidationConstants.regex.PASSWORD, MessageConstants.error.password)) and
-    // Extract empty to not receive an encrypted password by clients (only for database)
     (JsPath \ StringUtils.EMPTY).readNullable[String] and
     (JsPath \ ADDRESSES).readNullable[List[Address]])(Person.apply _)
   //emailOption => if(emailOption.isDefined) emailOption.get.toUpperCase()
@@ -90,19 +93,6 @@ object Person {
       json
     }
   }
-
-  //  implicit object PersonReads extends Reads[Person] {
-  //    def reads(json: JsValue): JsResult[Person] = json match {
-  //      case obj: JsValue => try {
-  //        JsSuccess(Person(
-  //          (obj \ _ID).asOpt[String],
-  //          (obj \ FIRST_NAME).asOpt[String],
-  //          (obj \ LAST_NAME).asOpt[String],
-  //          (obj \ BIRTH_DATE).asOpt[Date],
-  //          (obj \ ADDRESSES).asOpt[List[Address]]))
-  //      } catch {
-  //        case cause: Throwable => JsError(cause.getMessage)
-  //      }
 
   implicit object personFormat extends Format[Person] {
     def reads(json: JsValue) = {
@@ -136,6 +126,8 @@ object Person {
         bson ++= (BIRTH_DATE -> person.birthDate.get)
       if (person.email.isDefined)
         bson ++= (EMAIL -> person.email.get)
+      if (person.emailToken.isDefined)
+        bson ++= (EMAILTOKEN -> person.emailToken.get)
       if (person.encryptedPassword.isDefined)
         bson ++= (ENCRYPTED_PASSWORD -> person.encryptedPassword.get)
       if (person.addresses.isDefined)
@@ -150,15 +142,16 @@ object Person {
    */
   implicit object PersonReader extends BSONDocumentReader[Person] {
     def read(bson: BSONDocument): Person = {
-      Person(
-        bson.getAs[String](_ID),
-        bson.getAs[String](FIRST_NAME),
-        bson.getAs[String](LAST_NAME),
-        bson.getAs[Date](BIRTH_DATE),
-        bson.getAs[String](EMAIL),
-        None,
-        bson.getAs[String](ENCRYPTED_PASSWORD),
-        bson.getAs[List[Address]](ADDRESSES))
+      val person = Person()
+      person._id = bson.getAs[String](_ID)
+      person.firstName = bson.getAs[String](FIRST_NAME)
+      person.lastName = bson.getAs[String](LAST_NAME)
+      person.birthDate = bson.getAs[Date](BIRTH_DATE)
+      person.email = bson.getAs[String](EMAIL)
+      person.emailToken = bson.getAs[String](EMAILTOKEN)
+      person.encryptedPassword = bson.getAs[String](ENCRYPTED_PASSWORD)
+      person.addresses = bson.getAs[List[Address]](ADDRESSES)
+      person
     }
   }
 }

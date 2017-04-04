@@ -54,11 +54,7 @@ object ApiToken {
   }
 
   def create(apiKey: String, userId: String): Future[String] = Future.successful {
-    def newUUID: String = {
-      val uuid = UUID.randomUUID().toString
-      if (!tokenStore.exists(_.token == uuid)) uuid else newUUID
-    }
-    val token = newUUID
+    val token = generateToken
     tokenStore = tokenStore :+ ApiToken(token, apiKey, expirationTime = setDuration, userId)
     token
   }
@@ -71,6 +67,11 @@ object ApiToken {
     }
   }
 
+  def generateToken: String = {
+    val uuid = UUID.randomUUID().toString
+    if (!tokenStore.exists(_.token == uuid)) uuid else generateToken
+  }
+  
   /**
    * Remove all expired token from the store
    */

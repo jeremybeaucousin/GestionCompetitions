@@ -37,6 +37,7 @@ class DocumentationServices @Inject() (
     Some(StringUtils.EMPTY),
     Some(StringUtils.EMPTY),
     Some(StringUtils.EMPTY),
+    Some(StringUtils.EMPTY),
     Some(addressesExemple))
 
   final val jsonPersonCompleteExemple = (Json.toJson(personCompleteExemple))

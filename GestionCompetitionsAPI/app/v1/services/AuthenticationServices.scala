@@ -10,17 +10,29 @@ import scala.concurrent.duration.Duration
 import v1.utils.SecurityUtil
 import play.api.i18n.Messages
 import play.Logger
+import java.util.UUID
 
 @Singleton
 class AuthenticationServices @Inject() (
     implicit val ec: ExecutionContext,
     personServices: PersonServices) {
 
-  // TODO send error for email and password
   def createAccount(person: Person)(implicit messages: Messages): Future[(Option[Person], Boolean)] = {
     if (person.email.isDefined && person.password.isDefined) {
       person.encryptedPassword = Some(SecurityUtil.createPassword(person.password.get))
-      personServices.addPerson(person)
+      val futurePersonWithFlagForNew = personServices.addPerson(person)
+      val personWithFlagForNew = Await.ready(futurePersonWithFlagForNew, Duration.Inf).value.get.get
+      val personInsertedOption = personWithFlagForNew._1
+      val isNew = personWithFlagForNew._2
+      if(personInsertedOption.isDefined && isNew) {
+        val uuid = UUID.randomUUID().toString
+        val personInserted = personInsertedOption.get
+        personInserted.emailToken = Some(uuid)
+        personServices.editPerson(personInserted._id.get, personInserted)
+        // TODO Send and email to activate the accound and think about test about inserted token
+        // TODO Create business rules about this token
+      }
+      Future(personInsertedOption, isNew)
     } else {
       Future(None, false)
     }

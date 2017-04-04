@@ -97,7 +97,7 @@ class PersonServices @Inject() (val personDAO: PersonDAO[Person])(implicit val e
     if (homonymFound) {
       throw new HomonymNamesException
     }
-
+    
     val personOption = Await.ready(personDAO.addPerson(person), Duration.Inf).value.get.get
     Future(personOption, true)
   }
