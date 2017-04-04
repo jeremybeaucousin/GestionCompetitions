@@ -27,10 +27,17 @@ class PersonServices @Inject() (val personDAO: PersonDAO[Person])(implicit val e
     personDAO.searchPersons(personOption, searchInValues, sortOption, fieldsOption, offsetOption, limitOption)
   }
 
-  def searchPersonWithEmail(person: Person): Future[List[Person]] = {
+  def searchPersonWithEmail(person: Person): Future[Option[Person]] = {
     val personWithEmainOnly = Person()
     personWithEmainOnly.email = person.email
-    personDAO.searchPersons(Some(personWithEmainOnly), None, None, None, None, None)
+    var futurePersons = personDAO.searchPersons(Some(personWithEmainOnly), None, None, None, None, None)
+    futurePersons.map(personsWithSameEmail => {
+      if (!personsWithSameEmail.isEmpty) {
+        personsWithSameEmail.find(personWithSameEmail => personWithSameEmail.email.get.equals(person.email.get))
+      } else {
+        None
+      }
+    })
   }
 
   def getPerson(id: String, fieldsOption: Option[Seq[String]]): Future[Option[Person]] = {
@@ -62,10 +69,9 @@ class PersonServices @Inject() (val personDAO: PersonDAO[Person])(implicit val e
     }
 
     if (person.email.isDefined) {
-      val futurePersons = searchPersonWithEmail(person)
-      val personsWithSameEmail = Await.ready(futurePersons, Duration.Inf).value.get.get
-      if (!personsWithSameEmail.isEmpty) {
-        val personWithSameEmail = personsWithSameEmail.find(personWithSameEmail => personWithSameEmail.email.get.equals(person.email.get))
+      val futurePerson = searchPersonWithEmail(person)
+      val personWithSameEmail = Await.ready(futurePerson, Duration.Inf).value.get.get
+      if (personWithSameEmail.isDefined) {
         if (personWithSameEmail.isDefined && personWithSameEmail.get.encryptedPassword.isDefined) {
           throw new EmailAlreadyRegisterdException
         } else {
@@ -96,16 +102,16 @@ class PersonServices @Inject() (val personDAO: PersonDAO[Person])(implicit val e
   }
 
   /**
-   * Update the person, the email is modify only id it's not an active account
+   * Update the person, the email is modify only id it's not an active account.
    * @param id
    * @param person
    * @return
    */
+  // TODO val personWithSameEmail = Await.ready(futurePerson, Duration.Inf).value.get.get search with email
   def editPerson(id: String, person: Person): Future[Boolean] = {
     val futurePerson = personDAO.getPerson(id, None)
     val existingPerson = Await.ready(futurePerson, Duration.Inf).value.get.get
     if (existingPerson.isDefined) {
-      Logger.info(existingPerson.toString())
       if (existingPerson.get.encryptedPassword.isDefined) {
         person.email = None
       }
@@ -117,4 +123,5 @@ class PersonServices @Inject() (val personDAO: PersonDAO[Person])(implicit val e
   def deletePerson(id: String): Future[Boolean] = {
     personDAO.deletePerson(id)
   }
+
 }

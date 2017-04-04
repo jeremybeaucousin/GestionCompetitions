@@ -9,6 +9,7 @@ import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 import v1.utils.SecurityUtil
 import play.api.i18n.Messages
+import play.Logger
 
 @Singleton
 class AuthenticationServices @Inject() (
@@ -27,12 +28,12 @@ class AuthenticationServices @Inject() (
 
   def authenticate(person: Person): Future[Option[Person]] = {
     if (person.email.isDefined && person.email.isDefined) {
-      val futurePersons = personServices.searchPersonWithEmail(person)
-      val persons = Await.ready(futurePersons, Duration.Inf).value.get.get
-      if (!persons.isEmpty) {
-        val firstPerson = persons(0)
-        if (firstPerson.encryptedPassword.isDefined && SecurityUtil.checkPassword(person.password.get, firstPerson.encryptedPassword.get)) {
-          return Future(Some(firstPerson))
+      val futurePerson = personServices.searchPersonWithEmail(person)
+      val personWithSameEmailOption = Await.ready(futurePerson, Duration.Inf).value.get.get
+      if (personWithSameEmailOption.isDefined) {
+        val personWithSameEmail = personWithSameEmailOption.get
+        if (personWithSameEmail.encryptedPassword.isDefined && SecurityUtil.checkPassword(person.password.get, personWithSameEmail.encryptedPassword.get)) {
+          return Future(Some(personWithSameEmail))
         }
       }
     }
