@@ -7,7 +7,7 @@ error.server=An error occured on the server: {0}
 error.client=A client error occurred: {0}
 error.sameNamesHomonym=An homonym has been found
 error.sameNamesAndbirthDateHomonym=An homonym with the same birth date has been found 
-error.emailAlreadyRegistered=This email address is already registered for another account
+error.emailAlreadyRegistered=This email address is associate to an active account
 error.firstNameAndLastNameRequired=Both first name and last name are required
     
 #http

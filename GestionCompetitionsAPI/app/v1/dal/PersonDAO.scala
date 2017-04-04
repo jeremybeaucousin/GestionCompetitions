@@ -50,7 +50,6 @@ class PersonDAO[T] @Inject() (val personRepo: PersonRepoImpl[T])(
     val futureWriteResult = personRepo.save(person)
     var futureResult = handleWriteResult(futureWriteResult)
     val hasNoError = Await.ready(futureResult, Duration.Inf).value.get.get
-    Logger.info(hasNoError.toString())
     if (hasNoError) {
         personRepo.select(_id, None)
       } else {

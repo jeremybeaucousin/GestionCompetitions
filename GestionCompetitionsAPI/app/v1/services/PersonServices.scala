@@ -84,37 +84,56 @@ class PersonServices @Inject() (val personDAO: PersonDAO[Person])(implicit val e
     personSearch.lastName = person.lastName
     personSearch.birthDate = person.birthDate
     if (person.birthDate.isDefined) {
-      searchHomonyme(personSearch).map(personsFound => {
-        if (personsFound) {
-          throw new HomonymNamesAndBirthDateException
-        }
-      })
-    } else {
-      personSearch.birthDate = None
-      searchHomonyme(personSearch).map(personsFound => {
-        if (personsFound) {
-          throw new HomonymNamesException
-        }
-      })
+      val futureHomonymFound = searchHomonyme(personSearch)
+      val homonymFound = Await.ready(futureHomonymFound, Duration.Inf).value.get.get
+      if (homonymFound) {
+        throw new HomonymNamesAndBirthDateException
+      }
     }
+    // Reset the birthDate to search only for first and last name
+    personSearch.birthDate = None
+    val futureHomonymFound = searchHomonyme(personSearch)
+    val homonymFound = Await.ready(futureHomonymFound, Duration.Inf).value.get.get
+    if (homonymFound) {
+      throw new HomonymNamesException
+    }
+
     val personOption = Await.ready(personDAO.addPerson(person), Duration.Inf).value.get.get
     Future(personOption, true)
   }
 
   /**
-   * Update the person, the email is modify only id it's not an active account.
+   * Can be used in two case.
+   *
+   * The first when the person as no active account yet (to update the email if it were wrong).
+   * In that case we can update all the fields except when the email is already used by another person.
+   *
+   * The second is when the account is active. in that case the email set in input is not saved.
+   *
    * @param id
    * @param person
    * @return
    */
-  // TODO val personWithSameEmail = Await.ready(futurePerson, Duration.Inf).value.get.get search with email
-  def editPerson(id: String, person: Person): Future[Boolean] = {
+  def editPerson(id: String, person: Person)(implicit messages: Messages): Future[Boolean] = {
     val futurePerson = personDAO.getPerson(id, None)
-    val existingPerson = Await.ready(futurePerson, Duration.Inf).value.get.get
-    if (existingPerson.isDefined) {
-      if (existingPerson.get.encryptedPassword.isDefined) {
-        person.email = None
+    val existingPersonOption = Await.ready(futurePerson, Duration.Inf).value.get.get
+    if (existingPersonOption.isDefined) {
+      val existingPerson = existingPersonOption.get
+      // If there is no registered account we can modify the email
+      if (person.email.isDefined && existingPerson.email.isDefined && !person.email.get.equals(existingPerson.email.get)) {
+        if (!existingPerson.encryptedPassword.isDefined) {
+          val futurePersonWithSameEmail = searchPersonWithEmail(person)
+          val personWithSameEmail = Await.ready(futurePersonWithSameEmail, Duration.Inf).value.get.get
+          if (personWithSameEmail.isDefined) {
+            if (personWithSameEmail.isDefined) {
+              throw new EmailAlreadyRegisterdException
+            }
+          }
+        } else {
+          throw new EmailAlreadyRegisterdException
+        }
       }
+
       return personDAO.editPerson(id, person)
     }
     Future(false)
