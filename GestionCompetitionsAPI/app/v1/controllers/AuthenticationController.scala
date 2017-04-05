@@ -39,6 +39,7 @@ class AuthenticationController @Inject() (
     }
   }
 
+  // TODO check if already logged
   def signup = Action.async(BodyParsers.parse.json) { implicit request =>
     val futurePerson = authenticationServices.createAccount(request.body.as[Person])
     futurePerson.map {
