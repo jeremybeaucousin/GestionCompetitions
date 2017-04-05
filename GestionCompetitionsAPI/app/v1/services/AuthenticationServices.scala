@@ -25,7 +25,7 @@ class AuthenticationServices @Inject() (
   final val EMAIL_TOKEN_DURATION = 10
 
   private def getExpirationTime = (new DateTime()) plusDays EMAIL_TOKEN_DURATION
-  // TODO  Resend verification email
+
   def createAccount(person: Person)(implicit messages: Messages): Future[(Option[Person], Boolean)] = {
     if (person.email.isDefined && person.password.isDefined && person.login.isDefined) {
       val futurePersonWithSameLogin = personServices.searchPersonWithLogin(person)
@@ -33,41 +33,44 @@ class AuthenticationServices @Inject() (
         if (personWithSameLogin.isDefined) {
           throw new LoginAlreadyRegisterdException
         } else {
+          // TODO SEND MAIL
           person.encryptedPassword = Some(SecurityUtil.encryptString(person.password.get))
           val encryptedEmailToken = SecurityUtil.encryptString(SecurityUtil.generateString(10))
           person.encryptedEmailToken = Some(encryptedEmailToken)
           person.emailTokenExpirationTime = Some(getExpirationTime.toDate())
           person.role = Some(grantsServices.USER)
           personServices.addPerson(person)
-          //          val futurePersonWithFlagForNew = personServices.addPerson(person)
-          //      val personWithFlagForNew = Await.ready(futurePersonWithFlagForNew, Duration.Inf).value.get.get
-          //          futurePersonWithFlagForNew.flatMap(personWithFlagForNew => {
-          //            val personInsertedOption = personWithFlagForNew._1
-          //            val isNew = personWithFlagForNew._2
-          //            if (personInsertedOption.isDefined && isNew) {
-          // TODO Send by email
-          //              val encryptedEmailToken = SecurityUtil.encryptString(SecurityUtil.generateString(10))
-          //              val personInserted = personInsertedOption.get
-          //              personInserted.encryptedEmailToken = Some(encryptedEmailToken)
-          //              personInserted.emailTokenExpirationTime = Some(getExpirationTime.toDate())
-          //              personInserted.role = Some(grantsServices.USER)
-          //              personServices.editPerson(personInserted._id.get, personInserted)
-          //              Future(personInsertedOption, isNew)
-          // TODO Send and email to activate the accound and think about test about inserted token
-          // TODO Create business rules about this token
-          //            } else {
-          //              Future(None, false)
-          //            }
-          //          })
         }
       })
     } else {
       throw new EmailPasswordLoginRequired
     }
   }
-
+  // TODO  Resend verification email
+  // TODO  Await send dead letter
   def authenticate(person: Person): Future[Option[Person]] = {
-    if (person.email.isDefined && person.email.isDefined) {
+//    def handlePersonReturn(futurePerson: Future[Option[Person]]): Option[Person] = {
+//      val personFoundOption = Await.ready(futurePerson, Duration.Inf).value.get.get
+//      if (personFoundOption.isDefined) {
+//        val personFound: Person = personFoundOption.get
+//        if (personFound.encryptedPassword.isDefined && SecurityUtil.checkString(person.password.get, personFound.encryptedPassword.get)) {
+//          Logger.info(personFound.toString)
+//          return Some(personFound)
+//        }
+//      }
+//      None
+//    }
+    
+    if (person.login.isDefined) {
+      val futurePerson = personServices.searchPersonWithLogin(person)
+      val personWithSameLoginOption = Await.ready(futurePerson, Duration.Inf).value.get.get
+      if (personWithSameLoginOption.isDefined) {
+        val personWithSameLogin = personWithSameLoginOption.get
+        if (personWithSameLogin.encryptedPassword.isDefined && SecurityUtil.checkString(person.password.get, personWithSameLogin.encryptedPassword.get)) {
+          return Future(Some(personWithSameLogin))
+        }
+      }
+    } else if (person.email.isDefined) {
       val futurePerson = personServices.searchPersonWithEmail(person)
       val personWithSameEmailOption = Await.ready(futurePerson, Duration.Inf).value.get.get
       if (personWithSameEmailOption.isDefined) {

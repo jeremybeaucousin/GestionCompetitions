@@ -44,15 +44,11 @@ class AuthenticationController @Inject() (
     val futurePerson = authenticationServices.createAccount(request.body.as[Person])
     futurePerson.map {
       case (personOption, isNew) =>
-        if (personOption.isDefined && personOption.get._id.isDefined) {
-          var returnedLocation = HttpConstants.headerFields.location -> (routes.PersonController.getPerson(personOption.get._id.get, None).absoluteURL())
-          if (isNew) {
-            Created.withHeaders(returnedLocation)
-          } else {
-            Conflict(Json.toJson(personOption.get)).withHeaders(returnedLocation)
-          }
+        var returnedLocation = HttpConstants.headerFields.location -> (routes.PersonController.getPerson(personOption.get._id.get, None).absoluteURL())
+        if (isNew) {
+          Created.withHeaders(returnedLocation)
         } else {
-          UnprocessableEntity
+          Conflict(Json.toJson(personOption.get)).withHeaders(returnedLocation)
         }
     }
   }
@@ -63,15 +59,16 @@ class AuthenticationController @Inject() (
     if (apiKeyOpt.isDefined && ApiToken.apiKeysExists(apiKeyOpt.get)) {
       val person = request.body.as[Person]
       val futurePerson = authenticationServices.authenticate(person)
-      futurePerson.flatMap(person => {
+      futurePerson.map(person => {
+        Logger.info(person.toString)
         if (person.isDefined && person.get._id.isDefined) {
-          ApiToken.create(apiKeyOpt.get, person.get._id.get).map(token =>
-            Ok(
-              Json.obj(
-                ApiToken.TOKEN_FIELD -> token,
-                ApiToken.DURATION_FIELD -> ApiToken.API_TOKEN_DURATION)))
+          val token = ApiToken.create(apiKeyOpt.get, person.get._id.get)
+          Ok(
+            Json.obj(
+              ApiToken.TOKEN_FIELD -> token,
+              ApiToken.DURATION_FIELD -> ApiToken.API_TOKEN_DURATION))
         } else {
-          Future(Forbidden)
+          Forbidden
         }
       })
     } else {

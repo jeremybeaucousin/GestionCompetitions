@@ -113,8 +113,8 @@ class PersonRepoImpl[T] @Inject() (val reactiveMongoApi: ReactiveMongoApi)(
   }
 
   def handleWriteResult(futureWriteResult: Future[WriteResult]): Future[Boolean] = {
-    futureWriteResult.flatMap(writeResult => {
-      Future(!writeResult.hasErrors && writeResult.n > 0)
+    futureWriteResult.map(writeResult => {
+      !writeResult.hasErrors && writeResult.n > 0
     })
   }
 }

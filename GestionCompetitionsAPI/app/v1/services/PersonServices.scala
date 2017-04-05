@@ -117,8 +117,10 @@ class PersonServices @Inject() (val personDAO: PersonDAO[Person])(implicit val e
         throw new HomonymNamesException
       }
     }
-    val personOption = Await.ready(personDAO.addPerson(person), Duration.Inf).value.get.get
-    Future(personOption, true)
+    val futurePerson = personDAO.addPerson(person)
+    futurePerson.map(personOption => {
+      (personOption, true)
+    })
   }
 
   /**
@@ -155,7 +157,6 @@ class PersonServices @Inject() (val personDAO: PersonDAO[Person])(implicit val e
           throw new EmailAlreadyRegisterdException
         }
       }
-
       return personDAO.editPerson(id, person)
     }
     Future(false)
