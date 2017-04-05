@@ -40,7 +40,7 @@ class PersonServices @Inject() (val personDAO: PersonDAO[Person])(implicit val e
       }
     })
   }
-  
+
   def searchPersonWithLogin(person: Person): Future[Option[Person]] = {
     val personWithLoginOnly = Person()
     personWithLoginOnly.login = person.login
@@ -82,7 +82,7 @@ class PersonServices @Inject() (val personDAO: PersonDAO[Person])(implicit val e
     if (person.login.isDefined && !person.encryptedEmailToken.isDefined) {
       throw new LoginCannotBeSetException
     }
-    
+
     if (!person.firstName.isDefined || !person.lastName.isDefined) {
       throw new FirstNameAndLastNameRequiredException
     }
@@ -108,15 +108,15 @@ class PersonServices @Inject() (val personDAO: PersonDAO[Person])(implicit val e
       if (homonymFound) {
         throw new HomonymNamesAndBirthDateException
       }
+    } else {
+      // Reset the birthDate to search only for first and last name
+      personSearch.birthDate = None
+      val futureHomonymFound = searchHomonyme(personSearch)
+      val homonymFound = Await.ready(futureHomonymFound, Duration.Inf).value.get.get
+      if (homonymFound) {
+        throw new HomonymNamesException
+      }
     }
-    // Reset the birthDate to search only for first and last name
-    personSearch.birthDate = None
-    val futureHomonymFound = searchHomonyme(personSearch)
-    val homonymFound = Await.ready(futureHomonymFound, Duration.Inf).value.get.get
-    if (homonymFound) {
-      throw new HomonymNamesException
-    }
-
     val personOption = Await.ready(personDAO.addPerson(person), Duration.Inf).value.get.get
     Future(personOption, true)
   }

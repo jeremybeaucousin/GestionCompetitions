@@ -50,7 +50,7 @@ trait PersonRepo[T] {
    * @return
    */
   def save(person: Person)(implicit bSONDocumentReader: BSONDocumentReader[T],
-                           bSONDocumentWriter: BSONDocumentWriter[T]): Future[WriteResult]
+                           bSONDocumentWriter: BSONDocumentWriter[T]): Future[Boolean]
 }
 
 class PersonRepoImpl[T] @Inject() (val reactiveMongoApi: ReactiveMongoApi)(
@@ -102,10 +102,10 @@ class PersonRepoImpl[T] @Inject() (val reactiveMongoApi: ReactiveMongoApi)(
 
   }
 
-  override def save(person: Person)(
-      implicit bSONDocumentReader: BSONDocumentReader[T],
-      bSONDocumentWriter: BSONDocumentWriter[T]): Future[WriteResult] = {
-    collection.flatMap(_.insert(person))
+  override def save(person: Person)(implicit bSONDocumentReader: BSONDocumentReader[T],
+                           bSONDocumentWriter: BSONDocumentWriter[T]): Future[Boolean] = {
+    val futureWriteResult = collection.flatMap(_.insert(person))
+    handleWriteResult(futureWriteResult)
   }
 
   private def constructId(id: String): BSONDocument = {
@@ -113,8 +113,8 @@ class PersonRepoImpl[T] @Inject() (val reactiveMongoApi: ReactiveMongoApi)(
   }
 
   def handleWriteResult(futureWriteResult: Future[WriteResult]): Future[Boolean] = {
-    futureWriteResult.map(writeResult => {
-      !writeResult.hasErrors && writeResult.n > 0
+    futureWriteResult.flatMap(writeResult => {
+      Future(!writeResult.hasErrors && writeResult.n > 0)
     })
   }
 }

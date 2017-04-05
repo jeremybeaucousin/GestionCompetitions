@@ -17,7 +17,6 @@ import play.api.i18n.MessagesApi
 import reactivemongo.bson.BSONDocumentReader
 import reactivemongo.bson.BSONDocumentWriter
 import v1.utils.MongoDbUtil
-import scala.concurrent.Await
 
 class PersonDAO[T] @Inject() (val personRepo: PersonRepoImpl[T])(
     implicit ec: ExecutionContext) {
@@ -47,14 +46,16 @@ class PersonDAO[T] @Inject() (val personRepo: PersonRepoImpl[T])(
     bSONDocumentWriter: BSONDocumentWriter[T]): Future[Option[T]] = {
     val _id = MongoDbUtil.generateId().stringify
     person._id = Some(_id)
-    val futureWriteResult = personRepo.save(person)
-    var futureResult = handleWriteResult(futureWriteResult)
-    val hasNoError = Await.ready(futureResult, Duration.Inf).value.get.get
-    if (hasNoError) {
+    val futureResult = personRepo.save(person)
+    futureResult.flatMap(hasNoError => {
+      if (hasNoError) {
         personRepo.select(_id, None)
       } else {
         Future(None)
       }
+    })
+    //    val hasNoError = Await.ready(futureResult, Duration.Inf).value.get.get
+
   }
 
   def editPerson(id: String, person: Person): Future[Boolean] = {
@@ -63,11 +64,5 @@ class PersonDAO[T] @Inject() (val personRepo: PersonRepoImpl[T])(
 
   def deletePerson(id: String): Future[Boolean] = {
     personRepo.remove(id)
-  }
-
-  private def handleWriteResult(futureWriteResult: Future[WriteResult]): Future[Boolean] = {
-    futureWriteResult.map(writeResult => {
-      !writeResult.hasErrors && writeResult.n > 0
-    })
   }
 }
