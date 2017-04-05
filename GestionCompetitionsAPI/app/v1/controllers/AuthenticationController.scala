@@ -68,7 +68,7 @@ class AuthenticationController @Inject() (
             Ok(
               Json.obj(
                 ApiToken.TOKEN_FIELD -> token,
-                ApiToken.DURATION_FIELD -> ApiToken.TOKEN_DURATION)))
+                ApiToken.DURATION_FIELD -> ApiToken.API_TOKEN_DURATION)))
         } else {
           Future(Forbidden)
         }

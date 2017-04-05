@@ -9,6 +9,7 @@ import play.Logger
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 import v1.utils.SeqUtil
+import v1.utils.SecurityUtil
 
 /*
 * Stores the Auth Token information. Each token belongs to a Api Key and user
@@ -25,14 +26,14 @@ object ApiToken {
 
   final val TOKEN_FIELD = "token"
   final val DURATION_FIELD = "minutes"
-  final val TOKEN_DURATION = 30
+  final val API_TOKEN_DURATION = 30
 
   val apiKeys = Map[String, String](
     "Web-App" -> "tkdhkd44")
 
   private var tokenStore: Seq[ApiToken] = Seq[ApiToken]()
 
-  private def setDuration = (new DateTime()) plusMinutes TOKEN_DURATION
+  private def getExpirationTime = (new DateTime()) plusMinutes API_TOKEN_DURATION
 
   def apiKeysExists(apiKey: String): Boolean = apiKeys.values.exists(key => key.equals(apiKey))
 
@@ -47,7 +48,7 @@ object ApiToken {
       val newApiToken = ApiToken(
         apiToken.token,
         apiToken.apiKey,
-        expirationTime = setDuration, apiToken.userId)
+        expirationTime = getExpirationTime, apiToken.userId)
       tokenStore = tokenStore.updated(index, newApiToken)
     }
 
@@ -55,7 +56,7 @@ object ApiToken {
 
   def create(apiKey: String, userId: String): Future[String] = Future.successful {
     val token = generateToken
-    tokenStore = tokenStore :+ ApiToken(token, apiKey, expirationTime = setDuration, userId)
+    tokenStore = tokenStore :+ ApiToken(token, apiKey, expirationTime = getExpirationTime, userId)
     token
   }
 
@@ -68,7 +69,7 @@ object ApiToken {
   }
 
   def generateToken: String = {
-    val uuid = UUID.randomUUID().toString
+    val uuid = SecurityUtil.generateUUID();
     if (!tokenStore.exists(_.token == uuid)) uuid else generateToken
   }
   

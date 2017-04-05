@@ -30,15 +30,17 @@ class DocumentationServices @Inject() (
 
   final val addressesExemple = List[Address](new Address, new Address)
   final val personCompleteExemple = new Person(
-    Some(StringUtils.EMPTY),
-    Some(StringUtils.EMPTY),
-    Some(StringUtils.EMPTY),
-    Some(new Date),
-    Some(StringUtils.EMPTY),
-    Some(StringUtils.EMPTY),
-    Some(StringUtils.EMPTY),
-    Some(StringUtils.EMPTY),
-    Some(addressesExemple))
+    Some(StringUtils.EMPTY), // _ID
+    Some(StringUtils.EMPTY), // FIRST_NAME
+    Some(StringUtils.EMPTY), // LAST_NAME
+    Some(new Date), // BIRTH_DATE
+    Some(StringUtils.EMPTY), // LOGIN
+    Some(StringUtils.EMPTY), // EMAIL
+    Some(StringUtils.EMPTY), // ENCRYPTED_EMAIL_TOKEN
+    Some(new Date), // EMAIL_TOKEN_EXPIRATION_TIME
+    Some(StringUtils.EMPTY), // PASSWORD
+    Some(StringUtils.EMPTY), // ENCRYPTED_PASSWORD
+    Some(addressesExemple)) // ADDRESSES
 
   final val jsonPersonCompleteExemple = (Json.toJson(personCompleteExemple))
 
@@ -232,8 +234,8 @@ class DocumentationServices @Inject() (
 
       def getAddPersonErrors: Map[String, String] = {
         var codes: Map[String, String] = Map[String, String]()
-//        FirstNameAndLastNameRequiredException.toString()
-        codes += ( "" -> messages(MessageConstants.http.ok))
+        //        FirstNameAndLastNameRequiredException.toString()
+        codes += ("" -> messages(MessageConstants.http.ok))
         codes += (Http.Status.UNPROCESSABLE_ENTITY.toString() -> messages(MessageConstants.http.unprocessableEntity))
         codes += (Http.Status.CONFLICT.toString() -> messages(MessageConstants.http.conflict))
         codes

@@ -13,8 +13,10 @@ case class Person(
     var firstName: Option[String] = None,
     var lastName: Option[String] = None,
     var birthDate: Option[Date] = None,
+    var login: Option[String] = None,
     var email: Option[String] = None,
-    var emailToken: Option[String] = None,
+    var encryptedEmailToken: Option[String] = None,
+    var emailTokenExpirationTime: Option[Date] = None,
     var password: Option[String] = None,
     var encryptedPassword: Option[String] = None,
     var addresses: Option[List[Address]] = None) {
@@ -25,8 +27,10 @@ case class Person(
       firstName,
       lastName,
       birthDate,
+      login,
       email,
-      emailToken,
+      encryptedEmailToken,
+      emailTokenExpirationTime,
       password,
       encryptedPassword,
       addresses)
@@ -50,14 +54,16 @@ object Person {
   final val FIRST_NAME: String = "firstName"
   final val LAST_NAME: String = "lastName"
   final val BIRTH_DATE: String = "birthDate"
+  final val LOGIN = "login"
   final val EMAIL = "email"
-  final val EMAILTOKEN = "emailToken"
+  final val ENCRYPTED_EMAIL_TOKEN = "encryptedEmailToken"
+  final val EMAIL_TOKEN_EXPIRATION_TIME = "emailTokenExpirationTime"
   final val PASSWORD = "password"
   final val ENCRYPTED_PASSWORD = "encryptedPassword"
   final val ADDRESSES: String = "addresses"
 
   /**
-   * Convert a json into a Person, extract empty values when we this is information that clients do not have to send
+   * Convert a json into a Person, extract empty values when we this is informations that clients do not have to have
    * @return
    */
   val personReads: Reads[Person] = (
@@ -65,14 +71,16 @@ object Person {
     (JsPath \ FIRST_NAME).readNullable[String](minLength[String](2)) and
     (JsPath \ LAST_NAME).readNullable[String](minLength[String](2)) and
     (JsPath \ BIRTH_DATE).readNullable[Date] and
+    (JsPath \ LOGIN).readNullable[String] and
     (JsPath \ EMAIL).readNullable[String](email) and
-    (JsPath \ StringUtils.EMPTY).readNullable[String] and
+    (JsPath \ StringUtils.EMPTY).readNullable[String] and // ENCRYPTED_EMAIL_TOKEN
+    (JsPath \ StringUtils.EMPTY).readNullable[Date] and // EMAIL_TOKEN_EXPIRATION_TIME
     (JsPath \ PASSWORD).readNullable[String](pattern(ValidationConstants.regex.PASSWORD, MessageConstants.error.password)) and
-    (JsPath \ StringUtils.EMPTY).readNullable[String] and
+    (JsPath \ StringUtils.EMPTY).readNullable[String] and // ENCRYPTED_PASSWORD
     (JsPath \ ADDRESSES).readNullable[List[Address]])(Person.apply _)
-  //emailOption => if(emailOption.isDefined) emailOption.get.toUpperCase()
+
   /**
-   * Convert a Person into a json, passwords are not sent to the clients
+   * Convert a Person into a json, some informations are not send back to the clients
    * @return
    */
   object PersonWrites extends Writes[Person] {
@@ -86,6 +94,8 @@ object Person {
         json += (LAST_NAME -> JsString(person.lastName.get))
       if (person.birthDate.isDefined)
         json += (BIRTH_DATE -> JsString(new DateTime(person.birthDate.get).toString()))
+      if (person.login.isDefined)
+        json += (LOGIN -> JsString(person.login.get))
       if (person.email.isDefined)
         json += (EMAIL -> JsString(person.email.get))
       if (person.addresses.isDefined)
@@ -124,10 +134,14 @@ object Person {
         bson ++= (LAST_NAME -> person.lastName.get)
       if (person.birthDate.isDefined)
         bson ++= (BIRTH_DATE -> person.birthDate.get)
+      if (person.login.isDefined)
+        bson ++= (LOGIN -> person.login.get)
       if (person.email.isDefined)
         bson ++= (EMAIL -> person.email.get)
-      if (person.emailToken.isDefined)
-        bson ++= (EMAILTOKEN -> person.emailToken.get)
+      if (person.encryptedEmailToken.isDefined)
+        bson ++= (ENCRYPTED_EMAIL_TOKEN -> person.encryptedEmailToken.get)
+      if (person.emailTokenExpirationTime.isDefined)
+        bson ++= (EMAIL_TOKEN_EXPIRATION_TIME -> person.emailTokenExpirationTime.get)
       if (person.encryptedPassword.isDefined)
         bson ++= (ENCRYPTED_PASSWORD -> person.encryptedPassword.get)
       if (person.addresses.isDefined)
@@ -147,8 +161,10 @@ object Person {
       person.firstName = bson.getAs[String](FIRST_NAME)
       person.lastName = bson.getAs[String](LAST_NAME)
       person.birthDate = bson.getAs[Date](BIRTH_DATE)
+      person.login = bson.getAs[String](LOGIN)
       person.email = bson.getAs[String](EMAIL)
-      person.emailToken = bson.getAs[String](EMAILTOKEN)
+      person.encryptedEmailToken = bson.getAs[String](ENCRYPTED_EMAIL_TOKEN)
+      person.emailTokenExpirationTime = bson.getAs[Date](EMAIL_TOKEN_EXPIRATION_TIME)
       person.encryptedPassword = bson.getAs[String](ENCRYPTED_PASSWORD)
       person.addresses = bson.getAs[List[Address]](ADDRESSES)
       person

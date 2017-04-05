@@ -71,7 +71,7 @@ class PersonController @Inject() (
     { implicit request =>
       val futurePerson: Future[Option[Person]] = personServices.getPerson(id, fieldsOption)
       futurePerson.map { person =>
-        Logger.info(person.get.emailToken.toString())
+        Logger.info(person.get.encryptedEmailToken.toString())
         if (person.isDefined) {
           Ok(Json.toJson(person))
         } else {
