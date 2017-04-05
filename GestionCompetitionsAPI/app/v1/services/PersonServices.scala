@@ -16,6 +16,7 @@ import play.Logger
 import v1.utils.SecurityUtil
 import errors.EmailAlreadyRegisterdException
 import errors.FirstNameAndLastNameRequiredException
+import errors.LoginCannotBeSetException
 
 class PersonServices @Inject() (val personDAO: PersonDAO[Person])(implicit val ec: ExecutionContext) {
 
@@ -34,6 +35,19 @@ class PersonServices @Inject() (val personDAO: PersonDAO[Person])(implicit val e
     futurePersons.map(personsWithSameEmail => {
       if (!personsWithSameEmail.isEmpty) {
         personsWithSameEmail.find(personWithSameEmail => personWithSameEmail.email.get.equals(person.email.get))
+      } else {
+        None
+      }
+    })
+  }
+  
+  def searchPersonWithLogin(person: Person): Future[Option[Person]] = {
+    val personWithLoginOnly = Person()
+    personWithLoginOnly.login = person.login
+    var futurePersons = personDAO.searchPersons(Some(personWithLoginOnly), None, None, None, None, None)
+    futurePersons.map(personsWithSameLogin => {
+      if (!personsWithSameLogin.isEmpty) {
+        personsWithSameLogin.find(personWithSameLogin => personWithSameLogin.login.get.equals(person.login.get))
       } else {
         None
       }
@@ -64,6 +78,11 @@ class PersonServices @Inject() (val personDAO: PersonDAO[Person])(implicit val e
       })
     }
 
+    // Set only for account creation (when the encryptedEmailToken is set)
+    if (person.login.isDefined && !person.encryptedEmailToken.isDefined) {
+      throw new LoginCannotBeSetException
+    }
+    
     if (!person.firstName.isDefined || !person.lastName.isDefined) {
       throw new FirstNameAndLastNameRequiredException
     }
@@ -97,7 +116,7 @@ class PersonServices @Inject() (val personDAO: PersonDAO[Person])(implicit val e
     if (homonymFound) {
       throw new HomonymNamesException
     }
-    
+
     val personOption = Await.ready(personDAO.addPerson(person), Duration.Inf).value.get.get
     Future(personOption, true)
   }
@@ -115,6 +134,9 @@ class PersonServices @Inject() (val personDAO: PersonDAO[Person])(implicit val e
    * @return
    */
   def editPerson(id: String, person: Person)(implicit messages: Messages): Future[Boolean] = {
+    if (person.login.isDefined) {
+      throw new LoginCannotBeSetException
+    }
     val futurePerson = personDAO.getPerson(id, None)
     val existingPersonOption = Await.ready(futurePerson, Duration.Inf).value.get.get
     if (existingPersonOption.isDefined) {

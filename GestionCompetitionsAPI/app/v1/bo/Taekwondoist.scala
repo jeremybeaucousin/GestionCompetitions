@@ -12,19 +12,20 @@ import org.apache.commons.lang3.StringUtils
 import v1.bo.Person.personFormat
 
 case class Taekwondoist(
-  var _id: Option[String] = None,
-  var firstName: Option[String] = None,
-  var lastName: Option[String] = None,
-  var birthDate: Option[Date] = None,
-  var login: Option[String] = None,
-  var email: Option[String] = None,
-  var encryptedEmailToken: Option[String] = None,
-  var emailTokenExpirationTime: Option[Date],
-  var password: Option[String] = None,
-  var encryptedPassword: Option[String] = None,
-  var addresses: Option[List[Address]] = None,
-  var passportNumber: Option[Int] = None,
-  var grade: Option[String] = None) {
+    var _id: Option[String] = None,
+    var firstName: Option[String] = None,
+    var lastName: Option[String] = None,
+    var birthDate: Option[Date] = None,
+    var login: Option[String] = None,
+    var email: Option[String] = None,
+    var role: Option[String] = None,
+    var encryptedEmailToken: Option[String] = None,
+    var emailTokenExpirationTime: Option[Date],
+    var password: Option[String] = None,
+    var encryptedPassword: Option[String] = None,
+    var addresses: Option[List[Address]] = None,
+    var passportNumber: Option[Int] = None,
+    var grade: Option[String] = None) {
 
   def toPerson(): Person = {
     Person(
@@ -34,6 +35,7 @@ case class Taekwondoist(
       birthDate,
       login,
       email,
+      role,
       encryptedEmailToken,
       emailTokenExpirationTime,
       password,

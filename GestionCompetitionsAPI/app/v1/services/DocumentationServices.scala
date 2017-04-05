@@ -36,6 +36,7 @@ class DocumentationServices @Inject() (
     Some(new Date), // BIRTH_DATE
     Some(StringUtils.EMPTY), // LOGIN
     Some(StringUtils.EMPTY), // EMAIL
+    Some(StringUtils.EMPTY), // ROLE
     Some(StringUtils.EMPTY), // ENCRYPTED_EMAIL_TOKEN
     Some(new Date), // EMAIL_TOKEN_EXPIRATION_TIME
     Some(StringUtils.EMPTY), // PASSWORD

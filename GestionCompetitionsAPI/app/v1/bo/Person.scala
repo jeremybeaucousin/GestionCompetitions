@@ -15,6 +15,7 @@ case class Person(
     var birthDate: Option[Date] = None,
     var login: Option[String] = None,
     var email: Option[String] = None,
+    var role: Option[String] = None,
     var encryptedEmailToken: Option[String] = None,
     var emailTokenExpirationTime: Option[Date] = None,
     var password: Option[String] = None,
@@ -29,6 +30,7 @@ case class Person(
       birthDate,
       login,
       email,
+      role,
       encryptedEmailToken,
       emailTokenExpirationTime,
       password,
@@ -56,6 +58,7 @@ object Person {
   final val BIRTH_DATE: String = "birthDate"
   final val LOGIN = "login"
   final val EMAIL = "email"
+  final val ROLE = "role"
   final val ENCRYPTED_EMAIL_TOKEN = "encryptedEmailToken"
   final val EMAIL_TOKEN_EXPIRATION_TIME = "emailTokenExpirationTime"
   final val PASSWORD = "password"
@@ -73,6 +76,7 @@ object Person {
     (JsPath \ BIRTH_DATE).readNullable[Date] and
     (JsPath \ LOGIN).readNullable[String] and
     (JsPath \ EMAIL).readNullable[String](email) and
+    (JsPath \ StringUtils.EMPTY).readNullable[String](email) and // role
     (JsPath \ StringUtils.EMPTY).readNullable[String] and // ENCRYPTED_EMAIL_TOKEN
     (JsPath \ StringUtils.EMPTY).readNullable[Date] and // EMAIL_TOKEN_EXPIRATION_TIME
     (JsPath \ PASSWORD).readNullable[String](pattern(ValidationConstants.regex.PASSWORD, MessageConstants.error.password)) and
@@ -138,6 +142,8 @@ object Person {
         bson ++= (LOGIN -> person.login.get)
       if (person.email.isDefined)
         bson ++= (EMAIL -> person.email.get)
+      if (person.role.isDefined)
+        bson ++= (ROLE -> person.role.get)
       if (person.encryptedEmailToken.isDefined)
         bson ++= (ENCRYPTED_EMAIL_TOKEN -> person.encryptedEmailToken.get)
       if (person.emailTokenExpirationTime.isDefined)
@@ -163,6 +169,7 @@ object Person {
       person.birthDate = bson.getAs[Date](BIRTH_DATE)
       person.login = bson.getAs[String](LOGIN)
       person.email = bson.getAs[String](EMAIL)
+      person.role = bson.getAs[String](ROLE)
       person.encryptedEmailToken = bson.getAs[String](ENCRYPTED_EMAIL_TOKEN)
       person.emailTokenExpirationTime = bson.getAs[Date](EMAIL_TOKEN_EXPIRATION_TIME)
       person.encryptedPassword = bson.getAs[String](ENCRYPTED_PASSWORD)
