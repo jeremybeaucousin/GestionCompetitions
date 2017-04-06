@@ -1,2 +1,1 @@
-D:
-mongod --dbpath sportsEventsManager --auth
+mongod --dbpath D:\sportsEventsManager --auth
