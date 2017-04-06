@@ -17,7 +17,6 @@ import play.api.i18n.MessagesApi
 import reactivemongo.bson.BSONDocumentReader
 import reactivemongo.bson.BSONDocumentWriter
 import v1.utils.MongoDbUtil
-import scala.concurrent.Await
 
 class PersonDAO[T] @Inject() (val personRepo: PersonRepoImpl[T])(
     implicit ec: ExecutionContext) {
@@ -48,16 +47,16 @@ class PersonDAO[T] @Inject() (val personRepo: PersonRepoImpl[T])(
     val _id = MongoDbUtil.generateId().stringify
     person._id = Some(_id)
     val futureResult = personRepo.save(person)
-    futureResult.map(hasNoError => {
+    futureResult.flatMap(hasNoError => {
       if (hasNoError) {
         val futurePerson = personRepo.select(_id, None)
-        Await.ready(futurePerson, Duration.Inf).value.get.get
+        futurePerson.map(personInserted => {
+          personInserted
+        })
       } else {
-        None
+        Future(None)
       }
     })
-    //    val hasNoError = Await.ready(futureResult, Duration.Inf).value.get.get
-
   }
 
   def editPerson(id: String, person: Person): Future[Boolean] = {

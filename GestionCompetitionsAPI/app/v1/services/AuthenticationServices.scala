@@ -5,7 +5,6 @@ import scala.concurrent.ExecutionContext
 import javax.inject.Singleton
 import v1.bo.Person
 import scala.concurrent.Future
-import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 import v1.utils.SecurityUtil
 import play.api.i18n.Messages
