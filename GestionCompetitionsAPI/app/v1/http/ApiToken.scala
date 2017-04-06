@@ -6,7 +6,6 @@ import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.collection.mutable.Map
 import play.Logger
-import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 import v1.utils.SeqUtil
 import v1.utils.SecurityUtil
@@ -64,16 +63,17 @@ object ApiToken {
     })
   }
 
-  def delete(apiToken: ApiToken): Future[Unit] = Future.successful {
+  def delete(apiToken: ApiToken) = {
     val futurApiToken = findByTokenAndApiKey(apiToken.token, apiToken.apiKey)
-    val apiTokenFound = Await.ready(futurApiToken, Duration.Inf).value.get.get
-    if (apiTokenFound.isDefined) {
-      tokenStore = SeqUtil.removeElementFromSeq(apiTokenFound.get, tokenStore)
-    }
-    Logger.info(tokenStore.size.toString())
-    tokenStore.foreach(apiToken => {
-      Logger.info(apiToken.userId.toString())
-      Logger.info(apiToken.token.toString())
+    futurApiToken.map(apiTokenFound => {
+      if (apiTokenFound.isDefined) {
+        tokenStore = SeqUtil.removeElementFromSeq(apiTokenFound.get, tokenStore)
+      }
+      Logger.info(tokenStore.size.toString())
+      tokenStore.foreach(apiToken => {
+        Logger.info(apiToken.userId.toString())
+        Logger.info(apiToken.token.toString())
+      })
     })
   }
 
