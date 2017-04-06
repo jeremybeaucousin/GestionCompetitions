@@ -77,11 +77,11 @@ class AuthenticationController @Inject() (
               ApiToken.TOKEN_FIELD -> apiToken.token,
               ApiToken.DURATION_FIELD -> ApiToken.API_TOKEN_DURATION))
         } else {
-          onUnauthorized(request)
+          Unauthorized
         }
       })
     } else {
-      Future(onUnauthorized(request))
+      Future(Unauthorized)
     }
   }
 

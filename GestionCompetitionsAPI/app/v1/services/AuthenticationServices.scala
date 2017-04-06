@@ -47,39 +47,28 @@ class AuthenticationServices @Inject() (
     }
   }
   // TODO  Resend verification email
-  // TODO  Await send dead letter
   def authenticate(person: Person): Future[Option[Person]] = {
-//    def handlePersonReturn(futurePerson: Future[Option[Person]]): Option[Person] = {
-//      val personFoundOption = Await.ready(futurePerson, Duration.Inf).value.get.get
-//      if (personFoundOption.isDefined) {
-//        val personFound: Person = personFoundOption.get
-//        if (personFound.encryptedPassword.isDefined && SecurityUtil.checkString(person.password.get, personFound.encryptedPassword.get)) {
-//          Logger.info(personFound.toString)
-//          return Some(personFound)
-//        }
-//      }
-//      None
-//    }
-    
-    if (person.login.isDefined) {
-      val futurePerson = personServices.searchPersonWithLogin(person)
-      val personWithSameLoginOption = Await.ready(futurePerson, Duration.Inf).value.get.get
-      if (personWithSameLoginOption.isDefined) {
-        val personWithSameLogin = personWithSameLoginOption.get
-        if (personWithSameLogin.encryptedPassword.isDefined && SecurityUtil.checkString(person.password.get, personWithSameLogin.encryptedPassword.get)) {
-          return Future(Some(personWithSameLogin))
+    def handlePersonReturn(futurePerson: Future[Option[Person]]): Future[Option[Person]] = {
+      futurePerson.map(personFoundOption => {
+        if (personFoundOption.isDefined) {
+          val personFound = personFoundOption.get
+          if (personFound.encryptedPassword.isDefined && SecurityUtil.checkString(person.password.get, personFound.encryptedPassword.get)) {
+            Some(personFound)
+          } else {
+            None
+          }
+        } else {
+          None
         }
-      }
-    } else if (person.email.isDefined) {
-      val futurePerson = personServices.searchPersonWithEmail(person)
-      val personWithSameEmailOption = Await.ready(futurePerson, Duration.Inf).value.get.get
-      if (personWithSameEmailOption.isDefined) {
-        val personWithSameEmail = personWithSameEmailOption.get
-        if (personWithSameEmail.encryptedPassword.isDefined && SecurityUtil.checkString(person.password.get, personWithSameEmail.encryptedPassword.get)) {
-          return Future(Some(personWithSameEmail))
-        }
-      }
+      })
     }
-    Future(None)
+
+    if (person.login.isDefined) {
+      handlePersonReturn(personServices.searchPersonWithLogin(person))
+    } else if (person.email.isDefined) {
+      handlePersonReturn(personServices.searchPersonWithEmail(person))
+    } else {
+      Future(None)
+    }
   }
 }

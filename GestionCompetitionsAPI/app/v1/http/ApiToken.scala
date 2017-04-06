@@ -26,7 +26,7 @@ object ApiToken {
 
   final val TOKEN_FIELD = "token"
   final val DURATION_FIELD = "minutes"
-  final val API_TOKEN_DURATION = 30
+  final val API_TOKEN_DURATION = 1
 
   val apiKeys = Map[String, String](
     "Web-App" -> "tkdhkd44")
@@ -47,27 +47,19 @@ object ApiToken {
     tokenResult
   }
 
-  def raiseTokenDuration(apiToken: ApiToken) = {
-    if (apiToken != null) {
-      val index = tokenStore.indexOf(apiToken)
-      val newApiToken = ApiToken(
-        apiToken.token,
-        apiToken.apiKey,
-        expirationTime = getExpirationTime, apiToken.userId)
-      tokenStore = tokenStore.updated(index, newApiToken)
-    }
-
-  }
-
   def create(apiKey: String, userId: String): Future[ApiToken] = {
     val futureExistingApiToken = findByUserID(userId)
     futureExistingApiToken.map(apiToken => {
-      if (apiToken.isDefined && !apiToken.get.isExpired) {
+      if (apiToken.isDefined) {
         delete(apiToken.get)
-      } 
+      }
       val newApiToken = ApiToken(generateToken, apiKey, expirationTime = getExpirationTime, userId)
       tokenStore = tokenStore :+ newApiToken
       Logger.info(tokenStore.size.toString())
+      tokenStore.foreach(apiToken => {
+        Logger.info(apiToken.userId.toString())
+        Logger.info(apiToken.token.toString())
+      })
       newApiToken
     })
   }
@@ -78,6 +70,11 @@ object ApiToken {
     if (apiTokenFound.isDefined) {
       tokenStore = SeqUtil.removeElementFromSeq(apiTokenFound.get, tokenStore)
     }
+    Logger.info(tokenStore.size.toString())
+    tokenStore.foreach(apiToken => {
+      Logger.info(apiToken.userId.toString())
+      Logger.info(apiToken.token.toString())
+    })
   }
 
   def generateToken: String = {
