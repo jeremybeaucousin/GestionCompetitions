@@ -17,7 +17,7 @@ import play.api.libs.json.JsValue
 import play.Logger
 import org.mindrot.jbcrypt.BCrypt
 import v1.utils.SecurityUtil._
-import v1.managers.DocumentationServices
+import v1.services.DocumentationServices
 import v1.services.PersonServices
 import v1.constantes.MessageConstants
 import v1.model.Operation

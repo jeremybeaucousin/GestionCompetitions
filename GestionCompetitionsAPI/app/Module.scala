@@ -10,7 +10,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import play.api.inject.ApplicationLifecycle
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
-import v1.managers.DocumentationServices
+import v1.services.DocumentationServices
 import v1.http.ApiToken
 
 class Module extends AbstractModule {

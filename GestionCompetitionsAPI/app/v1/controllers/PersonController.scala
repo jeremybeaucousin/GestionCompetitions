@@ -15,7 +15,7 @@ import v1.model.Operation
 import v1.model.Person
 import v1.constantes.HttpConstants
 import v1.constantes.MessageConstants
-import v1.managers.DocumentationServices
+import v1.services.DocumentationServices
 import v1.services.PersonServices
 import v1.utils.RequestUtil
 import play.Logger

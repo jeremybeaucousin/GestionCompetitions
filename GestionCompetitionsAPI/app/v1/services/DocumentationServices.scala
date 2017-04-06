@@ -1,4 +1,4 @@
-package v1.managers
+package v1.services
 
 import java.util.Date
 

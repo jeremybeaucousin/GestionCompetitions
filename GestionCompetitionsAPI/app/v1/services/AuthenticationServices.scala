@@ -19,7 +19,8 @@ import errors.LoginAlreadyRegisterdException
 class AuthenticationServices @Inject() (
     implicit val ec: ExecutionContext,
     personServices: PersonServices,
-    grantsServices: GrantsServices) {
+    grantsServices: GrantsServices,
+    mailServices: MailServices) {
 
   final val EMAIL_TOKEN_DURATION = 10
 
@@ -32,12 +33,13 @@ class AuthenticationServices @Inject() (
         if (personWithSameLogin.isDefined) {
           throw new LoginAlreadyRegisterdException
         } else {
-          // TODO SEND MAIL
           person.encryptedPassword = Some(SecurityUtil.encryptString(person.password.get))
           val encryptedEmailToken = SecurityUtil.encryptString(SecurityUtil.generateString(10))
           person.encryptedEmailToken = Some(encryptedEmailToken)
           person.emailTokenExpirationTime = Some(getExpirationTime.toDate())
           person.role = Some(grantsServices.USER)
+          //          TODO See why it does not work
+          //          mailServices.createAndSendEmail()
           personServices.addPerson(person)
         }
       })
