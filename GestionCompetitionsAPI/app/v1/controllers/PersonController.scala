@@ -41,29 +41,33 @@ class PersonController @Inject() (
 
   def listPersons(sortOption: Option[Seq[String]], fieldsOption: Option[Seq[String]], offsetOption: Option[Int], limitOption: Option[Int]) = Action.async { implicit request =>
     val futurePersons = personServices.searchPersons(None, None, sortOption, fieldsOption, offsetOption, limitOption)
-    val totalCount = personServices.getTotalCount(None, None)
-    futurePersons.map { persons =>
-      if (persons.isEmpty) {
-        NoContent
-      } else {
-        var result = Ok(Json.toJson(persons))
-        RequestUtil.managePagination(result, offsetOption, limitOption, totalCount)
+    val futurTotalCount = personServices.getTotalCount(None, None)
+    RequestUtil.handleFutureListAndTotal(futurePersons, futurTotalCount).map({
+      case (persons, totalCount) => {
+        if (persons.isEmpty) {
+          NoContent
+        } else {
+          var result = Ok(Json.toJson(persons))
+          RequestUtil.handlePagination(result, offsetOption, limitOption, totalCount)
+        }
       }
-    }
+    })
   }
 
   def searchPersons(sortOption: Option[Seq[String]], fieldsOption: Option[Seq[String]], offsetOption: Option[Int], limitOption: Option[Int]) = Action.async(BodyParsers.parse.json) { implicit request =>
     val person = request.body.as[Person]
     val futurePersons = personServices.searchPersons(Some(person), Some(true), sortOption, fieldsOption, offsetOption, limitOption)
-    val totalCount = personServices.getTotalCount(Some(person), Some(true))
-    futurePersons.map { persons =>
-      if (persons.isEmpty) {
-        NoContent
-      } else {
-        var result = Ok(Json.toJson(persons))
-        RequestUtil.managePagination(result, offsetOption, limitOption, totalCount)
+    val futurTotalCount = personServices.getTotalCount(Some(person), Some(true))
+    RequestUtil.handleFutureListAndTotal(futurePersons, futurTotalCount).map({
+      case (persons, totalCount) => {
+        if (persons.isEmpty) {
+          NoContent
+        } else {
+          var result = Ok(Json.toJson(persons))
+          RequestUtil.handlePagination(result, offsetOption, limitOption, totalCount)
+        }
       }
-    }
+    })
   }
 
   // TODO def getPerson(id: String, fieldsOption: Option[Seq[String]]) = withToken { authToken =>

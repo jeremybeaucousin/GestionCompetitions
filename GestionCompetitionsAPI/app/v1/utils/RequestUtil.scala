@@ -21,7 +21,6 @@ import play.api.i18n.Messages
 import play.api.mvc.Headers
 import v1.constantes.HttpConstants
 import play.api.mvc.Request
-import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 import play.api.mvc.Call
 import scala.util.matching.Regex
@@ -31,11 +30,18 @@ import scala.xml.dtd.EMPTY
 
 object RequestUtil {
 
-  def managePagination(result: Result, offset: Option[Int], limit: Option[Int], totalCount: Future[Int])(implicit request: Request[Any], ec: ExecutionContext, messages: Messages): Result = {
+  def handleFutureListAndTotal[T](futureList: Future[List[T]], futurTotalCount: Future[Int])(implicit ec: ExecutionContext): Future[(List[T], Int)] = {
+    futureList.flatMap { elements =>
+      futurTotalCount.map(totalCount => {
+        (elements, totalCount)
+      })
+    }
+  }
+
+  def handlePagination(result: Result, offset: Option[Int], limit: Option[Int], totalCountValue: Int)(implicit request: Request[Any], ec: ExecutionContext, messages: Messages): Result = {
     val offsetValue = offset.getOrElse(0)
     val limitValue = limit.getOrElse(0)
     if (offsetValue > 0 || limitValue > 0) {
-      val totalCountValue: Int = Await.ready(totalCount, Duration.Inf).value.get.getOrElse(0)
       val linkStringBuilder = new StringBuilder
 
       if (offsetValue < totalCountValue) {
@@ -58,7 +64,7 @@ object RequestUtil {
           returnUrl = limitRegex.replaceAllIn(returnUrl, s"$limitString=$limit")
           returnUrl
         }
-        
+
         val startOfLine: String = HttpConstants.HTML_LT
         val middleOfligne: String = HttpConstants.HTML_GT + "; rel=\""
         val EndOfLine: String = "\","
