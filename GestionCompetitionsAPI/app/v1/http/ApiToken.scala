@@ -37,9 +37,9 @@ object ApiToken {
 
   def apiKeysExists(apiKey: String): Boolean = apiKeys.values.exists(key => key.equals(apiKey))
 
-  def findByTokenAndApiKey(token: String, apiKey: String): Option[ApiToken] = {
+  def findByTokenAndApiKey(token: String, apiKey: String): Future[Option[ApiToken]] = {
     val tokenResult = tokenStore.find(tokenResult => tokenResult.token.equals(token) && tokenResult.apiKey.equals(apiKey))
-    tokenResult
+    Future(tokenResult)
   }
 
   def raiseTokenDuration(apiToken: ApiToken) = {
@@ -54,15 +54,15 @@ object ApiToken {
 
   }
 
-  def create(apiKey: String, userId: String): String = {
+  def create(apiKey: String, userId: String): Future[String] = Future.successful {
     val token = generateToken
     tokenStore = tokenStore :+ ApiToken(token, apiKey, expirationTime = getExpirationTime, userId)
-    Logger.info(tokenStore.size.toString())
     token
   }
 
-  def delete(apiToken: ApiToken): Unit = Future.successful {
-    val apiTokenFound = findByTokenAndApiKey(apiToken.token, apiToken.apiKey)
+  def delete(apiToken: ApiToken): Future[Unit] = Future.successful {
+    val futurApiToken = findByTokenAndApiKey(apiToken.token, apiToken.apiKey)
+    val apiTokenFound = Await.ready(futurApiToken, Duration.Inf).value.get.get
     if (apiTokenFound.isDefined) {
       tokenStore = SeqUtil.removeElementFromSeq(apiTokenFound.get, tokenStore)
     }

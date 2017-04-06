@@ -18,8 +18,6 @@ trait Secured {
 
   def onUnauthorized(request: RequestHeader): Result = Results.Forbidden
 
-  // TODO Can be with token
-  
   // TODO SEE why comments code do not work
   def withToken(apiToken: ApiToken => Request[AnyContent] => Future[Result]) = {
     Action.async(
@@ -27,7 +25,17 @@ trait Secured {
         val apiKeyOption = (apiKeyOpt(request))
         val authTokenOption = (authTokenOpt(request))
         if (apiKeyOption.isDefined && ApiToken.apiKeysExists(apiKeyOption.get) && authTokenOption.isDefined) {
-          val apiTokenOpt = ApiToken.findByTokenAndApiKey(authTokenOption.get, apiKeyOption.get)
+          val futureToken = ApiToken.findByTokenAndApiKey(authTokenOption.get, apiKeyOption.get)
+          //          futureToken.map(tokenOption => {
+          //            if (tokenOption.isDefined && !tokenOption.get.isExpired) {
+          //              val apiTokenFound = tokenOption.get
+          //              ApiToken.raiseTokenDuration(apiTokenFound)
+          //              apiToken(apiTokenFound)(request)
+          //            } else {
+          //              onUnauthorized(request)
+          //            }
+          //          })
+          val apiTokenOpt = Await.ready(futureToken, Duration.Inf).value.get.get
           if (apiTokenOpt.isDefined && !apiTokenOpt.get.isExpired) {
             val apiTokenFound = apiTokenOpt.get
             ApiToken.raiseTokenDuration(apiTokenFound)
