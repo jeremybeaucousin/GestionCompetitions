@@ -23,6 +23,7 @@ import v1.constantes.MessageConstants
 import v1.bo.Operation
 import v1.services.AuthenticationServices
 import v1.http.ApiToken
+import org.apache.commons.lang3.StringUtils
 
 class AuthenticationController @Inject() (
   val documentationServices: DocumentationServices,
@@ -57,22 +58,26 @@ class AuthenticationController @Inject() (
     }
   }
 
-  // TODO Externalyse this or opimize to avoir successive else
   def signin = Action.async(BodyParsers.parse.json) { implicit request =>
     val apiKeyOpt = request.headers.get(HttpConstants.headerFields.apiKey)
     if (apiKeyOpt.isDefined && ApiToken.apiKeysExists(apiKeyOpt.get)) {
       val person = request.body.as[Person]
       val futurePerson = authenticationServices.authenticate(person)
-      futurePerson.flatMap(person => {
+      val futureApiToken = futurePerson.flatMap(person => {
         if (person.isDefined && person.get._id.isDefined) {
-          ApiToken.create(apiKeyOpt.get, person.get._id.get).map(token => {
-            Ok(
-              Json.obj(
-                ApiToken.TOKEN_FIELD -> token,
-                ApiToken.DURATION_FIELD -> ApiToken.API_TOKEN_DURATION))
-          })
+          ApiToken.create(apiKeyOpt.get, person.get._id.get)
         } else {
-          Future(onUnauthorized(request))
+          Future(null)
+        }
+      })
+      futureApiToken.map(apiToken => {
+        if (apiToken != null) {
+          Ok(
+            Json.obj(
+              ApiToken.TOKEN_FIELD -> apiToken.token,
+              ApiToken.DURATION_FIELD -> ApiToken.API_TOKEN_DURATION))
+        } else {
+          onUnauthorized(request)
         }
       })
     } else {

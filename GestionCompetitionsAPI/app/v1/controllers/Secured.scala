@@ -16,7 +16,7 @@ trait Secured {
 
   def authTokenOpt(request: RequestHeader) = request.headers.get(HttpConstants.headerFields.authToken)
 
-  def onUnauthorized(request: RequestHeader): Result = Results.Forbidden
+  def onUnauthorized(request: RequestHeader): Result = Results.Unauthorized
 
   // TODO SEE why comments code do not work
   def withToken(apiToken: ApiToken => Request[AnyContent] => Future[Result]) = {
@@ -25,24 +25,19 @@ trait Secured {
         val apiKeyOption = (apiKeyOpt(request))
         val authTokenOption = (authTokenOpt(request))
         if (apiKeyOption.isDefined && ApiToken.apiKeysExists(apiKeyOption.get) && authTokenOption.isDefined) {
-          val futureToken = ApiToken.findByTokenAndApiKey(authTokenOption.get, apiKeyOption.get)
-          //          futureToken.map(tokenOption => {
-          //            if (tokenOption.isDefined && !tokenOption.get.isExpired) {
-          //              val apiTokenFound = tokenOption.get
-          //              ApiToken.raiseTokenDuration(apiTokenFound)
-          //              apiToken(apiTokenFound)(request)
-          //            } else {
-          //              onUnauthorized(request)
-          //            }
-          //          })
-          val apiTokenOpt = Await.ready(futureToken, Duration.Inf).value.get.get
-          if (apiTokenOpt.isDefined && !apiTokenOpt.get.isExpired) {
-            val apiTokenFound = apiTokenOpt.get
-            ApiToken.raiseTokenDuration(apiTokenFound)
-            apiToken(apiTokenFound)(request)
-          } else {
-            Future(onUnauthorized(request))
-          }
+          val futureApiToken = ApiToken.findByTokenAndApiKey(authTokenOption.get, apiKeyOption.get)
+          futureApiToken.flatMap(apiTokenOpt => {
+            if (apiTokenOpt.isDefined && !apiTokenOpt.get.isExpired) {
+              val apiTokenFound = apiTokenOpt.get
+              val futureNewApiToken = ApiToken.create(apiTokenFound.apiKey, apiTokenFound.userId)
+              futureNewApiToken.flatMap(newApiToken => {
+                apiToken(newApiToken)(request)
+              })
+            } else {
+              Future(onUnauthorized(request))
+            }
+          })
+
         } else {
           Future(onUnauthorized(request))
         }

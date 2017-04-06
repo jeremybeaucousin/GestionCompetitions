@@ -37,9 +37,14 @@ object ApiToken {
 
   def apiKeysExists(apiKey: String): Boolean = apiKeys.values.exists(key => key.equals(apiKey))
 
-  def findByTokenAndApiKey(token: String, apiKey: String): Future[Option[ApiToken]] = {
+  def findByTokenAndApiKey(token: String, apiKey: String): Future[Option[ApiToken]] = Future.successful {
     val tokenResult = tokenStore.find(tokenResult => tokenResult.token.equals(token) && tokenResult.apiKey.equals(apiKey))
-    Future(tokenResult)
+    tokenResult
+  }
+
+  def findByUserID(userId: String): Future[Option[ApiToken]] = Future.successful {
+    val tokenResult = tokenStore.find(tokenResult => tokenResult.userId.equals(userId))
+    tokenResult
   }
 
   def raiseTokenDuration(apiToken: ApiToken) = {
@@ -54,10 +59,17 @@ object ApiToken {
 
   }
 
-  def create(apiKey: String, userId: String): Future[String] = Future.successful {
-    val token = generateToken
-    tokenStore = tokenStore :+ ApiToken(token, apiKey, expirationTime = getExpirationTime, userId)
-    token
+  def create(apiKey: String, userId: String): Future[ApiToken] = {
+    val futureExistingApiToken = findByUserID(userId)
+    futureExistingApiToken.map(apiToken => {
+      if (apiToken.isDefined && !apiToken.get.isExpired) {
+        delete(apiToken.get)
+      } 
+      val newApiToken = ApiToken(generateToken, apiKey, expirationTime = getExpirationTime, userId)
+      tokenStore = tokenStore :+ newApiToken
+      Logger.info(tokenStore.size.toString())
+      newApiToken
+    })
   }
 
   def delete(apiToken: ApiToken): Future[Unit] = Future.successful {
@@ -72,7 +84,7 @@ object ApiToken {
     val uuid = SecurityUtil.generateUUID();
     if (!tokenStore.exists(_.token == uuid)) uuid else generateToken
   }
-  
+
   /**
    * Remove all expired token from the store
    */
