@@ -5,7 +5,6 @@ import v1.bo.Person
 import v1.constantes.HttpConstants
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import scala.concurrent.Future
-import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 import play.Logger
 import v1.http.ApiToken
@@ -18,7 +17,6 @@ trait Secured {
 
   def onUnauthorized(request: RequestHeader): Result = Results.Unauthorized
 
-  // TODO SEE why comments code do not work
   def withToken(apiToken: ApiToken => Request[AnyContent] => Future[Result]) = {
     Action.async(
       request => {
