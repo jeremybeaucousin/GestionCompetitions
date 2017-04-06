@@ -3,7 +3,7 @@ package v1.services
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 import javax.inject.Singleton
-import v1.bo.Person
+import v1.model.Person
 import scala.concurrent.Future
 import scala.concurrent.duration.Duration
 import v1.utils.SecurityUtil

@@ -1,6 +1,6 @@
 package v1.services
 
-import v1.bo.Person
+import v1.model.Person
 import v1.dal.PersonDAO
 import javax.inject.Inject
 import scala.concurrent.Future

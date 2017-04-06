@@ -1,4 +1,4 @@
-package v1.bo;
+package v1.model;
 import reactivemongo.bson.{
   BSONDocument, BSONDocumentReader, BSONDocumentWriter
 }

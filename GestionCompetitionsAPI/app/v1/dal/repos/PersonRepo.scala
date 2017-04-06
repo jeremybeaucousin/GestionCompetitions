@@ -12,7 +12,7 @@ import reactivemongo.bson.BSON
 import reactivemongo.bson.BSONDocument
 import reactivemongo.bson.BSONDocumentReader
 import reactivemongo.bson.BSONDocumentWriter
-import v1.bo.Person
+import v1.model.Person
 import v1.utils.MongoDbUtil
 import play.Logger
 

@@ -1,15 +1,15 @@
-package v1.bo;
+package v1.model;
 
 import java.util.Date
 import play.api.Logger
 import play.api.libs.json._
 import reactivemongo.bson
 import reactivemongo.bson.BSONObjectID
-import v1.bo.Person.PersonWrites
-import v1.bo.Person.PersonWriter
-import v1.bo.Person.PersonReader
+import v1.model.Person.PersonWrites
+import v1.model.Person.PersonWriter
+import v1.model.Person.PersonReader
 import org.apache.commons.lang3.StringUtils
-import v1.bo.Person.personFormat
+import v1.model.Person.personFormat
 
 case class Taekwondoist(
     var _id: Option[String] = None,

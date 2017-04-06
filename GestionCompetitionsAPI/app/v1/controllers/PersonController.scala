@@ -11,8 +11,8 @@ import play.api.libs.json.Json
 import play.api.mvc.Action
 import play.api.mvc.BodyParsers
 import play.api.mvc.Controller
-import v1.bo.Operation
-import v1.bo.Person
+import v1.model.Operation
+import v1.model.Person
 import v1.constantes.HttpConstants
 import v1.constantes.MessageConstants
 import v1.managers.DocumentationServices
@@ -20,7 +20,7 @@ import v1.services.PersonServices
 import v1.utils.RequestUtil
 import play.Logger
 import reactivemongo.bson.BSONDocumentReader
-import v1.bo.Person.PersonReader
+import v1.model.Person.PersonReader
 import reactivemongo.bson.BSONDocumentWriter
 
 class PersonController @Inject() (

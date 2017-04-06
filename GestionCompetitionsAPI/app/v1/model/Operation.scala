@@ -1,4 +1,4 @@
-package v1.bo
+package v1.model
 
 import play.api.Logger
 import play.api.libs.json._

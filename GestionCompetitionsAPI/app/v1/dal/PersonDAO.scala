@@ -1,6 +1,6 @@
 package v1.dal
 
-import v1.bo.Person
+import v1.model.Person
 import v1.dal.repos.PersonRepoImpl
 import java.io.{ StringWriter, PrintWriter }
 import javax.inject.{ Inject, Singleton }

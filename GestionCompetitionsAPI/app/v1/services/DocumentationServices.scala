@@ -13,10 +13,10 @@ import play.api.libs.json.JsObject
 import play.api.libs.json.JsString
 import play.api.libs.json.Json
 import play.mvc.Http
-import v1.bo.Address
-import v1.bo.Operation
-import v1.bo.Person
-import v1.bo.RequestContents
+import v1.model.Address
+import v1.model.Operation
+import v1.model.Person
+import v1.model.RequestContents
 import v1.constantes.HttpConstants
 import v1.constantes.MessageConstants
 import v1.controllers.routes

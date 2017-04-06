@@ -9,7 +9,7 @@ import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.mvc._
 import v1.constantes.HttpConstants
 import java.util.UUID
-import v1.bo.Person
+import v1.model.Person
 import play.mvc.Http.Context
 import play.api.libs.json.Json
 import play.mvc.Security
@@ -20,7 +20,7 @@ import v1.utils.SecurityUtil._
 import v1.managers.DocumentationServices
 import v1.services.PersonServices
 import v1.constantes.MessageConstants
-import v1.bo.Operation
+import v1.model.Operation
 import v1.services.AuthenticationServices
 import v1.http.ApiToken
 import org.apache.commons.lang3.StringUtils

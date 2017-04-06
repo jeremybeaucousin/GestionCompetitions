@@ -1,7 +1,7 @@
 package v1.controllers
 
 import play.api.mvc._
-import v1.bo.Person
+import v1.model.Person
 import v1.constantes.HttpConstants
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import scala.concurrent.Future
