@@ -26,6 +26,8 @@ trait PersonRepo[T] {
     implicit bSONDocumentReader: BSONDocumentReader[T],
     bSONDocumentWriter: BSONDocumentWriter[T]): Future[Option[T]]
 
+  def deleteFields(id: String, fields: List[String]): Future[Boolean]
+
   /**
    * Update the person and send back the insciption result.
    * @param id
@@ -90,14 +92,14 @@ class PersonRepoImpl[T] @Inject() (val reactiveMongoApi: ReactiveMongoApi)(
     collection.flatMap(_.find(constructId(id)).projection(projectionBson).one[T])
   }
 
-  // TODO Rebuild for unset values
+  override def deleteFields(id: String, fields: List[String]): Future[Boolean] = {
+    val rebuildForUnset = MongoDbUtil.constructBSONDocumentWithForUnset(fields)
+    val futureWriteResult = collection.flatMap(_.update(constructId(id), BSONDocument("$unset" -> rebuildForUnset)))
+    handleWriteResult(futureWriteResult)
+  }
+
   override def update(id: String, person: Person): Future[Boolean] = {
-    Logger.info(person.encryptedEmailToken.toString())
-    Logger.info(person.emailTokenExpirationTime.toString())
     val rebuildDocument = MongoDbUtil.constructBSONDocumentWithRootFields(BSON.write(person))
-    val rebuildForUnset = MongoDbUtil.constructBSONDocumentWithForUnset(BSON.write(person))
-    Logger.info(BSONDocument.pretty(rebuildDocument))
-    Logger.info(BSONDocument.pretty(rebuildForUnset))
     val futureWriteResult = collection.flatMap(_.update(constructId(id), BSONDocument("$set" -> rebuildDocument)))
     handleWriteResult(futureWriteResult)
   }
@@ -109,7 +111,7 @@ class PersonRepoImpl[T] @Inject() (val reactiveMongoApi: ReactiveMongoApi)(
   }
 
   override def save(person: Person)(implicit bSONDocumentReader: BSONDocumentReader[T],
-                           bSONDocumentWriter: BSONDocumentWriter[T]): Future[Boolean] = {
+                                    bSONDocumentWriter: BSONDocumentWriter[T]): Future[Boolean] = {
     val futureWriteResult = collection.flatMap(_.insert(person))
     handleWriteResult(futureWriteResult)
   }

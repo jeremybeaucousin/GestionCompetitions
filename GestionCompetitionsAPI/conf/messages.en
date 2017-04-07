@@ -63,6 +63,10 @@ documentation.person.deletePersonDescription=Delete the person with the identifi
 documentation.authentication.signInDescription=Allow to a user to authenticate on the server
 documentation.authentication.signOutDescription=Allow to a user to disconnect from the server
 documentation.authentication.signUpDescription=Allow the account creation
+documentation.authentication.resetPassword=Reset the password in generate a new one and send it by email
+documentation.authentication.validateAccount=Validate the email address of the user and activate his account
+documentation.authentication.validateAccountEmailTokenParameterDescription=The email address token sent by email that allow account validation
+documentation.authentication.changePassword=Allow the password to be changed
 
 #Some not defined in french (Json Validation)
 error.password=A valid password is required between 8 and 15 characters

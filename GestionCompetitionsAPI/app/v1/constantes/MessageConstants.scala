@@ -140,10 +140,18 @@ final object MessageConstants {
       private final val SIGN_IN_DESCRIPTION = "signInDescription"
       private final val SIGN_OUT_DESCRIPTION = "signOutDescription"
       private final val SIGN_UP_DESCRIPTION = "signUpDescription"
+      private final val RESET_PASSWORD = "resetPassword"
+      private final val VALIDATE_ACCOUNT = "validateAccount"
+      private final val VALIDATE_ACCOUNT_EMAIL_TOKEN_PARAMETER_DESCRIPTION = "validateAccountEmailTokenParameterDescription"
+      private final val CHANGE_PASSWORD = "changePassword"
 
       def signInDescription: String = PREFIX + SIGN_IN_DESCRIPTION
       def signOutDescription: String = PREFIX + SIGN_OUT_DESCRIPTION
       def signUpDescription: String = PREFIX + SIGN_UP_DESCRIPTION
+      def resetPassword: String = PREFIX + RESET_PASSWORD
+      def validateAccount: String = PREFIX + VALIDATE_ACCOUNT
+      def validateAccountEmailTokenParameterDescription: String = PREFIX + VALIDATE_ACCOUNT_EMAIL_TOKEN_PARAMETER_DESCRIPTION
+      def changePassword: String = PREFIX + CHANGE_PASSWORD
     }
 
     final val common = Common

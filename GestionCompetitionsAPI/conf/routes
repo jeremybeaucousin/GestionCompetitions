@@ -9,7 +9,7 @@ GET   	/v1			                					v1.controllers.AuthenticationController.index(
 POST    /v1/signup	                					v1.controllers.AuthenticationController.signup()
 POST    /v1/signin                  					v1.controllers.AuthenticationController.signin()
 POST    /v1/signout	                					v1.controllers.AuthenticationController.signout()
-GET     /v1/resetPassword           					v1.controllers.AuthenticationController.resetPassword()
+POST    /v1/resetPassword           					v1.controllers.AuthenticationController.resetPassword()
 POST    /v1/validateAccount/:encryptedEmailToken     	v1.controllers.AuthenticationController.validateAccount(encryptedEmailToken: String)
 POST    /v1/changePassword          					v1.controllers.AuthenticationController.changePassword()
 

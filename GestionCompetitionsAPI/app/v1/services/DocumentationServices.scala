@@ -23,6 +23,7 @@ import v1.controllers.routes
 import v1.utils.MongoDbUtil
 import errors.FirstNameAndLastNameRequiredException
 import v1.http.ApiToken
+import v1.utils.SecurityUtil
 
 @Singleton
 class DocumentationServices @Inject() (
@@ -54,11 +55,13 @@ class DocumentationServices @Inject() (
     None,
     Some(StringUtils.EMPTY),
     None)
+  
   final val jsonPersonWithRootFieldsExemple = (Json.toJson(personWithRootFieldsExemple))
   final val jsonPersonArrayExemple = (Json.toJson(List[Person](personCompleteExemple, personCompleteExemple)))
   final val _idExemple = MongoDbUtil.generateId().stringify
   final val sortExemple = Seq[String]("+" + Person.FIRST_NAME, "-" + Person.LAST_NAME)
   final val fieldsExemple = Seq[String](Person._ID, Person.FIRST_NAME, Person.LAST_NAME)
+  final val encryptedEmailTokenExemple = SecurityUtil.encryptString(SecurityUtil.generateString(10)).replaceAll("/", "")
 
   def getPersonOperations(implicit messages: Messages): Seq[Operation] = {
     var availableOperations: Seq[Operation] = Seq[Operation]()
@@ -413,6 +416,57 @@ class DocumentationServices @Inject() (
       signUpOperation
     }
     availableOperations :+= getSignUpPersonOperation
+
+    def getResetPasswordOperation = {
+
+      val resetOperation = Operation()
+      resetOperation.call = Some(routes.AuthenticationController.resetPassword())
+      resetOperation.description = Some(messages(MessageConstants.documentation.authentication.resetPassword))
+
+      def getResetPasswordCodes: Map[String, String] = {
+        var codes: Map[String, String] = Map[String, String]()
+        codes += (Http.Status.OK.toString() -> messages(MessageConstants.http.ok))
+        codes += (Http.Status.UNPROCESSABLE_ENTITY.toString() -> messages(MessageConstants.http.unprocessableEntity))
+        codes
+      }
+      resetOperation.codes = Some(getResetPasswordCodes)
+      resetOperation
+    }
+    availableOperations :+= getResetPasswordOperation
+    
+    def getValidateAccountOperation = {
+
+      val validateAccountOperation = Operation()
+      validateAccountOperation.call = Some(routes.AuthenticationController.validateAccount(encryptedEmailTokenExemple))
+      validateAccountOperation.description = Some(messages(MessageConstants.documentation.authentication.validateAccount))
+
+      def getValidateAccountCodes: Map[String, String] = {
+        var codes: Map[String, String] = Map[String, String]()
+        codes += (Http.Status.OK.toString() -> messages(MessageConstants.http.ok))
+        codes += (Http.Status.UNPROCESSABLE_ENTITY.toString() -> messages(MessageConstants.http.unprocessableEntity))
+        codes
+      }
+      validateAccountOperation.codes = Some(getValidateAccountCodes)
+      validateAccountOperation
+    }
+    availableOperations :+= getValidateAccountOperation
+
+        def getChangePasswordOperation = {
+
+      val changePasswordOperation = Operation()
+      changePasswordOperation.call = Some(routes.AuthenticationController.changePassword())
+      changePasswordOperation.description = Some(messages(MessageConstants.documentation.authentication.changePassword))
+
+      def getChangePasswordCodes: Map[String, String] = {
+        var codes: Map[String, String] = Map[String, String]()
+        codes += (Http.Status.OK.toString() -> messages(MessageConstants.http.ok))
+        codes += (Http.Status.UNPROCESSABLE_ENTITY.toString() -> messages(MessageConstants.http.unprocessableEntity))
+        codes
+      }
+      changePasswordOperation.codes = Some(getChangePasswordCodes)
+      changePasswordOperation
+    }
+    availableOperations :+= getChangePasswordOperation
 
     availableOperations
   }

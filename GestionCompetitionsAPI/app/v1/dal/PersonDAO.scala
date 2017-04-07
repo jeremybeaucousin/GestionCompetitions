@@ -59,6 +59,10 @@ class PersonDAO[T] @Inject() (val personRepo: PersonRepoImpl[T])(
     })
   }
 
+  def deleteFields(id: String, fields: List[String]): Future[Boolean] = {
+    personRepo.deleteFields(id, fields)
+  }
+    
   def editPerson(id: String, person: Person): Future[Boolean] = {
     personRepo.update(id, person)
   }

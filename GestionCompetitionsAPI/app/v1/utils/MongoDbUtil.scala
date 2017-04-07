@@ -11,6 +11,7 @@ import reactivemongo.bson.BSONArray
 import reactivemongo.bson.BSONString
 import reactivemongo.bson.BSONRegex
 import reactivemongo.bson.BSONValue
+import org.apache.commons.lang3.StringUtils
 
 object MongoDbUtil {
   final val _ID = "_id"
@@ -84,23 +85,12 @@ object MongoDbUtil {
   }
 
   // TODO Optimise with constructBSONDocumentWithForUnset
-  def constructBSONDocumentWithForUnset(document: BSONDocument): BSONDocument = {
-    var newDocument = document.copy()
-    // Browse fields of the document
-    document.elements.foreach(element => {
-      val fieldName = element._1
-      val fieldValue = element._2
-      // if the value of the current field is an object we begin rebuild
-      if (fieldValue.isInstanceOf[BSONDocument] || fieldValue.isInstanceOf[BSONArray] || _ID.equals(fieldName)) {
-        newDocument = newDocument.remove(fieldName)
-      } else if (fieldValue.isInstanceOf[BSONString]) {
-        val stringValue = fieldValue.asInstanceOf[BSONString]
-        if (!stringValue.value.isEmpty()) {
-          newDocument = newDocument.remove(fieldName)
-        }
-      }
+  def constructBSONDocumentWithForUnset(fields: List[String]): BSONDocument = {
+    var bsonObject = BSONDocument()
+    fields.foreach(field =>{
+      bsonObject  ++= (field -> StringUtils.EMPTY)
     })
-    newDocument
+    bsonObject
   }
   
   def constructBSONDocumentWithRootFields(document: BSONDocument): BSONDocument = {

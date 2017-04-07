@@ -63,6 +63,10 @@ documentation.person.deletePersonDescription=Supprime la personne avec l''identi
 documentation.authentication.signInDescription=Permet à un utilisateur de s'authentifier sur le serveur
 documentation.authentication.signOutDescription=Permet à l''utilisateur de se déconnecter du serveur
 documentation.authentication.signUpDescription=Permet la création d'un compte
+documentation.authentication.resetPassword=Reinitialise le mot de passe en générant un nouveau envoyé par email
+documentation.authentication.validateAccount=Valide l'addresse email de l''utilisateur et active son compte
+documentation.authentication.validateAccountEmailTokenParameterDescription=Le jeton de l'addresse email envoyé par email qui permet l'activation du compte
+documentation.authentication.changePassword=Permet de changer le mot de passe
 
 #Some not defined in french (Json Validation)
 error.minLength=La longueur minimum est de {0}

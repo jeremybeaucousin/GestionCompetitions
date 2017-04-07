@@ -38,12 +38,12 @@ class AuthenticationServices @Inject() (
           throw new LoginAlreadyRegisterdException
         } else {
           person.encryptedPassword = Some(SecurityUtil.encryptString(person.password.get))
-          val encryptedEmailToken = SecurityUtil.encryptString(SecurityUtil.generateString(10))
+          val encryptedEmailToken = SecurityUtil.encryptString(SecurityUtil.generateString(10)).replaceAll("/", "")
           person.encryptedEmailToken = Some(encryptedEmailToken)
           person.emailTokenExpirationTime = Some(getExpirationTime.toDate())
           person.role = Some(grantsServices.USER)
           //          TODO See why it does not work
-          mailServices.createAndSendEmail()
+          //          mailServices.createAndSendEmail()
           personServices.addPerson(person)
         }
       })
@@ -82,15 +82,17 @@ class AuthenticationServices @Inject() (
     personWithEmailTokenSearch.encryptedEmailToken = Some(encryptedEmailToken)
     val futurePersonWithToken = personDao.searchPersons(Some(personWithEmailTokenSearch), None, None, None, None, None)
     val personsWithToken = Await.result(futurePersonWithToken, Duration.Inf)
+    Logger.info(encryptedEmailToken.toString())
+    Logger.info(personsWithToken.toString())
     if (!personsWithToken.isEmpty) {
       val personWithTokenOption = personsWithToken.find(personWithSameToken => personWithSameToken.encryptedEmailToken.get.equals(personWithEmailTokenSearch.encryptedEmailToken.get))
+      Logger.info(personWithTokenOption.toString())
       if (personWithTokenOption.isDefined && !personWithTokenOption.get.emailTokenIsExpired) {
         val personWithToken = personWithTokenOption.get
-        Logger.info(personWithToken._id.toString())
-        Logger.info(personWithToken.emailTokenIsExpired.toString())
-        personWithToken.encryptedEmailToken = None
-        personWithToken.emailTokenExpirationTime = None
-        return personServices.editPerson(personWithToken._id.get, personWithToken)
+        var fields = List[String]()
+        fields = Person.ENCRYPTED_EMAIL_TOKEN :: fields
+        fields = Person.EMAIL_TOKEN_EXPIRATION_TIME :: fields
+        return personDao.deleteFields(personWithToken._id.get, fields)
       }
     }
     Future(false)
