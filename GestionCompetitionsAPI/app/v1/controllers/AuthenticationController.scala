@@ -93,7 +93,18 @@ class AuthenticationController @Inject() (
 
   def resetPassword = Action.async(BodyParsers.parse.json) { implicit request =>
     val person = request.body.as[Person]
-    Future(Ok)
+    if (person.email.isDefined) {
+      val futureResult = authenticationServices.resetPassword(person)
+      futureResult.map(resultOk => {
+        if (resultOk) {
+          Ok
+        } else {
+          UnprocessableEntity
+        }
+      })
+    } else {
+      Future(UnprocessableEntity)
+    }
   }
 
   def validateAccount(encryptedEmailToken: String) = Action.async { implicit request =>

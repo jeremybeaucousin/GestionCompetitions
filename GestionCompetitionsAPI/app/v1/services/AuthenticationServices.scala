@@ -77,6 +77,27 @@ class AuthenticationServices @Inject() (
     }
   }
 
+  def resetPassword(person: Person)(implicit messages: Messages): Future[Boolean] = {
+    val futurePersonWithSameEmail = personServices.searchPersonWithEmail(person)
+    futurePersonWithSameEmail.flatMap(personWithSameEmailOption => {
+      if (personWithSameEmailOption.isDefined) {
+        val personWithSameEmail = personWithSameEmailOption.get
+        val newPassword = SecurityUtil.generateString(15)
+        val newEncryptedPassword = SecurityUtil.encryptString(newPassword)
+        Logger.info(newPassword.toString())
+        val personUpdate = Person()
+        personUpdate.password = Some(newPassword)
+        personUpdate.encryptedPassword = Some(newEncryptedPassword)
+        //          TODO See why it does not work
+        //          mailServices.createAndSendEmail()
+        //personWithSameEmail.email
+        personDao.editPerson(personWithSameEmail._id.get, personUpdate)
+      } else {
+        Future(false)
+      }
+    })
+  }
+
   def validateAccount(encryptedEmailToken: String)(implicit messages: Messages): Future[Boolean] = {
     val personWithEmailTokenSearch = Person()
     personWithEmailTokenSearch.encryptedEmailToken = Some(encryptedEmailToken)
