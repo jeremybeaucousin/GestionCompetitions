@@ -24,6 +24,10 @@ import v1.model.Operation
 import v1.services.AuthenticationServices
 import v1.http.ApiToken
 import org.apache.commons.lang3.StringUtils
+import v1.constantes.ValidationConstants
+import play.api.libs.json._
+import play.api.libs.json.Reads._
+import play.api.libs.functional.syntax._
 
 class AuthenticationController @Inject() (
   val documentationServices: DocumentationServices,
@@ -118,8 +122,32 @@ class AuthenticationController @Inject() (
     })
   }
 
-  def changePassword = Action.async(BodyParsers.parse.json) { implicit request =>
-    val person = request.body.as[Person]
+  private case class PasswordChange(
+    val oldPassword: String,
+    val newPasswordFirst: String,
+    val newPasswordSecond: String)
+
+  private object PasswordChange {
+
+    final val OLD_PASSWORD = "oldPassword"
+    final val NEW_PASSWORD_FIRST = "newPasswordFirst"
+    final val NEW_PASSWORD_SECOND = "newPasswordSecond"
+
+    implicit val passwordChangeBuilder: Reads[PasswordChange] = (
+      (JsPath \ OLD_PASSWORD).read[String](pattern(ValidationConstants.regex.PASSWORD, MessageConstants.error.password)) and
+      (JsPath \ NEW_PASSWORD_FIRST).read[String](pattern(ValidationConstants.regex.PASSWORD, MessageConstants.error.password)) and
+      (JsPath \ NEW_PASSWORD_SECOND).read[String](pattern(ValidationConstants.regex.PASSWORD, MessageConstants.error.password)))(PasswordChange.apply _)
+  }
+
+  // TODO WOrks but to rethink with secured
+  def changePassword = Action.async { implicit request =>
+    request.body.asJson.get.validate[PasswordChange] match {
+      case s: JsSuccess[PasswordChange] => {
+        Logger.info(s.toString())
+        val place: PasswordChange = s.get
+      }
+    }
     Future(Ok)
   }
+
 }

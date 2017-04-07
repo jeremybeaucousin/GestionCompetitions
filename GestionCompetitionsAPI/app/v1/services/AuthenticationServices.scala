@@ -1,22 +1,22 @@
 package v1.services
 
-import javax.inject.Inject
+import scala.concurrent.Await
 import scala.concurrent.ExecutionContext
-import javax.inject.Singleton
-import v1.model.Person
 import scala.concurrent.Future
 import scala.concurrent.duration.Duration
-import v1.utils.SecurityUtil
-import play.api.i18n.Messages
-import play.Logger
-import java.util.UUID
+
 import org.joda.time.DateTime
-import java.util.Date
+
 import errors.EmailPasswordLoginRequired
 import errors.LoginAlreadyRegisterdException
+import javax.inject.Inject
+import javax.inject.Singleton
+import play.Logger
+import play.api.i18n.Messages
 import v1.dal.PersonDAO
-import v1.dal.PersonDAO
-import scala.concurrent.Await
+import v1.model.Person
+import v1.utils.SecurityUtil
+
 
 @Singleton
 class AuthenticationServices @Inject() (
