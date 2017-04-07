@@ -91,7 +91,7 @@ class PersonServices @Inject() (val personDAO: PersonDAO[Person])(implicit val e
       val futurePerson = searchPersonWithEmail(person)
       val personWithSameEmail = Await.ready(futurePerson, Duration.Inf).value.get.get
       if (personWithSameEmail.isDefined) {
-        if (personWithSameEmail.isDefined && personWithSameEmail.get.encryptedPassword.isDefined) {
+        if (personWithSameEmail.isDefined && personWithSameEmail.get.hasAnAccount()) {
           throw new EmailAlreadyRegisterdException
         } else {
           return Future(personWithSameEmail, false)
@@ -145,7 +145,7 @@ class PersonServices @Inject() (val personDAO: PersonDAO[Person])(implicit val e
       val existingPerson = existingPersonOption.get
       // If there is no registered account we can modify the email
       if (person.email.isDefined && existingPerson.email.isDefined && !person.email.get.equals(existingPerson.email.get)) {
-        if (!existingPerson.encryptedPassword.isDefined) {
+        if (!existingPerson.hasActiveAccount()) {
           val futurePersonWithSameEmail = searchPersonWithEmail(person)
           val personWithSameEmail = Await.ready(futurePersonWithSameEmail, Duration.Inf).value.get.get
           if (personWithSameEmail.isDefined) {

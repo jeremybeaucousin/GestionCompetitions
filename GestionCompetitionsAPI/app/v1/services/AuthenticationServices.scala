@@ -39,7 +39,7 @@ class AuthenticationServices @Inject() (
           person.emailTokenExpirationTime = Some(getExpirationTime.toDate())
           person.role = Some(grantsServices.USER)
           //          TODO See why it does not work
-          //          mailServices.createAndSendEmail()
+                    mailServices.createAndSendEmail()
           personServices.addPerson(person)
         }
       })

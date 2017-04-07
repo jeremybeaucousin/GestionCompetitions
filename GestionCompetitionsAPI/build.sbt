@@ -13,6 +13,7 @@ libraryDependencies ++= Seq(
   "org.reactivemongo" %% "play2-reactivemongo" % "0.11.14",
   "org.reactivemongo" %% "reactivemongo-play-json" % "0.11.14",
   "com.typesafe.play" %% "play-mailer" % "5.0.0",
+  "com.typesafe.play.plugins" %% "play-plugins-mailer" % "2.3.1",
   "org.mindrot" % "jbcrypt" % "0.3m",
   "org.webjars" % "bootstrap" % "3.3.7-1",
   "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % Test

@@ -22,6 +22,22 @@ case class Person(
     var encryptedPassword: Option[String] = None,
     var addresses: Option[List[Address]] = None) {
 
+  /**
+   * The person can have been saved by a admin or by himself by creating an account
+   * @return
+   */
+  def hasAnAccount(): Boolean = {
+    encryptedPassword.isDefined
+  }
+
+  /**
+   * The person has an account account when he validate it (wich delete the encryptedEmailToken stored)
+   * @return
+   */
+  def hasActiveAccount(): Boolean = {
+    encryptedPassword.isDefined && !encryptedEmailToken.isDefined
+  }
+
   def toTaekwondoist(): Taekwondoist = {
     Taekwondoist(
       _id,
