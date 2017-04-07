@@ -37,6 +37,8 @@ case class Person(
   def hasActiveAccount(): Boolean = {
     encryptedPassword.isDefined && !encryptedEmailToken.isDefined
   }
+  
+  def emailTokenIsExpired = if (emailTokenExpirationTime.isDefined) emailTokenExpirationTime.get.before(new Date) else false
 
   def toTaekwondoist(): Taekwondoist = {
     Taekwondoist(

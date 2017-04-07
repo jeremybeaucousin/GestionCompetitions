@@ -23,6 +23,7 @@ final object MessageConstants {
     private final val LOGIN_CANNOT_BE_SET: String = "loginCannotBeSet"
     private final val EMAIL_PASSWORD_LOGIN_REQUIRED: String = "emailPasswordLoginRequired"
     private final val LOGIN_ALREADY_REGISTERED: String = "loginAlreadyRegistered"
+    private final val EMAIL_CANNOT_BE_SET: String = "emailCannotBeSet"
 
     def server: String = PREFIX + SERVER
     def client: String = PREFIX + CLIENT
@@ -35,6 +36,7 @@ final object MessageConstants {
     def loginCannotBeSet: String = PREFIX + LOGIN_CANNOT_BE_SET
     def emailPasswordLoginRequired: String = PREFIX + EMAIL_PASSWORD_LOGIN_REQUIRED
     def loginAlreadyRegistered: String = PREFIX + LOGIN_ALREADY_REGISTERED
+    def emailCannotBeSet: String = PREFIX + EMAIL_CANNOT_BE_SET
   }
 
   final object Http {

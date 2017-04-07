@@ -5,16 +5,18 @@
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
 
-GET   	/v1			                v1.controllers.AuthenticationController.index()
-POST    /v1/signup	                v1.controllers.AuthenticationController.signup()
-POST    /v1/signin                  v1.controllers.AuthenticationController.signin()
-POST    /v1/signout	                v1.controllers.AuthenticationController.signout()
-POST    /v1/reset	                v1.controllers.AuthenticationController.reset()
+GET   	/v1			                					v1.controllers.AuthenticationController.index()
+POST    /v1/signup	                					v1.controllers.AuthenticationController.signup()
+POST    /v1/signin                  					v1.controllers.AuthenticationController.signin()
+POST    /v1/signout	                					v1.controllers.AuthenticationController.signout()
+GET     /v1/resetPassword           					v1.controllers.AuthenticationController.resetPassword()
+POST    /v1/validateAccount/:encryptedEmailToken     	v1.controllers.AuthenticationController.validateAccount(encryptedEmailToken: String)
+POST    /v1/changePassword          					v1.controllers.AuthenticationController.changePassword()
 
 # Arbitres
-GET		/v1/persons					v1.controllers.PersonController.index(sort: Option[Seq[String]], fields: Option[Seq[String]], offset: Option[Int], limit: Option[Int])
-POST	/v1/persons/search			v1.controllers.PersonController.searchPersons(sort: Option[Seq[String]], fields: Option[Seq[String]], offset: Option[Int], limit: Option[Int])
-GET		/v1/persons/:id				v1.controllers.PersonController.getPerson(id: String, fields: Option[Seq[String]])
-POST	/v1/persons					v1.controllers.PersonController.addPerson
-PUT 	/v1/persons/:id				v1.controllers.PersonController.editPerson(id: String)
-DELETE	/v1/persons/:id				v1.controllers.PersonController.deletePerson(id: String)
+GET		/v1/persons										v1.controllers.PersonController.index(sort: Option[Seq[String]], fields: Option[Seq[String]], offset: Option[Int], limit: Option[Int])
+POST	/v1/persons/search								v1.controllers.PersonController.searchPersons(sort: Option[Seq[String]], fields: Option[Seq[String]], offset: Option[Int], limit: Option[Int])
+GET		/v1/persons/:id									v1.controllers.PersonController.getPerson(id: String, fields: Option[Seq[String]])
+POST	/v1/persons										v1.controllers.PersonController.addPerson
+PUT 	/v1/persons/:id									v1.controllers.PersonController.editPerson(id: String)
+DELETE	/v1/persons/:id									v1.controllers.PersonController.deletePerson(id: String)

@@ -14,11 +14,15 @@ import org.joda.time.DateTime
 import java.util.Date
 import errors.EmailPasswordLoginRequired
 import errors.LoginAlreadyRegisterdException
+import v1.dal.PersonDAO
+import v1.dal.PersonDAO
+import scala.concurrent.Await
 
 @Singleton
 class AuthenticationServices @Inject() (
     implicit val ec: ExecutionContext,
     personServices: PersonServices,
+    personDao: PersonDAO[Person],
     grantsServices: GrantsServices,
     mailServices: MailServices) {
 
@@ -39,7 +43,7 @@ class AuthenticationServices @Inject() (
           person.emailTokenExpirationTime = Some(getExpirationTime.toDate())
           person.role = Some(grantsServices.USER)
           //          TODO See why it does not work
-                    mailServices.createAndSendEmail()
+          mailServices.createAndSendEmail()
           personServices.addPerson(person)
         }
       })
@@ -47,7 +51,7 @@ class AuthenticationServices @Inject() (
       throw new EmailPasswordLoginRequired
     }
   }
-  // TODO  Resend verification email
+
   def authenticate(person: Person): Future[Option[Person]] = {
     def handlePersonReturn(futurePerson: Future[Option[Person]]): Future[Option[Person]] = {
       futurePerson.map(personFoundOption => {
@@ -71,5 +75,24 @@ class AuthenticationServices @Inject() (
     } else {
       Future(None)
     }
+  }
+
+  def validateAccount(encryptedEmailToken: String)(implicit messages: Messages): Future[Boolean] = {
+    val personWithEmailTokenSearch = Person()
+    personWithEmailTokenSearch.encryptedEmailToken = Some(encryptedEmailToken)
+    val futurePersonWithToken = personDao.searchPersons(Some(personWithEmailTokenSearch), None, None, None, None, None)
+    val personsWithToken = Await.result(futurePersonWithToken, Duration.Inf)
+    if (!personsWithToken.isEmpty) {
+      val personWithTokenOption = personsWithToken.find(personWithSameToken => personWithSameToken.encryptedEmailToken.get.equals(personWithEmailTokenSearch.encryptedEmailToken.get))
+      if (personWithTokenOption.isDefined && !personWithTokenOption.get.emailTokenIsExpired) {
+        val personWithToken = personWithTokenOption.get
+        Logger.info(personWithToken._id.toString())
+        Logger.info(personWithToken.emailTokenIsExpired.toString())
+        personWithToken.encryptedEmailToken = None
+        personWithToken.emailTokenExpirationTime = None
+        return personServices.editPerson(personWithToken._id.get, personWithToken)
+      }
+    }
+    Future(false)
   }
 }

@@ -12,6 +12,7 @@ error.firstNameAndLastNameRequired=Le nom et le prénom sont obligatoires
 error.loginCannotBeSet=L''identifiant ne peut être definit que lors de la création de compte par l''utilisateur
 error.emailPasswordLoginRequired=Les trois champs adresse email, mot de passe et identifiant sont requis pour la création de compte
 error.loginAlreadyRegistered=L''identifiant est déjà associé à un compte existant
+error.emailCannotBeSet=L''addresse email ne peut être definit que lors de la création de compte par l''utilisateur
 
 #http
 http.ok=Tout fonctionne

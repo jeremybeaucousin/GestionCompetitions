@@ -14,9 +14,8 @@ import reactivemongo.bson.BSONDocumentReader
 import reactivemongo.bson.BSONDocumentWriter
 import play.Logger
 import v1.utils.SecurityUtil
-import errors.EmailAlreadyRegisterdException
-import errors.FirstNameAndLastNameRequiredException
-import errors.LoginCannotBeSetException
+import errors._
+import v1.utils.OptUtils
 
 class PersonServices @Inject() (val personDAO: PersonDAO[Person])(implicit val ec: ExecutionContext) {
 
@@ -89,7 +88,7 @@ class PersonServices @Inject() (val personDAO: PersonDAO[Person])(implicit val e
 
     if (person.email.isDefined) {
       val futurePerson = searchPersonWithEmail(person)
-      val personWithSameEmail = Await.ready(futurePerson, Duration.Inf).value.get.get
+      val personWithSameEmail = Await.result(futurePerson, Duration.Inf)
       if (personWithSameEmail.isDefined) {
         if (personWithSameEmail.isDefined && personWithSameEmail.get.hasAnAccount()) {
           throw new EmailAlreadyRegisterdException
@@ -104,7 +103,7 @@ class PersonServices @Inject() (val personDAO: PersonDAO[Person])(implicit val e
     personSearch.birthDate = person.birthDate
     if (person.birthDate.isDefined) {
       val futureHomonymFound = searchHomonyme(personSearch)
-      val homonymFound = Await.ready(futureHomonymFound, Duration.Inf).value.get.get
+      val homonymFound = Await.result(futureHomonymFound, Duration.Inf)
       if (homonymFound) {
         throw new HomonymNamesAndBirthDateException
       }
@@ -112,7 +111,7 @@ class PersonServices @Inject() (val personDAO: PersonDAO[Person])(implicit val e
       // Reset the birthDate to search only for first and last name
       personSearch.birthDate = None
       val futureHomonymFound = searchHomonyme(personSearch)
-      val homonymFound = Await.ready(futureHomonymFound, Duration.Inf).value.get.get
+      val homonymFound = Await.result(futureHomonymFound, Duration.Inf)
       if (homonymFound) {
         throw new HomonymNamesException
       }
@@ -136,25 +135,33 @@ class PersonServices @Inject() (val personDAO: PersonDAO[Person])(implicit val e
    * @return
    */
   def editPerson(id: String, person: Person)(implicit messages: Messages): Future[Boolean] = {
-    if (person.login.isDefined) {
-      throw new LoginCannotBeSetException
-    }
     val futurePerson = personDAO.getPerson(id, None)
-    val existingPersonOption = Await.ready(futurePerson, Duration.Inf).value.get.get
+    val existingPersonOption = Await.result(futurePerson, Duration.Inf)
     if (existingPersonOption.isDefined) {
       val existingPerson = existingPersonOption.get
       // If there is no registered account we can modify the email
-      if (person.email.isDefined && existingPerson.email.isDefined && !person.email.get.equals(existingPerson.email.get)) {
-        if (!existingPerson.hasActiveAccount()) {
+      if (!existingPerson.hasActiveAccount()) {
+        if (person.email.isDefined && !OptUtils.testIfElementAreEquals(person.email, existingPerson.email)) {
           val futurePersonWithSameEmail = searchPersonWithEmail(person)
-          val personWithSameEmail = Await.ready(futurePersonWithSameEmail, Duration.Inf).value.get.get
+          val personWithSameEmail = Await.result(futurePersonWithSameEmail, Duration.Inf)
           if (personWithSameEmail.isDefined) {
-            if (personWithSameEmail.isDefined) {
-              throw new EmailAlreadyRegisterdException
-            }
+            throw new EmailAlreadyRegisterdException
           }
-        } else {
-          throw new EmailAlreadyRegisterdException
+        }
+        if (person.login.isDefined && !OptUtils.testIfElementAreEquals(person.login, existingPerson.login)) {
+          val futurePersonWithSameLogin = searchPersonWithLogin(person)
+          val personWithSameLogin = Await.result(futurePersonWithSameLogin, Duration.Inf)
+          if (personWithSameLogin.isDefined) {
+            throw new LoginAlreadyRegisterdException
+          }
+        }
+      } else {
+        if (!OptUtils.testIfElementAreEquals(person.email, existingPerson.email)) {
+          throw new EmailCannotBeSetException
+        }
+
+        if (!OptUtils.testIfElementAreEquals(person.login, existingPerson.login)) {
+          throw new LoginCannotBeSetException
         }
       }
       return personDAO.editPerson(id, person)

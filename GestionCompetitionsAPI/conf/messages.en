@@ -12,6 +12,7 @@ error.firstNameAndLastNameRequired=Both first name and last name are required
 error.loginCannotBeSet=Login can only be set by the user during account creation
 error.emailPasswordLoginRequired=The three fields email address, password and login must be set for account creation
 error.loginAlreadyRegistered=Login is associate to an existing account
+error.emailCannotBeSet=Email address can only be set by the user during account creation
     
 #http
 http.ok=Eyerything is working
