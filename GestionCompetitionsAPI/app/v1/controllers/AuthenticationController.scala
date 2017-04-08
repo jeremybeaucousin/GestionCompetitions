@@ -139,15 +139,11 @@ class AuthenticationController @Inject() (
       (JsPath \ NEW_PASSWORD_SECOND).read[String](pattern(ValidationConstants.regex.PASSWORD, MessageConstants.error.password)))(PasswordChange.apply _)
   }
 
-  // TODO WOrks but to rethink with secured
-  def changePassword = Action.async { implicit request =>
-    request.body.asJson.get.validate[PasswordChange] match {
-      case s: JsSuccess[PasswordChange] => {
-        Logger.info(s.toString())
-        val place: PasswordChange = s.get
-      }
+  def changePassword = withToken(BodyParsers.parse.json) { authToken =>
+    implicit request => {
+      Logger.info(authToken.toString())
+      Logger.info(request.body.as[PasswordChange].toString())
+      Future(Ok)
     }
-    Future(Ok)
   }
-
 }

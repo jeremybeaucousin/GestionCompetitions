@@ -16,35 +16,39 @@ trait Secured {
   def authTokenOpt(request: RequestHeader) = request.headers.get(HttpConstants.headerFields.authToken)
 
   def onUnauthorized(request: RequestHeader, apiTokenOpt: Option[ApiToken]): Result = {
-    if(apiTokenOpt.isDefined) {
+    if (apiTokenOpt.isDefined) {
       routes.AuthenticationController.signout()
     }
     Results.Unauthorized
   }
 
- // TODO Test the case when the token has expired
-  def withToken(apiToken: ApiToken => Request[AnyContent] => Future[Result]) = {
-    Action.async(
-      request => {
-        val apiKeyOption = (apiKeyOpt(request))
-        val authTokenOption = (authTokenOpt(request))
-        if (apiKeyOption.isDefined && ApiToken.apiKeysExists(apiKeyOption.get) && authTokenOption.isDefined) {
-          val futureApiToken = ApiToken.findByTokenAndApiKey(authTokenOption.get, apiKeyOption.get)
-          futureApiToken.flatMap(apiTokenOpt => {
-            if (apiTokenOpt.isDefined && !apiTokenOpt.get.isExpired) {
-              val apiTokenFound = apiTokenOpt.get
-              val futureNewApiToken = ApiToken.create(apiTokenFound.apiKey, apiTokenFound.userId)
-              futureNewApiToken.flatMap(newApiToken => {
-                apiToken(newApiToken)(request)
-              })
-            } else {
-              Future(onUnauthorized(request, apiTokenOpt))
-            }
-          })
+  def withToken(apiToken: => ApiToken => Request[AnyContent] => Future[Result]): Action[AnyContent] = {
+    Logger.info("withToken()")
+    withToken(BodyParsers.parse.default)(apiToken)
+  }
+  
+  def withToken[A](bodyParser: BodyParser[A])(apiToken: => ApiToken => Request[A] => Future[Result]) = {
+    Action.async(bodyParser)(request => {
+      Logger.info("withToken(bodyParser)")
+      val apiKeyOption = (apiKeyOpt(request))
+      val authTokenOption = (authTokenOpt(request))
+      if (apiKeyOption.isDefined && ApiToken.apiKeysExists(apiKeyOption.get) && authTokenOption.isDefined) {
+        val futureApiToken = ApiToken.findByTokenAndApiKey(authTokenOption.get, apiKeyOption.get)
+        futureApiToken.flatMap(apiTokenOpt => {
+          if (apiTokenOpt.isDefined && !apiTokenOpt.get.isExpired) {
+            val apiTokenFound = apiTokenOpt.get
+            val futureNewApiToken = ApiToken.create(apiTokenFound.apiKey, apiTokenFound.userId)
+            futureNewApiToken.flatMap(newApiToken => {
+              apiToken(newApiToken)(request)
+            })
+          } else {
+            Future(onUnauthorized(request, apiTokenOpt))
+          }
+        })
 
-        } else {
-          Future(onUnauthorized(request, None))
-        }
-      })
+      } else {
+        Future(onUnauthorized(request, None))
+      }
+    })
   }
 }
