@@ -12,9 +12,7 @@ import scala.concurrent.Future
 import play.Logger
 
 @Singleton
-class MailServices @Inject() (
-    implicit val ec: ExecutionContext,
-    val mailer: MailerClient) {
+class MailServices @Inject() (val mailer: MailerClient)(implicit val ec: ExecutionContext) {
 
   def createAndSendEmail()(implicit messages: Messages) {
     val bodyHtml = Some(v1.views.html.mails.welcome().toString)
@@ -22,10 +20,10 @@ class MailServices @Inject() (
     mailer.send(email)
     // TODO uncomment
     //Logger.info(email.toString())
-//    val mail = MailerPlugin.email
-//    mail.setSubject("subject")
-//    mail.setFrom("jeremy.beaucousin@gmail.com")
-//    mail.setRecipient("jeremy.beaucousin@gmail.com")
-//    mail.sendHtml(bodyHtml)
+    //    val mail = MailerPlugin.email
+    //    mail.setSubject("subject")
+    //    mail.setFrom("jeremy.beaucousin@gmail.com")
+    //    mail.setRecipient("jeremy.beaucousin@gmail.com")
+    //    mail.sendHtml(bodyHtml)
   }
 }

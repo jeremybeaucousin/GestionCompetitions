@@ -9,7 +9,7 @@ import v1.model.Person.PersonWrites
 import v1.model.Person.PersonWriter
 import v1.model.Person.PersonReader
 import org.apache.commons.lang3.StringUtils
-import v1.model.Person.personFormat
+import v1.model.Person.PersonFormat
 
 case class Taekwondoist(
     var _id: Option[String] = None,
@@ -73,7 +73,7 @@ object Taekwondoist {
   implicit object TaekwondoistReads extends Reads[Taekwondoist] {
     def reads(json: JsValue): JsResult[Taekwondoist] = json match {
       case obj: JsValue => try {
-        val person = personFormat.reads(obj).get
+        val person = PersonFormat.reads(obj).get
         var taekwondoist = person.toTaekwondoist
         taekwondoist.passportNumber = (obj \ PASSEPORT_NUMBER).asOpt[Int]
         taekwondoist.grade = (obj \ GRADE).asOpt[String]

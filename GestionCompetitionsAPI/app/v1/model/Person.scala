@@ -126,7 +126,7 @@ object Person {
     }
   }
 
-  implicit object personFormat extends Format[Person] {
+  implicit object PersonFormat extends Format[Person] {
     def reads(json: JsValue) = {
       val personRead = personReads.reads(json)
       personRead.map(person => {

@@ -24,6 +24,7 @@ import v1.utils.MongoDbUtil
 import errors.FirstNameAndLastNameRequiredException
 import v1.http.ApiToken
 import v1.utils.SecurityUtil
+import v1.model.PasswordChange
 
 @Singleton
 class DocumentationServices @Inject() (
@@ -55,7 +56,11 @@ class DocumentationServices @Inject() (
     None,
     Some(StringUtils.EMPTY),
     None)
+
+  final val passwordChangeExemple = new PasswordChange()
   
+  final val jsonPasswordChangeExemple = (Json.toJson(passwordChangeExemple))
+
   final val jsonPersonWithRootFieldsExemple = (Json.toJson(personWithRootFieldsExemple))
   final val jsonPersonArrayExemple = (Json.toJson(List[Person](personCompleteExemple, personCompleteExemple)))
   final val _idExemple = MongoDbUtil.generateId().stringify
@@ -433,7 +438,7 @@ class DocumentationServices @Inject() (
       resetOperation
     }
     availableOperations :+= getResetPasswordOperation
-    
+
     def getValidateAccountOperation = {
 
       val validateAccountOperation = Operation()
@@ -451,11 +456,14 @@ class DocumentationServices @Inject() (
     }
     availableOperations :+= getValidateAccountOperation
 
-        def getChangePasswordOperation = {
+    def getChangePasswordOperation = {
 
       val changePasswordOperation = Operation()
       changePasswordOperation.call = Some(routes.AuthenticationController.changePassword())
       changePasswordOperation.description = Some(messages(MessageConstants.documentation.authentication.changePassword))
+
+      val changePasswordRequest = RequestContents()
+      changePasswordRequest.body = Some(jsonPasswordChangeExemple)
 
       def getChangePasswordCodes: Map[String, String] = {
         var codes: Map[String, String] = Map[String, String]()
