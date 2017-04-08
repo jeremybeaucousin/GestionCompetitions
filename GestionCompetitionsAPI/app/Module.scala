@@ -12,6 +12,11 @@ import play.api.inject.ApplicationLifecycle
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import v1.services.DocumentationServices
 import v1.http.ApiToken
+import reactivemongo.bson.BSONDocumentReader
+import v1.model.Person
+import v1.model.Person.PersonReader
+import reactivemongo.bson.BSONDocumentWriter
+import v1.model.Person.PersonWriter
 
 class Module extends AbstractModule {
 

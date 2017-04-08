@@ -140,6 +140,18 @@ object Person {
   }
 
   import reactivemongo.bson._
+  
+  case class PersonWriter() extends BSONDocumentWriter[Person] {
+     def write(person: Person): BSONDocument = {
+       PersonWriter.write(person)
+     }
+  }
+
+  case class PersonReader() extends BSONDocumentReader[Person] {
+    def read(bson: BSONDocument): Person = {
+      PersonReader.read(bson)
+    }
+  }
 
   /**
    * Convert a Person into a Bson for MongoDb, only the encrypted password is stored

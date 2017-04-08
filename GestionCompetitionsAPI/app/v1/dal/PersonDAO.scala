@@ -1,6 +1,5 @@
 package v1.dal
 
-import v1.model.Person
 import v1.dal.repos.PersonRepoImpl
 import java.io.{ StringWriter, PrintWriter }
 import javax.inject.{ Inject, Singleton }
@@ -21,17 +20,17 @@ import v1.utils.MongoDbUtil
 class PersonDAO[T] @Inject() (val personRepo: PersonRepoImpl[T])(
     implicit ec: ExecutionContext) {
 
-  def getTotalCount(personOption: Option[Person], searchInValues: Option[Boolean]): Future[Int] = {
+  def getTotalCount(personOption: Option[T], searchInValues: Option[Boolean]): Future[Int] = {
     personRepo.getTotalCount(personOption, searchInValues)
   }
 
   def searchPersons(
-    personOption: Option[Person],
+    personOption: Option[T],
     searchInValues: Option[Boolean],
     sortOption: Option[Seq[String]],
     fieldsOption: Option[Seq[String]],
     offsetOption: Option[Int],
-    limitOption: Option[Int]): Future[List[Person]] = {
+    limitOption: Option[Int]): Future[List[T]] = {
     personRepo.find(personOption, searchInValues: Option[Boolean], sortOption, fieldsOption, offsetOption, limitOption)
   }
 
@@ -41,12 +40,11 @@ class PersonDAO[T] @Inject() (val personRepo: PersonRepoImpl[T])(
     personRepo.select(id, fieldsOption)
   }
 
-  def addPerson(person: Person)(
+  def addPerson(document: T)(
     implicit bSONDocumentReader: BSONDocumentReader[T],
     bSONDocumentWriter: BSONDocumentWriter[T]): Future[Option[T]] = {
     val _id = MongoDbUtil.generateId().stringify
-    person._id = Some(_id)
-    val futureResult = personRepo.save(person)
+    val futureResult = personRepo.save(_id, document)
     futureResult.flatMap(hasNoError => {
       if (hasNoError) {
         val futurePerson = personRepo.select(_id, None)
@@ -63,8 +61,8 @@ class PersonDAO[T] @Inject() (val personRepo: PersonRepoImpl[T])(
     personRepo.deleteFields(id, fields)
   }
     
-  def editPerson(id: String, person: Person): Future[Boolean] = {
-    personRepo.update(id, person)
+  def editPerson(id: String, document: T): Future[Boolean] = {
+    personRepo.update(id, document)
   }
 
   def deletePerson(id: String): Future[Boolean] = {
