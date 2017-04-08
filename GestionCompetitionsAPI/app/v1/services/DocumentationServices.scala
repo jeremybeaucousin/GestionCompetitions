@@ -58,7 +58,7 @@ class DocumentationServices @Inject() (
     None)
 
   final val passwordChangeExemple = new PasswordChange()
-  
+
   final val jsonPasswordChangeExemple = (Json.toJson(passwordChangeExemple))
 
   final val jsonPersonWithRootFieldsExemple = (Json.toJson(personWithRootFieldsExemple))
@@ -464,6 +464,7 @@ class DocumentationServices @Inject() (
 
       val changePasswordRequest = RequestContents()
       changePasswordRequest.body = Some(jsonPasswordChangeExemple)
+      changePasswordOperation.request = Some(changePasswordRequest)
 
       def getChangePasswordCodes: Map[String, String] = {
         var codes: Map[String, String] = Map[String, String]()

@@ -13,10 +13,16 @@ POST    /v1/resetPassword           					v1.controllers.AuthenticationController
 POST    /v1/validateAccount/:encryptedEmailToken     	v1.controllers.AuthenticationController.validateAccount(encryptedEmailToken: String)
 POST    /v1/changePassword          					v1.controllers.AuthenticationController.changePassword()
 
-# Arbitres
+# Persons
 GET		/v1/persons										v1.controllers.PersonController.index(sort: Option[Seq[String]], fields: Option[Seq[String]], offset: Option[Int], limit: Option[Int])
 POST	/v1/persons/search								v1.controllers.PersonController.searchPersons(sort: Option[Seq[String]], fields: Option[Seq[String]], offset: Option[Int], limit: Option[Int])
 GET		/v1/persons/:id									v1.controllers.PersonController.getPerson(id: String, fields: Option[Seq[String]])
 POST	/v1/persons										v1.controllers.PersonController.addPerson
 PUT 	/v1/persons/:id									v1.controllers.PersonController.editPerson(id: String)
 DELETE	/v1/persons/:id									v1.controllers.PersonController.deletePerson(id: String)
+# Addresses
+GET		/v1/persons/addresses							v1.controllers.AddressController.adresses
+POST	/v1/persons/addresses							v1.controllers.AddressController.addAddress
+GET		/v1/persons/addresses/:index					v1.controllers.AddressController.getAddress(index: String)
+PUT 	/v1/persons/addresses/:index					v1.controllers.AddressController.editAddress(index: String)
+DELETE	/v1/persons/addresses/:index					v1.controllers.AddressController.deleteAddress(index: String)
