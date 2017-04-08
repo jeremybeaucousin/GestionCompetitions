@@ -20,6 +20,8 @@ import v1.model.Person
 import v1.services.AuthenticationServices
 import v1.services.DocumentationServices
 import v1.utils.RequestUtil
+import scala.concurrent.Await
+import scala.concurrent.duration.Duration
 
 class AuthenticationController @Inject() (
   val documentationServices: DocumentationServices,
@@ -59,23 +61,23 @@ class AuthenticationController @Inject() (
     if (apiKeyOpt.isDefined && ApiToken.apiKeysExists(apiKeyOpt.get)) {
       val person = request.body.as[Person]
       val futurePerson = authenticationServices.authenticate(person)
-      val futureApiToken = futurePerson.flatMap(person => {
-        if (person.isDefined && person.get._id.isDefined) {
-          ApiToken.create(apiKeyOpt.get, person.get._id.get)
-        } else {
-          Future(null)
-        }
-      })
-      futureApiToken.map(apiToken => {
-        if (apiToken != null) {
-          Ok(
-            Json.obj(
-              ApiToken.TOKEN_FIELD -> apiToken.token,
-              ApiToken.DURATION_FIELD -> ApiToken.API_TOKEN_DURATION))
-        } else {
-          Unauthorized
-        }
-      })
+      val personFound = Await.result(futurePerson, Duration.Inf)
+      if (personFound.isDefined && personFound.get._id.isDefined) {
+        val futureApiToken = ApiToken.create(apiKeyOpt.get, personFound.get._id.get)
+        futureApiToken.map(apiToken => {
+          if (apiToken != null) {
+            Ok(
+              Json.obj(
+                ApiToken.TOKEN_FIELD -> apiToken.token,
+                ApiToken.DURATION_FIELD -> ApiToken.API_TOKEN_DURATION))
+          } else {
+            Unauthorized
+          }
+        })
+      } else {
+        Future(null)
+      }
+
     } else {
       Future(Unauthorized)
     }

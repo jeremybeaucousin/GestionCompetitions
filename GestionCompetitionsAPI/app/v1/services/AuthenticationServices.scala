@@ -20,7 +20,6 @@ import v1.model.PasswordChange
 import errors.PasswordNotRecognizedException
 import errors.PasswordsNotMatchException
 
-
 @Singleton
 class AuthenticationServices @Inject() (
     implicit val ec: ExecutionContext,
@@ -36,20 +35,19 @@ class AuthenticationServices @Inject() (
   def createAccount(person: Person)(implicit messages: Messages): Future[(Option[Person], Boolean)] = {
     if (person.email.isDefined && person.password.isDefined && person.login.isDefined) {
       val futurePersonWithSameLogin = personServices.searchPersonWithLogin(person)
-      futurePersonWithSameLogin.flatMap(personWithSameLogin => {
-        if (personWithSameLogin.isDefined) {
-          throw new LoginAlreadyRegisterdException
-        } else {
-          person.encryptedPassword = Some(SecurityUtil.encryptString(person.password.get))
-          val encryptedEmailToken = SecurityUtil.encryptString(SecurityUtil.generateString(10)).replaceAll("/", "")
-          person.encryptedEmailToken = Some(encryptedEmailToken)
-          person.emailTokenExpirationTime = Some(getExpirationTime.toDate())
-          person.role = Some(grantsServices.USER)
-          //          TODO See why it does not work
-          //          mailServices.createAndSendEmail()
-          personServices.addPerson(person)
-        }
-      })
+      val personWithSameLogin = Await.result(futurePersonWithSameLogin, Duration.Inf)
+      if (personWithSameLogin.isDefined) {
+        throw new LoginAlreadyRegisterdException
+      } else {
+        person.encryptedPassword = Some(SecurityUtil.encryptString(person.password.get))
+        val encryptedEmailToken = SecurityUtil.encryptString(SecurityUtil.generateString(10)).replaceAll("/", "")
+        person.encryptedEmailToken = Some(encryptedEmailToken)
+        person.emailTokenExpirationTime = Some(getExpirationTime.toDate())
+        person.role = Some(grantsServices.USER)
+        //          TODO See why it does not work
+        mailServices.createAndSendEmail()
+        personServices.addPerson(person)
+      }
     } else {
       throw new EmailPasswordLoginRequired
     }
@@ -82,23 +80,22 @@ class AuthenticationServices @Inject() (
 
   def resetPassword(person: Person)(implicit messages: Messages): Future[Boolean] = {
     val futurePersonWithSameEmail = personServices.searchPersonWithEmail(person)
-    futurePersonWithSameEmail.flatMap(personWithSameEmailOption => {
-      if (personWithSameEmailOption.isDefined) {
-        val personWithSameEmail = personWithSameEmailOption.get
-        val newPassword = SecurityUtil.generateString(15)
-        val newEncryptedPassword = SecurityUtil.encryptString(newPassword)
-        Logger.info(newPassword.toString())
-        val personUpdate = Person()
-        personUpdate.password = Some(newPassword)
-        personUpdate.encryptedPassword = Some(newEncryptedPassword)
-        //          TODO See why it does not work
-        //          mailServices.createAndSendEmail()
-        //personWithSameEmail.email
-        personDao.editPerson(personWithSameEmail._id.get, personUpdate)
-      } else {
-        throw new PasswordNotRecognizedException
-      }
-    })
+    val personWithSameEmailOption = Await.result(futurePersonWithSameEmail, Duration.Inf)
+    if (personWithSameEmailOption.isDefined) {
+      val personWithSameEmail = personWithSameEmailOption.get
+      val newPassword = SecurityUtil.generateString(15)
+      val newEncryptedPassword = SecurityUtil.encryptString(newPassword)
+      Logger.info(newPassword.toString())
+      val personUpdate = Person()
+      personUpdate.password = Some(newPassword)
+      personUpdate.encryptedPassword = Some(newEncryptedPassword)
+      //          TODO See why it does not work
+      //          mailServices.createAndSendEmail()
+      //personWithSameEmail.email
+      personDao.editPerson(personWithSameEmail._id.get, personUpdate)
+    } else {
+      throw new PasswordNotRecognizedException
+    }
   }
 
   def validateAccount(encryptedEmailToken: String)(implicit messages: Messages): Future[Boolean] = {
@@ -121,26 +118,26 @@ class AuthenticationServices @Inject() (
     }
     Future(false)
   }
-  
+
   def changePassword(userId: String, passwordChange: PasswordChange)(implicit messages: Messages): Future[Boolean] = {
     Logger.info(userId)
     val futurePerson = personServices.getPerson(userId, None)
     val personOption = Await.result(futurePerson, Duration.Inf)
-    if(personOption.isDefined) {
+    if (personOption.isDefined) {
       val person = personOption.get
       val oldPasswordOk = SecurityUtil.checkString(passwordChange.oldPassword, person.encryptedPassword.get)
-      if(!oldPasswordOk) {
+      if (!oldPasswordOk) {
         throw new PasswordNotRecognizedException
       }
       val newPasswordsMatch = passwordChange.newPasswordFirst.equals(passwordChange.newPasswordSecond)
-      if(!newPasswordsMatch) {
-       throw new PasswordsNotMatchException
+      if (!newPasswordsMatch) {
+        throw new PasswordsNotMatchException
       }
       val personWithNewEncryptedPassword = Person()
       personWithNewEncryptedPassword.encryptedPassword = Some(SecurityUtil.encryptString(passwordChange.newPasswordFirst))
       personDao.editPerson(person._id.get, personWithNewEncryptedPassword)
     } else {
-      throw new PasswordNotRecognizedException 
+      throw new PasswordNotRecognizedException
     }
   }
 }

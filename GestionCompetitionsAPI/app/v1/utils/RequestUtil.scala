@@ -28,17 +28,17 @@ import scala.util.matching.Regex.Match
 import org.apache.commons.lang3.StringUtils
 import scala.xml.dtd.EMPTY
 import v1.http.ApiToken
+import scala.concurrent.Await
 
 object RequestUtil {
 
   def getApiTokenHeader(apiToken: ApiToken) = HttpConstants.headerFields.xAuthToken -> apiToken.token
-  
+
   def handleFutureListAndTotal[T](futureList: Future[List[T]], futurTotalCount: Future[Int])(implicit ec: ExecutionContext): Future[(List[T], Int)] = {
-    futureList.flatMap { elements =>
-      futurTotalCount.map(totalCount => {
-        (elements, totalCount)
-      })
-    }
+    val elements = Await.result(futureList, Duration.Inf)
+    futurTotalCount.map(totalCount => {
+      (elements, totalCount)
+    })
   }
 
   def handlePagination(result: Result, offset: Option[Int], limit: Option[Int], totalCountValue: Int)(implicit request: Request[Any], ec: ExecutionContext, messages: Messages): Result = {

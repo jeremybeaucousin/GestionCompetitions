@@ -8,6 +8,7 @@ import scala.concurrent.Future
 import scala.concurrent.duration.Duration
 import play.Logger
 import v1.http.ApiToken
+import scala.concurrent.Await
 
 trait Secured {
 
@@ -26,7 +27,7 @@ trait Secured {
     Logger.info("withToken()")
     withToken(BodyParsers.parse.default)(apiToken)
   }
-  
+
   def withToken[A](bodyParser: BodyParser[A])(apiToken: => ApiToken => Request[A] => Future[Result]) = {
     Action.async(bodyParser)(request => {
       Logger.info("withToken(bodyParser)")
@@ -34,17 +35,15 @@ trait Secured {
       val authTokenOption = (authTokenOpt(request))
       if (apiKeyOption.isDefined && ApiToken.apiKeysExists(apiKeyOption.get) && authTokenOption.isDefined) {
         val futureApiToken = ApiToken.findByTokenAndApiKey(authTokenOption.get, apiKeyOption.get)
-        futureApiToken.flatMap(apiTokenOpt => {
-          if (apiTokenOpt.isDefined && !apiTokenOpt.get.isExpired) {
-            val apiTokenFound = apiTokenOpt.get
-            val futureNewApiToken = ApiToken.create(apiTokenFound.apiKey, apiTokenFound.userId)
-            futureNewApiToken.flatMap(newApiToken => {
-              (apiToken(newApiToken)(request))
-            })
-          } else {
-            Future(onUnauthorized(request, apiTokenOpt))
-          }
-        })
+        val apiTokenOpt = Await.result(futureApiToken, Duration.Inf)
+        if (apiTokenOpt.isDefined && !apiTokenOpt.get.isExpired) {
+          val apiTokenFound = apiTokenOpt.get
+          val futureNewApiToken = ApiToken.create(apiTokenFound.apiKey, apiTokenFound.userId)
+          val newApiToken = Await.result(futureApiToken, Duration.Inf)
+          (apiToken(newApiToken.get)(request))
+        } else {
+          Future(onUnauthorized(request, apiTokenOpt))
+        }
 
       } else {
         Future(onUnauthorized(request, None))
