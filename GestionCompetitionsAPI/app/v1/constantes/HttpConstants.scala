@@ -9,8 +9,8 @@ final object HttpConstants {
   }
 
   final object HeaderFields {
-    final val apiKey = "X-Api-Key"
-    final val authToken = "X-Auth-Token"
+    final val xApiKey = "X-Api-Key"
+    final val xAuthToken = "X-Auth-Token"
     final val location: String = "Location"
     final val xTotalCount: String = "X-Total-Count"
     final val link: String = "link"

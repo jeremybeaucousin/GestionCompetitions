@@ -27,9 +27,12 @@ import scala.util.matching.Regex
 import scala.util.matching.Regex.Match
 import org.apache.commons.lang3.StringUtils
 import scala.xml.dtd.EMPTY
+import v1.http.ApiToken
 
 object RequestUtil {
 
+  def getApiTokenHeader(apiToken: ApiToken) = HttpConstants.headerFields.xAuthToken -> apiToken.token
+  
   def handleFutureListAndTotal[T](futureList: Future[List[T]], futurTotalCount: Future[Int])(implicit ec: ExecutionContext): Future[(List[T], Int)] = {
     futureList.flatMap { elements =>
       futurTotalCount.map(totalCount => {
@@ -86,9 +89,9 @@ object RequestUtil {
           linkStringBuilder ++= startOfLine + generateLinkLigne(callUrl, lastOffset, lastLimit) + middleOfligne + HttpConstants.LAST
         }
       }
-      val totalCountHeaders = HttpConstants.headerFields.xTotalCount -> (totalCountValue.toString())
-      val linkHeaders = HttpConstants.headerFields.link -> (linkStringBuilder.toString())
-      result.withHeaders(totalCountHeaders, linkHeaders)
+      val totalCountHeader = HttpConstants.headerFields.xTotalCount -> (totalCountValue.toString())
+      val linkHeader = HttpConstants.headerFields.link -> (linkStringBuilder.toString())
+      result.withHeaders(totalCountHeader, linkHeader)
     } else {
       result
     }

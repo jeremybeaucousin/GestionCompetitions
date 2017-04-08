@@ -16,6 +16,9 @@ import play.api.i18n.Messages
 import v1.dal.PersonDAO
 import v1.model.Person
 import v1.utils.SecurityUtil
+import v1.model.PasswordChange
+import errors.PasswordNotRecognizedException
+import errors.PasswordsNotMatchException
 
 
 @Singleton
@@ -52,7 +55,7 @@ class AuthenticationServices @Inject() (
     }
   }
 
-  def authenticate(person: Person): Future[Option[Person]] = {
+  def authenticate(person: Person)(implicit messages: Messages): Future[Option[Person]] = {
     def handlePersonReturn(futurePerson: Future[Option[Person]]): Future[Option[Person]] = {
       futurePerson.map(personFoundOption => {
         if (personFoundOption.isDefined) {
@@ -60,10 +63,10 @@ class AuthenticationServices @Inject() (
           if (personFound.encryptedPassword.isDefined && SecurityUtil.checkString(person.password.get, personFound.encryptedPassword.get)) {
             Some(personFound)
           } else {
-            None
+            throw new PasswordNotRecognizedException
           }
         } else {
-          None
+          throw new PasswordNotRecognizedException
         }
       })
     }
@@ -93,7 +96,7 @@ class AuthenticationServices @Inject() (
         //personWithSameEmail.email
         personDao.editPerson(personWithSameEmail._id.get, personUpdate)
       } else {
-        Future(false)
+        throw new PasswordNotRecognizedException
       }
     })
   }
@@ -117,5 +120,27 @@ class AuthenticationServices @Inject() (
       }
     }
     Future(false)
+  }
+  
+  def changePassword(userId: String, passwordChange: PasswordChange)(implicit messages: Messages): Future[Boolean] = {
+    Logger.info(userId)
+    val futurePerson = personServices.getPerson(userId, None)
+    val personOption = Await.result(futurePerson, Duration.Inf)
+    if(personOption.isDefined) {
+      val person = personOption.get
+      val oldPasswordOk = SecurityUtil.checkString(passwordChange.oldPassword, person.encryptedPassword.get)
+      if(!oldPasswordOk) {
+        throw new PasswordNotRecognizedException
+      }
+      val newPasswordsMatch = passwordChange.newPasswordFirst.equals(passwordChange.newPasswordSecond)
+      if(!newPasswordsMatch) {
+       throw new PasswordsNotMatchException
+      }
+      val personWithNewEncryptedPassword = Person()
+      personWithNewEncryptedPassword.encryptedPassword = Some(SecurityUtil.encryptString(passwordChange.newPasswordFirst))
+      personDao.editPerson(person._id.get, personWithNewEncryptedPassword)
+    } else {
+      throw new PasswordNotRecognizedException 
+    }
   }
 }

@@ -13,6 +13,9 @@ error.loginCannotBeSet=L''identifiant ne peut être definit que lors de la créa
 error.emailPasswordLoginRequired=Les trois champs adresse email, mot de passe et identifiant sont requis pour la création de compte
 error.loginAlreadyRegistered=L''identifiant est déjà associé à un compte existant
 error.emailCannotBeSet=L''addresse email ne peut être definit que lors de la création de compte par l''utilisateur
+error.passwordCannotBeSet=Le mot de passe ne peut être definit que par l'utilisateur
+error.passwordNotRecognized=l''identifiant oue le mot de passe ne correspondent pas
+error.newPasswordsDoesNotMatch=Les nouveaux mot de passe saisies ne correspondent pas
 
 #http
 http.ok=Tout fonctionne

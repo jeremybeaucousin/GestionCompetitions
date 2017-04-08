@@ -164,6 +164,10 @@ class PersonServices @Inject() (val personDAO: PersonDAO[Person])(implicit val e
           throw new LoginCannotBeSetException
         }
       }
+      
+      if(person.password.isDefined || person.encryptedPassword.isDefined ) {
+        throw new PasswordCannotBeSetException
+      }
       return personDAO.editPerson(id, person)
     }
     Future(false)

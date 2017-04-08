@@ -9,15 +9,16 @@ import play.Logger
 import scala.concurrent.duration.Duration
 import v1.utils.SeqUtil
 import v1.utils.SecurityUtil
+import org.apache.commons.lang3.StringUtils
 
 /*
 * Stores the Auth Token information. Each token belongs to a Api Key and user
 */
 case class ApiToken(
-    token: String, // UUID 36 digits
-    apiKey: String,
-    expirationTime: DateTime,
-    userId: String) {
+    var token: String = StringUtils.EMPTY, // UUID 36 digits
+    var apiKey: String = StringUtils.EMPTY,
+    var expirationTime: DateTime = null,
+    var userId: String = StringUtils.EMPTY) {
   def isExpired = expirationTime.isBeforeNow
 }
 

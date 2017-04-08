@@ -93,9 +93,13 @@ class PersonRepoImpl[T] @Inject() (val reactiveMongoApi: ReactiveMongoApi)(
   }
 
   override def deleteFields(id: String, fields: List[String]): Future[Boolean] = {
-    val rebuildForUnset = MongoDbUtil.constructBSONDocumentWithForUnset(fields)
-    val futureWriteResult = collection.flatMap(_.update(constructId(id), BSONDocument("$unset" -> rebuildForUnset)))
-    handleWriteResult(futureWriteResult)
+    if(fields.isEmpty) {
+      val rebuildForUnset = MongoDbUtil.constructBSONDocumentWithForUnset(fields)
+      val futureWriteResult = collection.flatMap(_.update(constructId(id), BSONDocument("$unset" -> rebuildForUnset)))
+      handleWriteResult(futureWriteResult)
+    } else {
+      Future(false)
+    }
   }
 
   override def update(id: String, person: Person): Future[Boolean] = {

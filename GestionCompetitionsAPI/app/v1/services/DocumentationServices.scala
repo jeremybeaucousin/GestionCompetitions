@@ -317,7 +317,7 @@ class DocumentationServices @Inject() (
 
       def getSignInParameters: Map[String, String] = {
         var parameters: Map[String, String] = Map[String, String]()
-        parameters += (HttpConstants.headerFields.apiKey -> messages(MessageConstants.documentation.common.apiKeyDescription))
+        parameters += (HttpConstants.headerFields.xApiKey -> messages(MessageConstants.documentation.common.apiKeyDescription))
         parameters
       }
 
@@ -358,8 +358,8 @@ class DocumentationServices @Inject() (
 
       def getSignOutParameters: Map[String, String] = {
         var parameters: Map[String, String] = Map[String, String]()
-        parameters += (HttpConstants.headerFields.apiKey -> messages(MessageConstants.documentation.common.apiKeyDescription))
-        parameters += (HttpConstants.headerFields.authToken -> messages(MessageConstants.documentation.common.authTokenDescription))
+        parameters += (HttpConstants.headerFields.xApiKey -> messages(MessageConstants.documentation.common.apiKeyDescription))
+        parameters += (HttpConstants.headerFields.xAuthToken -> messages(MessageConstants.documentation.common.authTokenDescription))
         parameters
       }
 

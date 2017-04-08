@@ -24,6 +24,10 @@ final object MessageConstants {
     private final val EMAIL_PASSWORD_LOGIN_REQUIRED: String = "emailPasswordLoginRequired"
     private final val LOGIN_ALREADY_REGISTERED: String = "loginAlreadyRegistered"
     private final val EMAIL_CANNOT_BE_SET: String = "emailCannotBeSet"
+    private final val PASSWORD_CANNOT_BE_SET: String = "passwordCannotBeSet"
+    private final val PASSWORD_NOT_RECOGNIZED: String = "passwordNotRecognized"
+    private final val NEW_PASSWORDS_DOES_NOT_MATCH: String = "newPasswordsDoesNotMatch"
+    
 
     def server: String = PREFIX + SERVER
     def client: String = PREFIX + CLIENT
@@ -37,6 +41,9 @@ final object MessageConstants {
     def emailPasswordLoginRequired: String = PREFIX + EMAIL_PASSWORD_LOGIN_REQUIRED
     def loginAlreadyRegistered: String = PREFIX + LOGIN_ALREADY_REGISTERED
     def emailCannotBeSet: String = PREFIX + EMAIL_CANNOT_BE_SET
+    def passwordCannotBeSet: String = PREFIX + PASSWORD_CANNOT_BE_SET
+    def passwordNotRecognized: String = PREFIX + PASSWORD_NOT_RECOGNIZED
+    def newPasswordsDoesNotMatch: String = PREFIX + NEW_PASSWORDS_DOES_NOT_MATCH
   }
 
   final object Http {

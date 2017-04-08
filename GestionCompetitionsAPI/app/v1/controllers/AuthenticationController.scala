@@ -3,31 +3,23 @@ package v1.controllers
 import scala.concurrent.Future
 
 import javax.inject.Inject
+import play.Logger
 import play.api.i18n.I18nSupport
 import play.api.i18n.MessagesApi
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
-import play.api.mvc._
-import v1.constantes.HttpConstants
-import java.util.UUID
-import v1.model.Person
-import play.mvc.Http.Context
 import play.api.libs.json.Json
-import play.mvc.Security
-import play.api.libs.json.JsValue
-import play.Logger
-import org.mindrot.jbcrypt.BCrypt
-import v1.utils.SecurityUtil._
-import v1.services.DocumentationServices
-import v1.services.PersonServices
+import play.api.mvc.Action
+import play.api.mvc.BodyParsers
+import play.api.mvc.Controller
+import v1.constantes.HttpConstants
 import v1.constantes.MessageConstants
-import v1.model.Operation
-import v1.services.AuthenticationServices
 import v1.http.ApiToken
-import org.apache.commons.lang3.StringUtils
-import v1.constantes.ValidationConstants
-import play.api.libs.json._
-import play.api.libs.json.Reads._
-import play.api.libs.functional.syntax._
+import v1.model.Operation
+import v1.model.PasswordChange
+import v1.model.Person
+import v1.services.AuthenticationServices
+import v1.services.DocumentationServices
+import v1.utils.RequestUtil
 
 class AuthenticationController @Inject() (
   val documentationServices: DocumentationServices,
@@ -63,7 +55,7 @@ class AuthenticationController @Inject() (
   }
 
   def signin = Action.async(BodyParsers.parse.json) { implicit request =>
-    val apiKeyOpt = request.headers.get(HttpConstants.headerFields.apiKey)
+    val apiKeyOpt = request.headers.get(HttpConstants.headerFields.xApiKey)
     if (apiKeyOpt.isDefined && ApiToken.apiKeysExists(apiKeyOpt.get)) {
       val person = request.body.as[Person]
       val futurePerson = authenticationServices.authenticate(person)
@@ -122,28 +114,18 @@ class AuthenticationController @Inject() (
     })
   }
 
-  private case class PasswordChange(
-    val oldPassword: String,
-    val newPasswordFirst: String,
-    val newPasswordSecond: String)
-
-  private object PasswordChange {
-
-    final val OLD_PASSWORD = "oldPassword"
-    final val NEW_PASSWORD_FIRST = "newPasswordFirst"
-    final val NEW_PASSWORD_SECOND = "newPasswordSecond"
-
-    implicit val passwordChangeBuilder: Reads[PasswordChange] = (
-      (JsPath \ OLD_PASSWORD).read[String](pattern(ValidationConstants.regex.PASSWORD, MessageConstants.error.password)) and
-      (JsPath \ NEW_PASSWORD_FIRST).read[String](pattern(ValidationConstants.regex.PASSWORD, MessageConstants.error.password)) and
-      (JsPath \ NEW_PASSWORD_SECOND).read[String](pattern(ValidationConstants.regex.PASSWORD, MessageConstants.error.password)))(PasswordChange.apply _)
-  }
-
   def changePassword = withToken(BodyParsers.parse.json) { authToken =>
-    implicit request => {
-      Logger.info(authToken.toString())
-      Logger.info(request.body.as[PasswordChange].toString())
-      Future(Ok)
-    }
+    implicit request =>
+      {
+        Logger.info(authToken.userId)
+        val futureBoolean = authenticationServices.changePassword(authToken.userId, request.body.as[PasswordChange])
+        futureBoolean.map(resultOk => {
+          if (resultOk) {
+            Ok.withHeaders(RequestUtil.getApiTokenHeader(authToken))
+          } else {
+            UnprocessableEntity
+          }
+        })
+      }
   }
 }

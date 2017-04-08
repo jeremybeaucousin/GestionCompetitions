@@ -11,9 +11,9 @@ import v1.http.ApiToken
 
 trait Secured {
 
-  def apiKeyOpt(request: RequestHeader) = request.headers.get(HttpConstants.headerFields.apiKey)
+  def apiKeyOpt(request: RequestHeader) = request.headers.get(HttpConstants.headerFields.xApiKey)
 
-  def authTokenOpt(request: RequestHeader) = request.headers.get(HttpConstants.headerFields.authToken)
+  def authTokenOpt(request: RequestHeader) = request.headers.get(HttpConstants.headerFields.xAuthToken)
 
   def onUnauthorized(request: RequestHeader, apiTokenOpt: Option[ApiToken]): Result = {
     if (apiTokenOpt.isDefined) {
@@ -39,7 +39,7 @@ trait Secured {
             val apiTokenFound = apiTokenOpt.get
             val futureNewApiToken = ApiToken.create(apiTokenFound.apiKey, apiTokenFound.userId)
             futureNewApiToken.flatMap(newApiToken => {
-              apiToken(newApiToken)(request)
+              (apiToken(newApiToken)(request))
             })
           } else {
             Future(onUnauthorized(request, apiTokenOpt))
