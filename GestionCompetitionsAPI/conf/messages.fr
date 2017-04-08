@@ -59,8 +59,15 @@ documentation.person.searchPersonsDescription=Retourne les personnes enregistré
 documentation.person.getPersonDescription=Retourne la personne avec l''identifiant renseigné en paramètres
 documentation.person.getPersonIdParameterDescription=L''identifiant de la personne telle qu''enregistré en base de données
 documentation.person.addPersonDescription=Ajoute une nouvelle personne à la base de données
-documentation.person.editPersonDescription=Met à jour la personne avec l''identifiant renseigné dans les paramètres (l''adresse email ne peut être modifié si elle est associée à un compte actif)
+documentation.person.editPersonDescription=Met à jour la personne avec l''identifiant renseigné dans les paramètres
 documentation.person.deletePersonDescription=Supprime la personne avec l''identifiant renseigné dans les paramètres
+
+#Persons addresses
+documentation.person.addresse.listAddressesDescription=Retourne les addresses enregistrées en base de données avec l''identifiant de la personne renseigné en paramètres
+documentation.person.addresse.addAddressDescription=Ajoute une nouvelle addresse à la base de données
+documentation.person.addresse.getAddressDescription=Retourne l''addresse avec l''index renseigné dans les paramètres
+documentation.person.addresse.editAddressDescription=Met à jour l''addresse avec l''index renseigné dans les paramètres
+documentation.person.addresse.deleteAddressDescription=Supprime l''addresse avec l''index renseigné dans les paramètres
 
 #Authentication
 documentation.authentication.signInDescription=Permet à un utilisateur de s'authentifier sur le serveur

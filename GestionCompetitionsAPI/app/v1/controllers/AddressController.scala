@@ -22,6 +22,7 @@ import play.Logger
 import reactivemongo.bson.BSONDocumentReader
 import v1.model.Person.PersonReader
 import reactivemongo.bson.BSONDocumentWriter
+import org.apache.commons.lang3.StringUtils
 
 class AddressController @Inject() (
   val documentationServices: DocumentationServices,
@@ -29,23 +30,31 @@ class AddressController @Inject() (
   val messagesApi: MessagesApi)
     extends Controller with I18nSupport with Secured {
 
-  def adresses = Action.async { implicit request =>
+  def index = Action.async { implicit request =>
+    Logger.info("passing by")
+    val rootUrl: String = routes.AddressController.index().url
+    val title: String = messagesApi(MessageConstants.title.documentation, rootUrl)
+    val availableOperations: Seq[Operation] = documentationServices.getPersonAddressesOperations
+    Future.successful(Ok(v1.views.html.documentation(title, availableOperations)))
+  }
+
+  def listAddresses(id: String) = Action.async { implicit request =>
     Future(Ok)
   }
 
-  def addAddress = Action.async { implicit request =>
+  def addAddress(id: String) = Action.async { implicit request =>
     Future(Ok)
   }
 
-  def getAddress(index: String) = Action.async { implicit request =>
+  def getAddress(id: String, index: String) = Action.async { implicit request =>
     Future(Ok)
   }
 
-  def editAddress(index: String) = Action.async { implicit request =>
+  def editAddress(id: String, index: String) = Action.async { implicit request =>
     Future(Ok)
   }
 
-  def deleteAddress(index: String) = Action.async { implicit request =>
+  def deleteAddress(id: String, index: String) = Action.async { implicit request =>
     Future(Ok)
   }
 

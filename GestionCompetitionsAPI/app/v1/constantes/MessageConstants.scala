@@ -27,7 +27,6 @@ final object MessageConstants {
     private final val PASSWORD_CANNOT_BE_SET: String = "passwordCannotBeSet"
     private final val PASSWORD_NOT_RECOGNIZED: String = "passwordNotRecognized"
     private final val NEW_PASSWORDS_DOES_NOT_MATCH: String = "newPasswordsDoesNotMatch"
-    
 
     def server: String = PREFIX + SERVER
     def client: String = PREFIX + CLIENT
@@ -140,6 +139,22 @@ final object MessageConstants {
       def addPersonDescription: String = PREFIX + ADD_PERSON_DESCRIPTION
       def editPersonDescription: String = PREFIX + EDIT_PERSON_DESCRIPTION
       def deletePersonDescription: String = PREFIX + DELETE_PERSON_DESCRIPTION
+
+      final object Address {
+        private final val PREFIX = Person.PREFIX + "addresse."
+        private final val LIST_ADDRESSES_DESCRIPTION = "listAddressesDescription"
+        private final val ADD_ADDRESS_DESCRIPTION = "addAddressDescription"
+        private final val GET_ADDRESS_DESCRIPTION = "getAddressDescription"
+        private final val EDIT_ADDRESS_DESCRIPTION = "editAddressDescription"
+        private final val DELETE_ADDRESS_DESCRIPTION = "deleteAddressDescription"
+
+        def listAddressesDescription: String = PREFIX + LIST_ADDRESSES_DESCRIPTION
+        def addAddressDescription: String = PREFIX + ADD_ADDRESS_DESCRIPTION
+        def getAddressDescription: String = PREFIX + GET_ADDRESS_DESCRIPTION
+        def editAddressDescription: String = PREFIX + EDIT_ADDRESS_DESCRIPTION
+        def deleteAddressDescription: String = PREFIX + DELETE_ADDRESS_DESCRIPTION
+      }
+      final val address = Address
     }
 
     final object Authentication {

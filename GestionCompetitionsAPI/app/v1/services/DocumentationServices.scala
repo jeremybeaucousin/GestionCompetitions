@@ -30,7 +30,11 @@ import v1.model.PasswordChange
 class DocumentationServices @Inject() (
     implicit val ec: ExecutionContext) {
 
-  final val addressesExemple = List[Address](new Address, new Address)
+  final val addressExemple = new Address
+  final val jsonAddressExemple = (Json.toJson(addressExemple))
+  final val addressesExemple = List[Address](addressExemple, addressExemple)
+  final val jsonAddressesExemple = (Json.toJson(addressesExemple))
+
   final val personCompleteExemple = new Person(
     Some(StringUtils.EMPTY), // _ID
     Some(StringUtils.EMPTY), // FIRST_NAME
@@ -477,6 +481,57 @@ class DocumentationServices @Inject() (
     }
     availableOperations :+= getChangePasswordOperation
 
+    availableOperations
+  }
+
+  def getPersonAddressesOperations(implicit messages: Messages): Seq[Operation] = {
+    var availableOperations: Seq[Operation] = Seq[Operation]()
+
+    def getListAddressesOperation = {
+      val listAddressesOperation = Operation()
+      listAddressesOperation.call = Some(routes.AuthenticationController.signin())
+      listAddressesOperation.description = Some(messages(MessageConstants.documentation.person.address.listAddressesDescription))
+
+      val listAddressesResponse = RequestContents()
+      listAddressesResponse.body = Some(jsonAddressesExemple)
+      listAddressesOperation.response = Some(listAddressesResponse)
+
+      def listAddressesPersonsCodes: Map[String, String] = {
+        var codes: Map[String, String] = Map[String, String]()
+        codes += (Http.Status.OK.toString() -> messages(MessageConstants.http.ok))
+        codes += (Http.Status.FORBIDDEN.toString() -> messages(MessageConstants.http.forbidden))
+        codes
+      }
+
+      listAddressesOperation.codes = Some(listAddressesPersonsCodes)
+      listAddressesOperation
+    }
+    availableOperations :+= getListAddressesOperation
+
+    def getaddAddressOperation = {
+      val addAddressOperation = Operation()
+      addAddressOperation.call = Some(routes.AuthenticationController.signin())
+      addAddressOperation.description = Some(messages(MessageConstants.documentation.person.address.addAddressDescription))
+
+      val listAddressesRequest = RequestContents()
+      listAddressesRequest.body = Some(jsonAddressExemple)
+      addAddressOperation.request = Some(listAddressesRequest)
+
+      def addAddressCodes: Map[String, String] = {
+        var codes: Map[String, String] = Map[String, String]()
+        codes += (Http.Status.OK.toString() -> messages(MessageConstants.http.ok))
+        codes += (Http.Status.FORBIDDEN.toString() -> messages(MessageConstants.http.forbidden))
+        codes
+      }
+
+      addAddressOperation.codes = Some(addAddressCodes)
+      addAddressOperation
+    }
+    availableOperations :+= getaddAddressOperation
+    //POST	/v1/persons/:id/addresses							v1.controllers.AddressController.addAddress(id: String)
+    //GET		/v1/persons/:id/addresses/:index					v1.controllers.AddressController.getAddress(id: String, index: String)
+    //PUT 	/v1/persons/:id/addresses/:index					v1.controllers.AddressController.editAddress(id: String, index: String)
+    //DELETE	/v1/persons/:id/addresses/:index					v1.controllers.AddressController.deleteAddress(id: String, index: String)
     availableOperations
   }
 }

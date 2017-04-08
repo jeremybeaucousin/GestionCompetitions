@@ -33,9 +33,7 @@ class AuthenticationController @Inject() (
     val rootUrl: String = routes.AuthenticationController.index.url
     val title: String = messagesApi(MessageConstants.title.documentation, rootUrl)
     val availableOperations: Seq[Operation] = documentationServices.getAuthenticationOperations
-    render.async {
-      case Accepts.Html() => Future.successful(Ok(v1.views.html.documentation(title, availableOperations)))
-    }
+    Future.successful(Ok(v1.views.html.documentation(title, availableOperations)))
   }
 
   // TODO check if already logged
