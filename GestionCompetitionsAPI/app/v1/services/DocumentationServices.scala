@@ -628,39 +628,62 @@ class DocumentationServices @Inject() (
       getAddressOperation
     }
     availableOperations :+= getGetAddressOperation
-    
-        def getEditAddressOperation = {
+
+    def getEditAddressOperation = {
       val editAddressOperation = Operation()
-      editAddressOperation.call = Some(routes.AddressController.getAddress(_idExemple, indexExemple))
-      editAddressOperation.description = Some(messages(MessageConstants.documentation.person.address.getAddressDescription))
+      editAddressOperation.call = Some(routes.AddressController.editAddress(_idExemple, indexExemple))
+      editAddressOperation.description = Some(messages(MessageConstants.documentation.person.address.editAddressDescription))
 
       def editAddressOperationRequestParameters: Map[String, String] = {
         var parameters: Map[String, String] = Map[String, String]()
-        // TODO Change to index
-        parameters += (Person._ID -> messages(MessageConstants.documentation.authentication.signUpWithExistingDescriptionIdParameter))
+        parameters += (MongoDbUtil.INDEX -> messages(MessageConstants.documentation.common.arrayIndexDescription))
         parameters
       }
 
-      val getAddressRequest = RequestContents()
-      getAddressRequest.parameters = Some(editAddressOperationRequestParameters)
-      editAddressOperation.request = Some(getAddressRequest)
+      val editAddressRequest = RequestContents()
+      editAddressRequest.parameters = Some(editAddressOperationRequestParameters)
+      editAddressRequest.body = Some(jsonAddressExemple)
+      editAddressOperation.request = Some(editAddressRequest)
 
-      val getAddressResponse = RequestContents()
-      getAddressResponse.body = Some(jsonAddressExemple)
-      editAddressOperation.response = Some(getAddressResponse)
-
-      def getAddressCodes: Map[String, String] = {
+      def editAddressCodes: Map[String, String] = {
         var codes: Map[String, String] = Map[String, String]()
         codes += (Http.Status.OK.toString() -> messages(MessageConstants.http.ok))
+        codes += (Http.Status.UNPROCESSABLE_ENTITY.toString() -> messages(MessageConstants.http.unprocessableEntity))
         codes += (Http.Status.FORBIDDEN.toString() -> messages(MessageConstants.http.forbidden))
         codes
       }
-      editAddressOperation.codes = Some(getAddressCodes)
+      editAddressOperation.codes = Some(editAddressCodes)
       editAddressOperation
     }
     availableOperations :+= getEditAddressOperation
-    //PUT 	/v1/persons/:id/addresses/:index					v1.controllers.AddressController.editAddress(id: String, index: String)
-    //DELETE	/v1/persons/:id/addresses/:index					v1.controllers.AddressController.deleteAddress(id: String, index: String)
+
+    def getDeleteAddressOperation = {
+      val deleteAddressOperation = Operation()
+      deleteAddressOperation.call = Some(routes.AddressController.deleteAddress(_idExemple, indexExemple))
+      deleteAddressOperation.description = Some(messages(MessageConstants.documentation.person.address.deleteAddressDescription))
+
+      def deleteAddressOperationRequestParameters: Map[String, String] = {
+        var parameters: Map[String, String] = Map[String, String]()
+        parameters += (MongoDbUtil.INDEX -> messages(MessageConstants.documentation.common.arrayIndexDescription))
+        parameters
+      }
+
+      val deleteAddressRequest = RequestContents()
+      deleteAddressRequest.parameters = Some(deleteAddressOperationRequestParameters)
+      deleteAddressOperation.request = Some(deleteAddressRequest)
+
+      def deleteAddressCodes: Map[String, String] = {
+        var codes: Map[String, String] = Map[String, String]()
+        codes += (Http.Status.OK.toString() -> messages(MessageConstants.http.ok))
+        codes += (Http.Status.FORBIDDEN.toString() -> messages(MessageConstants.http.forbidden))
+        codes += (Http.Status.NOT_FOUND.toString() -> messages(MessageConstants.http.notFound))
+        codes
+      }
+      deleteAddressOperation.codes = Some(deleteAddressCodes)
+      deleteAddressOperation
+    }
+    availableOperations :+= getDeleteAddressOperation
+
     availableOperations
   }
 }
