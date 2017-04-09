@@ -19,6 +19,8 @@ import v1.utils.SecurityUtil
 import v1.model.PasswordChange
 import errors.PasswordNotRecognizedException
 import errors.PasswordsNotMatchException
+import errors.TokenHasExpiredException
+import errors.AccountAlreadyCreatedException
 
 @Singleton
 class AuthenticationServices @Inject() (
@@ -30,6 +32,12 @@ class AuthenticationServices @Inject() (
   final val EMAIL_TOKEN_DURATION = 10
 
   private def getExpirationTime = (new DateTime()) plusDays EMAIL_TOKEN_DURATION
+
+  private def createEmailToken(person: Person) = {
+    val encryptedEmailToken = SecurityUtil.encryptString(SecurityUtil.generateString(10)).replaceAll("/", "")
+    person.encryptedEmailToken = Some(encryptedEmailToken)
+    person.emailTokenExpirationTime = Some(getExpirationTime.toDate())
+  }
 
   /**
    * @param id
@@ -47,26 +55,24 @@ class AuthenticationServices @Inject() (
         throw new LoginAlreadyRegisterdException
       } else {
         person.encryptedPassword = Some(SecurityUtil.encryptString(person.password.get))
-        val encryptedEmailToken = SecurityUtil.encryptString(SecurityUtil.generateString(10)).replaceAll("/", "")
-        person.encryptedEmailToken = Some(encryptedEmailToken)
-        person.emailTokenExpirationTime = Some(getExpirationTime.toDate())
+        createEmailToken(person)
         person.role = Some(grantsServices.USER)
         if (id.isDefined) {
           val futureExistingPerson = personServices.getPerson(id.get, None)
           val existingPerson = Await.result(futureExistingPerson, Duration.Inf)
           // If the person do not exists or already has an active account we do not continue
-          if (existingPerson.isDefined && existingPerson.get.hasActiveAccount()) {
-            throw new LoginAlreadyRegisterdException
+          if (existingPerson.isDefined && existingPerson.get.hasAnAccount()) {
+            throw new AccountAlreadyCreatedException
           } else {
             val futurePerson = personServices.getPerson(id.get, None)
             val futureResult = personServices.editPerson(id.get, person)
             val resultOk = Await.result(futureResult, Duration.Inf)
-            futurePerson.map(personOption => {
+            return futurePerson.map(personOption => {
               (personOption, resultOk)
             })
           }
         } else {
-          personServices.addPerson(person)
+          return personServices.addPerson(person)
         }
       }
     } else {
@@ -132,7 +138,21 @@ class AuthenticationServices @Inject() (
         fields = Person.ENCRYPTED_EMAIL_TOKEN :: fields
         fields = Person.EMAIL_TOKEN_EXPIRATION_TIME :: fields
         return personDao.deleteFields(personWithToken._id.get, fields)
+      } else {
+        throw new TokenHasExpiredException
       }
+    }
+    Future(false)
+  }
+
+  def sendEmailValidation(email: String)(implicit messages: Messages): Future[Boolean] = {
+    val personWithEmail = Person()
+    personWithEmail.email = Some(email)
+    val futurePerson = personServices.searchPersonWithEmail(personWithEmail)
+    val personFound = Await.result(futurePerson, Duration.Inf)
+    if (personFound.isDefined) {
+      createEmailToken(personFound.get)
+      return personServices.editPerson(personFound.get._id.get, personFound.get)
     }
     Future(false)
   }

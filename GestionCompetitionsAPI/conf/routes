@@ -13,6 +13,7 @@ POST    /v1/signin                  					v1.controllers.AuthenticationController
 POST    /v1/signout	                					v1.controllers.AuthenticationController.signout()
 POST    /v1/resetPassword           					v1.controllers.AuthenticationController.resetPassword()
 POST    /v1/validateAccount/:encryptedEmailToken     	v1.controllers.AuthenticationController.validateAccount(encryptedEmailToken: String)
+GET	    /v1/sendEmailValidation/:email			     	v1.controllers.AuthenticationController.sendEmailValidation(email: String)
 POST    /v1/changePassword          					v1.controllers.AuthenticationController.changePassword()
 
 # Persons

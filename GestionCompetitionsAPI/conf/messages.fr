@@ -16,6 +16,8 @@ error.emailCannotBeSet=L''addresse email ne peut être definit que lors de la cr
 error.passwordCannotBeSet=Le mot de passe ne peut être definit que par l'utilisateur
 error.passwordNotRecognized=l''identifiant oue le mot de passe ne correspondent pas
 error.newPasswordsDoesNotMatch=Les nouveaux mot de passe saisies ne correspondent pas
+erros.tokenHasExpired=Le jeton a expiré ou n''existe plus
+error.accountAlreadyCreated=Le compte a déjà été créé pour cet utilisateur
 
 #http
 http.ok=Tout fonctionne

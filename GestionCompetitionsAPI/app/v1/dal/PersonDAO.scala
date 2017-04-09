@@ -48,9 +48,7 @@ class PersonDAO @Inject() (val reactiveMongoApi: ReactiveMongoApi)(
     personRepo.select(id, fieldsOption)
   }
 
-  def addPerson(document: Person)(
-    implicit bSONDocumentReader: BSONDocumentReader[Person],
-    bSONDocumentWriter: BSONDocumentWriter[Person]): Future[Option[Person]] = {
+  def addPerson(document: Person): Future[Option[Person]] = {
     val _id = MongoDbUtil.generateId().stringify
     val futureResult = personRepo.save(_id, document)
     val hasNoError = Await.result(futureResult, Duration.Inf)

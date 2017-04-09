@@ -16,6 +16,8 @@ error.emailCannotBeSet=Email address can only be set by the user during account 
 error.passwordCannotBeSet=Password can only be set by the user
 error.passwordNotRecognized=The login or password does not match
 error.newPasswordsDoesNotMatch=The new passwords inputs does not match
+error.tokenHasExpired=Token has expired or not exists
+error.accountAlreadyCreated=Account is already created for this user
     
 #http
 http.ok=Eyerything is working

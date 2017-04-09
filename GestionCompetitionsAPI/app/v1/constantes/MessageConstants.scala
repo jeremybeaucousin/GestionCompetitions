@@ -27,6 +27,8 @@ final object MessageConstants {
     private final val PASSWORD_CANNOT_BE_SET: String = "passwordCannotBeSet"
     private final val PASSWORD_NOT_RECOGNIZED: String = "passwordNotRecognized"
     private final val NEW_PASSWORDS_DOES_NOT_MATCH: String = "newPasswordsDoesNotMatch"
+    private final val TOKEN_HAS_EXPIRED: String = "tokenHasExpired"
+    private final val ACCOUNT_ALREADY_CREATED: String = "accountAlreadyCreated"
 
     def server: String = PREFIX + SERVER
     def client: String = PREFIX + CLIENT
@@ -43,6 +45,8 @@ final object MessageConstants {
     def passwordCannotBeSet: String = PREFIX + PASSWORD_CANNOT_BE_SET
     def passwordNotRecognized: String = PREFIX + PASSWORD_NOT_RECOGNIZED
     def newPasswordsDoesNotMatch: String = PREFIX + NEW_PASSWORDS_DOES_NOT_MATCH
+    def tokenHasExpired: String = PREFIX + TOKEN_HAS_EXPIRED
+    def accountAlreadyCreated: String = PREFIX + ACCOUNT_ALREADY_CREATED
   }
 
   final object Http {

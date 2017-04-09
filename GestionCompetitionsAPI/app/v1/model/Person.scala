@@ -105,6 +105,7 @@ object Person {
    * Convert a Person into a json, some informations are not send back to the clients
    * @return
    */
+    // TODO had confidenciality information and test before send back information
   object PersonWrites extends Writes[Person] {
     def writes(person: Person): JsObject = {
       var json = Json.obj()

@@ -32,11 +32,7 @@ class PersonServices @Inject() (val personDAO: PersonDAO)(implicit val ec: Execu
     personWithEmainOnly.email = person.email
     var futurePersons = personDAO.searchPersons(Some(personWithEmainOnly), None, None, None, None, None)
     futurePersons.map(personsWithSameEmail => {
-      if (!personsWithSameEmail.isEmpty) {
-        personsWithSameEmail.find(personWithSameEmail => personWithSameEmail.email.get.equals(person.email.get))
-      } else {
-        None
-      }
+      personsWithSameEmail.find(personWithSameEmail => personWithSameEmail.email.get.equals(person.email.get))
     })
   }
 
@@ -80,7 +76,6 @@ class PersonServices @Inject() (val personDAO: PersonDAO)(implicit val ec: Execu
         })
       })
     }
-
     // Set only for account creation (when the encryptedEmailToken is set)
     if (person.login.isDefined && !person.encryptedEmailToken.isDefined) {
       throw new LoginCannotBeSetException
@@ -108,20 +103,24 @@ class PersonServices @Inject() (val personDAO: PersonDAO)(implicit val ec: Execu
     if (person.birthDate.isDefined) {
       val futureHomonymFound = searchHomonyme(personSearch)
       val personFound = Await.result(futureHomonymFound, Duration.Inf)
-      if (personFound.isDefined && personFound.get.hasAnAccount()) {
-        throw new HomonymNamesAndBirthDateException
-      } else {
-        return Future(personFound, false)
+      if (personFound.isDefined) {
+        if (personFound.get.hasAnAccount()) {
+          throw new HomonymNamesAndBirthDateException
+        } else {
+          return Future(personFound, false)
+        }
       }
     } else {
       // Reset the birthDate to search only for first and last name
       personSearch.birthDate = None
       val futureHomonymFound = searchHomonyme(personSearch)
       val personFound = Await.result(futureHomonymFound, Duration.Inf)
-      if (personFound.isDefined && personFound.get.hasAnAccount()) {
-        throw new HomonymNamesException
-      } else {
-        return Future(personFound, false)
+      if (personFound.isDefined) {
+        if (personFound.get.hasAnAccount()) {
+          throw new HomonymNamesException
+        } else {
+          return Future(personFound, false)
+        }
       }
     }
     val futurePerson = personDAO.addPerson(person)

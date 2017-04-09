@@ -107,8 +107,8 @@ class AbstractRepoImpl[T] (val collection : Future[BSONCollection]) (
 
   }
 
-  override def save(_id: String, person: T): Future[Boolean] = {
-    var bsonDocumentWithId = BSON.write(person)
+  override def save(_id: String, document: T): Future[Boolean] = {
+    var bsonDocumentWithId = BSON.write(document)
     bsonDocumentWithId = bsonDocumentWithId.remove(MongoDbUtil._ID)
     bsonDocumentWithId ++= (MongoDbUtil._ID -> _id)
     val futureWriteResult = collection.flatMap(_.insert(bsonDocumentWithId))

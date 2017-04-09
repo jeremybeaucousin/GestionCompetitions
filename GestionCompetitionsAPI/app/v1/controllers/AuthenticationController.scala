@@ -23,6 +23,7 @@ import v1.utils.RequestUtil
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 import v1.services.MailServices
+import v1.services.PersonServices
 
 class AuthenticationController @Inject() (
   val documentationServices: DocumentationServices,
@@ -38,7 +39,6 @@ class AuthenticationController @Inject() (
     Future.successful(Ok(v1.views.html.documentation(title, availableOperations)))
   }
 
-  // TODO check if already logged
   def signup = Action.async(BodyParsers.parse.json) { implicit request =>
     val futurePerson = authenticationServices.createAccount(None, request.body.as[Person])
     futurePerson.map {
@@ -134,6 +134,18 @@ class AuthenticationController @Inject() (
     })
   }
 
+  def sendEmailValidation(email: String) = Action.async { implicit request => 
+    val futureResult = authenticationServices.sendEmailValidation(email)
+    futureResult.map(ResultOk => {
+      if(ResultOk) {
+        // TODO Send email
+        Ok
+      } else {
+        NotFound
+      }
+    })
+  }
+  
   def changePassword = withToken(BodyParsers.parse.json) { authToken =>
     implicit request =>
       {
