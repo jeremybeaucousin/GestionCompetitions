@@ -15,6 +15,7 @@ import v1.constantes.MessageConstants
 import v1.model.Operation
 import play.Logger
 import org.apache.commons.lang3.StringUtils
+import v1.utils.MongoDbUtil
 
 class AddressController @Inject() (
   val documentationServices: DocumentationServices,
@@ -23,9 +24,8 @@ class AddressController @Inject() (
     extends Controller with I18nSupport with Secured {
 
   def index(id: String) = Action.async { implicit request =>
-    val rootUrl: String = routes.AddressController.index(StringUtils.EMPTY).url
-    Logger.info(rootUrl)
-    val title: String = messagesApi(MessageConstants.title.documentation, "")
+    val rootUrl: String = routes.AddressController.index(MongoDbUtil._ID).url
+    val title: String = messagesApi(MessageConstants.title.documentation, rootUrl)
     val availableOperations: Seq[Operation] = documentationServices.getPersonAddressesOperations
     Future.successful(Ok(v1.views.html.documentation(title, availableOperations)))
   }

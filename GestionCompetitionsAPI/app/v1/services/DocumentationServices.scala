@@ -71,6 +71,7 @@ class DocumentationServices @Inject() (
   final val sortExemple = Seq[String]("+" + Person.FIRST_NAME, "-" + Person.LAST_NAME)
   final val fieldsExemple = Seq[String](Person._ID, Person.FIRST_NAME, Person.LAST_NAME)
   final val encryptedEmailTokenExemple = SecurityUtil.encryptString(SecurityUtil.generateString(10)).replaceAll("/", "")
+  final val indexExemple = "0"
 
   def getPersonOperations(implicit messages: Messages): Seq[Operation] = {
     var availableOperations: Seq[Operation] = Seq[Operation]()
@@ -558,7 +559,7 @@ class DocumentationServices @Inject() (
 
     def getListAddressesOperation = {
       val listAddressesOperation = Operation()
-      listAddressesOperation.call = Some(routes.AuthenticationController.signin())
+      listAddressesOperation.call = Some(routes.AddressController.index(_idExemple))
       listAddressesOperation.description = Some(messages(MessageConstants.documentation.person.address.listAddressesDescription))
 
       val listAddressesResponse = RequestContents()
@@ -579,7 +580,7 @@ class DocumentationServices @Inject() (
 
     def getAddAddressOperation = {
       val addAddressOperation = Operation()
-      addAddressOperation.call = Some(routes.AuthenticationController.signin())
+      addAddressOperation.call = Some(routes.AddressController.addAddress(_idExemple))
       addAddressOperation.description = Some(messages(MessageConstants.documentation.person.address.addAddressDescription))
 
       val listAddressesRequest = RequestContents()
@@ -597,8 +598,38 @@ class DocumentationServices @Inject() (
       addAddressOperation
     }
     availableOperations :+= getAddAddressOperation
-    //POST	/v1/persons/:id/addresses							v1.controllers.AddressController.addAddress(id: String)
-    //GET		/v1/persons/:id/addresses/:index					v1.controllers.AddressController.getAddress(id: String, index: String)
+
+    def getGetAddressOperation = {
+      val getAddressOperation = Operation()
+      getAddressOperation.call = Some(routes.AddressController.getAddress(_idExemple, indexExemple))
+      getAddressOperation.description = Some(messages(MessageConstants.documentation.person.address.getAddressDescription))
+
+      def getAddressOperationRequestParameters: Map[String, String] = {
+        var parameters: Map[String, String] = Map[String, String]()
+        // TODO Change to index
+        parameters += (Person._ID -> messages(MessageConstants.documentation.authentication.signUpWithExistingDescriptionIdParameter))
+        parameters
+      }
+
+      val getAddressRequest = RequestContents()
+      getAddressRequest.parameters = Some(getAddressOperationRequestParameters)
+      getAddressOperation.request = Some(getAddressRequest)
+
+      val getAddressResponse = RequestContents()
+      getAddressResponse.body = Some(jsonAddressExemple)
+      getAddressOperation.response = Some(getAddressResponse)
+
+      def getAddressCodes: Map[String, String] = {
+        var codes: Map[String, String] = Map[String, String]()
+        codes += (Http.Status.OK.toString() -> messages(MessageConstants.http.ok))
+        codes += (Http.Status.FORBIDDEN.toString() -> messages(MessageConstants.http.forbidden))
+        codes
+      }
+
+      getAddressOperation.codes = Some(getAddressCodes)
+      getAddressOperation
+    }
+    availableOperations :+= getGetAddressOperation
     //PUT 	/v1/persons/:id/addresses/:index					v1.controllers.AddressController.editAddress(id: String, index: String)
     //DELETE	/v1/persons/:id/addresses/:index					v1.controllers.AddressController.deleteAddress(id: String, index: String)
     availableOperations
