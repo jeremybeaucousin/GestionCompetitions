@@ -606,8 +606,7 @@ class DocumentationServices @Inject() (
 
       def getAddressOperationRequestParameters: Map[String, String] = {
         var parameters: Map[String, String] = Map[String, String]()
-        // TODO Change to index
-        parameters += (Person._ID -> messages(MessageConstants.documentation.authentication.signUpWithExistingDescriptionIdParameter))
+        parameters += (MongoDbUtil.INDEX -> messages(MessageConstants.documentation.common.arrayIndexDescription))
         parameters
       }
 
@@ -625,11 +624,41 @@ class DocumentationServices @Inject() (
         codes += (Http.Status.FORBIDDEN.toString() -> messages(MessageConstants.http.forbidden))
         codes
       }
-
       getAddressOperation.codes = Some(getAddressCodes)
       getAddressOperation
     }
     availableOperations :+= getGetAddressOperation
+    
+        def getEditAddressOperation = {
+      val editAddressOperation = Operation()
+      editAddressOperation.call = Some(routes.AddressController.getAddress(_idExemple, indexExemple))
+      editAddressOperation.description = Some(messages(MessageConstants.documentation.person.address.getAddressDescription))
+
+      def editAddressOperationRequestParameters: Map[String, String] = {
+        var parameters: Map[String, String] = Map[String, String]()
+        // TODO Change to index
+        parameters += (Person._ID -> messages(MessageConstants.documentation.authentication.signUpWithExistingDescriptionIdParameter))
+        parameters
+      }
+
+      val getAddressRequest = RequestContents()
+      getAddressRequest.parameters = Some(editAddressOperationRequestParameters)
+      editAddressOperation.request = Some(getAddressRequest)
+
+      val getAddressResponse = RequestContents()
+      getAddressResponse.body = Some(jsonAddressExemple)
+      editAddressOperation.response = Some(getAddressResponse)
+
+      def getAddressCodes: Map[String, String] = {
+        var codes: Map[String, String] = Map[String, String]()
+        codes += (Http.Status.OK.toString() -> messages(MessageConstants.http.ok))
+        codes += (Http.Status.FORBIDDEN.toString() -> messages(MessageConstants.http.forbidden))
+        codes
+      }
+      editAddressOperation.codes = Some(getAddressCodes)
+      editAddressOperation
+    }
+    availableOperations :+= getEditAddressOperation
     //PUT 	/v1/persons/:id/addresses/:index					v1.controllers.AddressController.editAddress(id: String, index: String)
     //DELETE	/v1/persons/:id/addresses/:index					v1.controllers.AddressController.deleteAddress(id: String, index: String)
     availableOperations

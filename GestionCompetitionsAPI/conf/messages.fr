@@ -54,6 +54,7 @@ documentation.common.linkDescription=Contient les liens permettant de gérer la 
 documentation.common.locationDescription=Emplacement de la ressource créée
 documentation.common.apiKeyDescription=Contient la clé secrete pour se connecter à l''Api
 documentation.common.authTokenDescription=Contient le jeton de connexion fourni après s''être authentifier
+documentation.common.arrayIndexDescription=La position de l''element manipulé dans la liste
 
 #Persons
 documentation.person.listPersonsDescription=Retourne les personnes enregistrées en base de données

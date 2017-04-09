@@ -54,6 +54,7 @@ documentation.common.linkDescription=Contains the following links to manage pagi
 documentation.common.locationDescription=location of the created ressource
 documentation.common.apiKeyDescription=Contain the secret key to connect to the Api
 documentation.common.authTokenDescription=Contain the connection token given after authentication
+documentation.common.arrayIndexDescription=The position of the manipulate element in the list
 
 #Persons
 documentation.person.listPersonsDescription=Return the persons stored in database

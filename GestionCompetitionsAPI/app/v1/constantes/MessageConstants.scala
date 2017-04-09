@@ -114,6 +114,7 @@ final object MessageConstants {
       private final val LOCATION_DESCRIPTION = "locationDescription"
       private final val API_KEY_DESCRIPTION = "apiKeyDescription"
       private final val AUTH_TOKEN_DESCRIPTION = "authTokenDescription"
+      private final val ARRAY_INDEX_DESCRIPTION = "arrayIndexDescription"
 
       def sortDescription: String = PREFIX + SORT_DESCRIPTION
       def fieldsDescription: String = PREFIX + FIELDS_DESCRIPTION
@@ -124,6 +125,7 @@ final object MessageConstants {
       def locationDescription: String = PREFIX + LOCATION_DESCRIPTION
       def apiKeyDescription: String = PREFIX + API_KEY_DESCRIPTION
       def authTokenDescription: String = PREFIX + AUTH_TOKEN_DESCRIPTION
+      def arrayIndexDescription: String = PREFIX + ARRAY_INDEX_DESCRIPTION
     }
 
     final object Person {
@@ -171,14 +173,13 @@ final object MessageConstants {
       private final val RESET_PASSWORD_DESCRIPTION = "resetPasswordDescription"
       private final val VALIDATE_ACCOUNT_DESCRIPTION = "validateAccountDescription"
       private final val VALIDATE_ACCOUNT_EMAIL_TOKEN_PARAMETER_DESCRIPTION = "validateAccountEmailTokenParameterDescription"
-       private final val SEND_EMAIL_VALIDATION_DESCRIPTION = "sendEmailValidationDescription"
+      private final val SEND_EMAIL_VALIDATION_DESCRIPTION = "sendEmailValidationDescription"
       private final val CHANGE_PASSWORD_DESCRIPTION = "changePasswordDescription"
-      
 
       def signInDescription: String = PREFIX + SIGN_IN_DESCRIPTION
       def signOutDescription: String = PREFIX + SIGN_OUT_DESCRIPTION
       def signUpDescription: String = PREFIX + SIGN_UP_DESCRIPTION
-       def signUpWithExistingDescription: String = PREFIX + SIGN_UP_WITH_EXISTING_DESCRIPTION
+      def signUpWithExistingDescription: String = PREFIX + SIGN_UP_WITH_EXISTING_DESCRIPTION
       def signUpWithExistingDescriptionIdParameter: String = PREFIX + SIGN_UP_WITH_EXISTING_DESCRIPTION_ID_PARAMETER
       def resetPasswordDescription: String = PREFIX + RESET_PASSWORD_DESCRIPTION
       def validateAccountDescription: String = PREFIX + VALIDATE_ACCOUNT_DESCRIPTION
