@@ -20,6 +20,7 @@ import v1.model.Person
 import v1.model.Taekwondoist
 import v1.model.Taekwondoist.TaekwondoistWriter
 import v1.model.Taekwondoist.TaekwondoistReader
+import reactivemongo.api.ReadPreference
 
 trait PersonRepo[T] {
 
@@ -105,7 +106,7 @@ class PersonRepoImpl[T] @Inject() (
     val sortBson = MongoDbUtil.createSortBson(sortOption)
     val projectionBson = MongoDbUtil.createProjectionBson(fieldsOption)
     val query = collection.map(_.find(valuesSearch).projection(projectionBson))
-    val cursor = query.map(_.options(QueryOpts(skipN = MongoDbUtil.getSafeOffset(offsetOption))).sort(sortBson).cursor[T]())
+    val cursor = query.map(_.options(QueryOpts(skipN = MongoDbUtil.getSafeOffset(offsetOption))).sort(sortBson).cursor[T](ReadPreference.secondaryPreferred))
     cursor.flatMap(_.collect[List](limitOption.getOrElse(0)))
   }
 
@@ -117,7 +118,7 @@ class PersonRepoImpl[T] @Inject() (
 
   override def select(id: String, fieldsOption: Option[Seq[String]]): Future[Option[T]] = {
     val projectionBson = MongoDbUtil.createProjectionBson(fieldsOption)
-    collection.flatMap(_.find(constructId(id)).projection(projectionBson).one[T])
+    collection.flatMap(_.find(constructId(id)).projection(projectionBson).one[T](ReadPreference.secondaryPreferred))
   }
 
   override def deleteFields(id: String, fields: List[String]): Future[Boolean] = {
