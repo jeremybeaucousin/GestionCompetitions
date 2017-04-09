@@ -1,4 +1,6 @@
 ﻿# replication
+openssl rand -base64 741 > mongodb-keyfile
+
 rs.initiate()
 rs.slaveOk()
 rs.status()

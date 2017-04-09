@@ -15,6 +15,7 @@ import org.apache.commons.lang3.StringUtils
 
 object MongoDbUtil {
   final val _ID = "_id"
+  final val PERSONS_COLLECTION = "persons"
 
   def generateId(): BSONObjectID = {
     BSONObjectID.generate

@@ -3,9 +3,8 @@ package v1.dal.repos
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
-import javax.inject.Inject
-import play.modules.reactivemongo.ReactiveMongoApi
 import reactivemongo.api.QueryOpts
+import reactivemongo.api.ReadPreference
 import reactivemongo.api.collections.bson.BSONCollection
 import reactivemongo.api.commands.WriteResult
 import reactivemongo.bson.BSON
@@ -14,15 +13,8 @@ import reactivemongo.bson.BSONDocumentReader
 import reactivemongo.bson.BSONDocumentWriter
 import v1.utils.MongoDbUtil
 import play.Logger
-import v1.model.Person.PersonWriter
-import v1.model.Person.PersonReader
-import v1.model.Person
-import v1.model.Taekwondoist
-import v1.model.Taekwondoist.TaekwondoistWriter
-import v1.model.Taekwondoist.TaekwondoistReader
-import reactivemongo.api.ReadPreference
 
-trait PersonRepo[T] {
+trait AbstractRepo[T] {
 
   def getTotalCount(personOption: Option[T], searchInValues: Option[Boolean]): Future[Int]
 
@@ -58,40 +50,12 @@ trait PersonRepo[T] {
   def save(_id: String, person: T): Future[Boolean]
 }
 
-class PersonRepoImpl[T] @Inject() (
-  val reactiveMongoApi: ReactiveMongoApi)(
-    implicit ec: ExecutionContext)
-    extends PersonRepo[T] {
+class AbstractRepoImpl[T] (val collection : Future[BSONCollection]) (
+    implicit ec: ExecutionContext,
+    bSONDocumentWriter :BSONDocumentWriter[T], 
+    bSONDocumentReader: BSONDocumentReader[T])
+    extends AbstractRepo[T] {
 
-  implicit object documentWriter extends BSONDocumentWriter[T] {
-    def write(document: T): BSONDocument = {
-      if (document.isInstanceOf[Person]) {
-        val person = document.asInstanceOf[Person]
-        PersonWriter.write(person)
-      } else if (document.isInstanceOf[Taekwondoist]) {
-        val taekwondoist = document.asInstanceOf[Taekwondoist]
-        TaekwondoistWriter.write(taekwondoist)
-      } else {
-        BSONDocument()
-      }
-    }
-  }
-
-  // TODO RETHINK THAT
-  implicit object documentReader extends BSONDocumentReader[T] {
-    def read(bson: BSONDocument): T = {
-      val person = PersonReader.read(bson)
-      val taekwondoist = TaekwondoistReader.read(bson)
-      if (person.isInstanceOf[T]) {
-        person.asInstanceOf[T]
-      } else {
-        taekwondoist.asInstanceOf[T]
-      }
-    }
-  }
-
-  def collection = reactiveMongoApi.database.
-    map(_.collection[BSONCollection]("persons"))
 
   override def find(
     personOption: Option[T],
@@ -122,7 +86,7 @@ class PersonRepoImpl[T] @Inject() (
   }
 
   override def deleteFields(id: String, fields: List[String]): Future[Boolean] = {
-    if (fields.isEmpty) {
+    if (!fields.isEmpty) {
       val rebuildForUnset = MongoDbUtil.constructBSONDocumentWithForUnset(fields)
       val futureWriteResult = collection.flatMap(_.update(constructId(id), BSONDocument("$unset" -> rebuildForUnset)))
       handleWriteResult(futureWriteResult)

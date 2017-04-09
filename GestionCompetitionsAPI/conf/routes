@@ -8,6 +8,7 @@ GET     /assets/*file               controllers.Assets.versioned(path="/public",
 # Authentication
 GET   	/v1			                					v1.controllers.AuthenticationController.index()
 POST    /v1/signup	                					v1.controllers.AuthenticationController.signup()
+PUT	    /v1/signup/:id	               					v1.controllers.AuthenticationController.signupWithExistingPerson(id: String)
 POST    /v1/signin                  					v1.controllers.AuthenticationController.signin()
 POST    /v1/signout	                					v1.controllers.AuthenticationController.signout()
 POST    /v1/resetPassword           					v1.controllers.AuthenticationController.resetPassword()
@@ -23,7 +24,7 @@ PUT 	/v1/persons/:id									v1.controllers.PersonController.editPerson(id: Stri
 DELETE	/v1/persons/:id									v1.controllers.PersonController.deletePerson(id: String)
 
 # Addresses
-GET		/v1/persons/addresses							v1.controllers.AddressController.index()
+GET		/v1/persons/:id/addresses						v1.controllers.AddressController.index(id: String)
 GET		/v1/persons/:id/addresses						v1.controllers.AddressController.listAddresses(id: String)
 POST	/v1/persons/:id/addresses						v1.controllers.AddressController.addAddress(id: String)
 GET		/v1/persons/:id/addresses/:index				v1.controllers.AddressController.getAddress(id: String, index: String)

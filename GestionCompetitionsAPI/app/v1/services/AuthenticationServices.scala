@@ -24,15 +24,22 @@ import errors.PasswordsNotMatchException
 class AuthenticationServices @Inject() (
     implicit val ec: ExecutionContext,
     personServices: PersonServices,
-    personDao: PersonDAO[Person],
-    grantsServices: GrantsServices,
-    mailServices: MailServices) {
+    personDao: PersonDAO,
+    grantsServices: GrantsServices) {
 
   final val EMAIL_TOKEN_DURATION = 10
 
   private def getExpirationTime = (new DateTime()) plusDays EMAIL_TOKEN_DURATION
 
-  def createAccount(person: Person)(implicit messages: Messages): Future[(Option[Person], Boolean)] = {
+  /**
+   * @param id
+   * @param person
+   * @param messages
+   * @return the boolean is used in two case :
+   * 	- For complete creation to inform if is is new or not
+   * 	-	For editing from existing person to know if is correctly saved
+   */
+  def createAccount(id: Option[String], person: Person)(implicit messages: Messages): Future[(Option[Person], Boolean)] = {
     if (person.email.isDefined && person.password.isDefined && person.login.isDefined) {
       val futurePersonWithSameLogin = personServices.searchPersonWithLogin(person)
       val personWithSameLogin = Await.result(futurePersonWithSameLogin, Duration.Inf)
@@ -44,9 +51,23 @@ class AuthenticationServices @Inject() (
         person.encryptedEmailToken = Some(encryptedEmailToken)
         person.emailTokenExpirationTime = Some(getExpirationTime.toDate())
         person.role = Some(grantsServices.USER)
-        //          TODO See why it does not work
-        mailServices.createAndSendEmail()
-        personServices.addPerson(person)
+        if (id.isDefined) {
+          val futureExistingPerson = personServices.getPerson(id.get, None)
+          val existingPerson = Await.result(futureExistingPerson, Duration.Inf)
+          // If the person do not exists or already has an active account we do not continue
+          if (existingPerson.isDefined && existingPerson.get.hasActiveAccount()) {
+            throw new LoginAlreadyRegisterdException
+          } else {
+            val futurePerson = personServices.getPerson(id.get, None)
+            val futureResult = personServices.editPerson(id.get, person)
+            val resultOk = Await.result(futureResult, Duration.Inf)
+            futurePerson.map(personOption => {
+              (personOption, resultOk)
+            })
+          }
+        } else {
+          personServices.addPerson(person)
+        }
       }
     } else {
       throw new EmailPasswordLoginRequired
@@ -103,11 +124,8 @@ class AuthenticationServices @Inject() (
     personWithEmailTokenSearch.encryptedEmailToken = Some(encryptedEmailToken)
     val futurePersonWithToken = personDao.searchPersons(Some(personWithEmailTokenSearch), None, None, None, None, None)
     val personsWithToken = Await.result(futurePersonWithToken, Duration.Inf)
-    Logger.info(encryptedEmailToken.toString())
-    Logger.info(personsWithToken.toString())
     if (!personsWithToken.isEmpty) {
       val personWithTokenOption = personsWithToken.find(personWithSameToken => personWithSameToken.encryptedEmailToken.get.equals(personWithEmailTokenSearch.encryptedEmailToken.get))
-      Logger.info(personWithTokenOption.toString())
       if (personWithTokenOption.isDefined && !personWithTokenOption.get.emailTokenIsExpired) {
         val personWithToken = personWithTokenOption.get
         var fields = List[String]()

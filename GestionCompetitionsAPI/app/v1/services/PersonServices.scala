@@ -17,7 +17,7 @@ import v1.utils.SecurityUtil
 import errors._
 import v1.utils.OptUtils
 
-class PersonServices @Inject() (val personDAO: PersonDAO[Person])(implicit val ec: ExecutionContext) {
+class PersonServices @Inject() (val personDAO: PersonDAO)(implicit val ec: ExecutionContext) {
 
   def getTotalCount(personOption: Option[Person], searchInValues: Option[Boolean]): Future[Int] = {
     personDAO.getTotalCount(personOption, searchInValues)
@@ -70,10 +70,14 @@ class PersonServices @Inject() (val personDAO: PersonDAO[Person])(implicit val e
    * @return
    */
   def addPerson(person: Person)(implicit messages: Messages): Future[(Option[Person], Boolean)] = {
-    def searchHomonyme(personRequest: Person): Future[Boolean] = {
-      val futurePersonResult = personDAO.searchPersons(Some(personRequest), None, None, None, None, None)
-      futurePersonResult.map(personResult => {
-        !personResult.isEmpty
+    def searchHomonyme(personRequest: Person): Future[Option[Person]] = {
+      val futurePersonsResult = personDAO.searchPersons(Some(personRequest), None, None, None, None, None)
+      futurePersonsResult.map(personsResult => {
+        personsResult.find(personFound => {
+          (person.birthDate.isDefined && personFound.birthDate.get.equals(person.birthDate.get)) ||
+            personFound.firstName.get.equals(person.firstName.get) &&
+            personFound.lastName.get.equals(person.lastName.get)
+        })
       })
     }
 
@@ -103,17 +107,21 @@ class PersonServices @Inject() (val personDAO: PersonDAO[Person])(implicit val e
     personSearch.birthDate = person.birthDate
     if (person.birthDate.isDefined) {
       val futureHomonymFound = searchHomonyme(personSearch)
-      val homonymFound = Await.result(futureHomonymFound, Duration.Inf)
-      if (homonymFound) {
+      val personFound = Await.result(futureHomonymFound, Duration.Inf)
+      if (personFound.isDefined && personFound.get.hasAnAccount()) {
         throw new HomonymNamesAndBirthDateException
+      } else {
+        return Future(personFound, false)
       }
     } else {
       // Reset the birthDate to search only for first and last name
       personSearch.birthDate = None
       val futureHomonymFound = searchHomonyme(personSearch)
-      val homonymFound = Await.result(futureHomonymFound, Duration.Inf)
-      if (homonymFound) {
+      val personFound = Await.result(futureHomonymFound, Duration.Inf)
+      if (personFound.isDefined && personFound.get.hasAnAccount()) {
         throw new HomonymNamesException
+      } else {
+        return Future(personFound, false)
       }
     }
     val futurePerson = personDAO.addPerson(person)
@@ -163,11 +171,12 @@ class PersonServices @Inject() (val personDAO: PersonDAO[Person])(implicit val e
         if (!OptUtils.testIfElementAreEquals(person.login, existingPerson.login)) {
           throw new LoginCannotBeSetException
         }
+
+        if (person.encryptedPassword.isDefined) {
+          throw new PasswordCannotBeSetException
+        }
       }
-      
-      if(person.password.isDefined || person.encryptedPassword.isDefined ) {
-        throw new PasswordCannotBeSetException
-      }
+
       return personDAO.editPerson(id, person)
     }
     Future(false)

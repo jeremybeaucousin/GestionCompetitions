@@ -1,6 +1,6 @@
 package v1.dal
 
-import v1.dal.repos.PersonRepoImpl
+import v1.dal.repos.AbstractRepoImpl
 import java.io.{ StringWriter, PrintWriter }
 import javax.inject.{ Inject, Singleton }
 import play.api.Logger
@@ -17,33 +17,40 @@ import reactivemongo.bson.BSONDocumentReader
 import reactivemongo.bson.BSONDocumentWriter
 import v1.utils.MongoDbUtil
 import scala.concurrent.Await
+import play.modules.reactivemongo.ReactiveMongoApi
+import v1.model.Person
+import reactivemongo.api.collections.bson.BSONCollection
 
-class PersonDAO[T] @Inject() (val personRepo: PersonRepoImpl[T])(
+  
+class PersonDAO @Inject() (val reactiveMongoApi: ReactiveMongoApi)(
     implicit ec: ExecutionContext) {
 
-  def getTotalCount(personOption: Option[T], searchInValues: Option[Boolean]): Future[Int] = {
+  val collection = reactiveMongoApi.database.map(_.collection[BSONCollection](MongoDbUtil.PERSONS_COLLECTION))
+  val personRepo: AbstractRepoImpl[Person] = new AbstractRepoImpl[Person](collection)
+  
+  def getTotalCount(personOption: Option[Person], searchInValues: Option[Boolean]): Future[Int] = {
     personRepo.getTotalCount(personOption, searchInValues)
   }
 
   def searchPersons(
-    personOption: Option[T],
+    personOption: Option[Person],
     searchInValues: Option[Boolean],
     sortOption: Option[Seq[String]],
     fieldsOption: Option[Seq[String]],
     offsetOption: Option[Int],
-    limitOption: Option[Int]): Future[List[T]] = {
+    limitOption: Option[Int]): Future[List[Person]] = {
     personRepo.find(personOption, searchInValues: Option[Boolean], sortOption, fieldsOption, offsetOption, limitOption)
   }
 
   def getPerson(id: String, fieldsOption: Option[Seq[String]])(
-    implicit bSONDocumentReader: BSONDocumentReader[T],
-    bSONDocumentWriter: BSONDocumentWriter[T]): Future[Option[T]] = {
+    implicit bSONDocumentReader: BSONDocumentReader[Person],
+    bSONDocumentWriter: BSONDocumentWriter[Person]): Future[Option[Person]] = {
     personRepo.select(id, fieldsOption)
   }
 
-  def addPerson(document: T)(
-    implicit bSONDocumentReader: BSONDocumentReader[T],
-    bSONDocumentWriter: BSONDocumentWriter[T]): Future[Option[T]] = {
+  def addPerson(document: Person)(
+    implicit bSONDocumentReader: BSONDocumentReader[Person],
+    bSONDocumentWriter: BSONDocumentWriter[Person]): Future[Option[Person]] = {
     val _id = MongoDbUtil.generateId().stringify
     val futureResult = personRepo.save(_id, document)
     val hasNoError = Await.result(futureResult, Duration.Inf)
@@ -61,7 +68,7 @@ class PersonDAO[T] @Inject() (val personRepo: PersonRepoImpl[T])(
     personRepo.deleteFields(id, fields)
   }
 
-  def editPerson(id: String, document: T): Future[Boolean] = {
+  def editPerson(id: String, document: Person): Future[Boolean] = {
     personRepo.update(id, document)
   }
 

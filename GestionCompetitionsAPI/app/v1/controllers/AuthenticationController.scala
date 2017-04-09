@@ -22,10 +22,12 @@ import v1.services.DocumentationServices
 import v1.utils.RequestUtil
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
+import v1.services.MailServices
 
 class AuthenticationController @Inject() (
   val documentationServices: DocumentationServices,
   val authenticationServices: AuthenticationServices,
+  val mailServices: MailServices,
   val messagesApi: MessagesApi)
     extends Controller with I18nSupport with Secured {
 
@@ -38,13 +40,31 @@ class AuthenticationController @Inject() (
 
   // TODO check if already logged
   def signup = Action.async(BodyParsers.parse.json) { implicit request =>
-    val futurePerson = authenticationServices.createAccount(request.body.as[Person])
+    val futurePerson = authenticationServices.createAccount(None, request.body.as[Person])
     futurePerson.map {
       case (personOption, isNew) =>
         if (personOption.isDefined && personOption.get._id.isDefined) {
           var returnedLocation = HttpConstants.headerFields.location -> (routes.PersonController.getPerson(personOption.get._id.get, None).absoluteURL())
           if (isNew) {
+                    mailServices.createAndSendEmail()
             Created.withHeaders(returnedLocation)
+          } else {
+            Conflict(Json.toJson(personOption.get)).withHeaders(returnedLocation)
+          }
+        } else {
+          UnprocessableEntity
+        }
+    }
+  }
+  
+  def signupWithExistingPerson(id: String) = Action.async(BodyParsers.parse.json) { implicit request =>
+    val futurePerson = authenticationServices.createAccount(Some(id), request.body.as[Person])
+    futurePerson.map {
+      case (personOption, resultOk) =>
+        if (personOption.isDefined && personOption.get._id.isDefined) {
+          var returnedLocation = HttpConstants.headerFields.location -> (routes.PersonController.getPerson(personOption.get._id.get, None).absoluteURL())
+          if (resultOk) {
+            Ok.withHeaders(returnedLocation)
           } else {
             Conflict(Json.toJson(personOption.get)).withHeaders(returnedLocation)
           }
