@@ -116,9 +116,6 @@ class AuthenticationServices @Inject() (
       val personUpdate = Person()
       personUpdate.password = Some(newPassword)
       personUpdate.encryptedPassword = Some(newEncryptedPassword)
-      //          TODO See why it does not work
-      //          mailServices.createAndSendEmail()
-      //personWithSameEmail.email
       personDao.editPerson(personWithSameEmail._id.get, personUpdate)
     } else {
       throw new PasswordNotRecognizedException

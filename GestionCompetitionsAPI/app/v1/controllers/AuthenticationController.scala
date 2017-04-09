@@ -46,7 +46,8 @@ class AuthenticationController @Inject() (
         if (personOption.isDefined && personOption.get._id.isDefined) {
           var returnedLocation = HttpConstants.headerFields.location -> (routes.PersonController.getPerson(personOption.get._id.get, None).absoluteURL())
           if (isNew) {
-                    mailServices.createAndSendEmail()
+            // TODO Send email
+            mailServices.createAndSendEmail()
             Created.withHeaders(returnedLocation)
           } else {
             Conflict(Json.toJson(personOption.get)).withHeaders(returnedLocation)
@@ -56,7 +57,7 @@ class AuthenticationController @Inject() (
         }
     }
   }
-  
+
   def signupWithExistingPerson(id: String) = Action.async(BodyParsers.parse.json) { implicit request =>
     val futurePerson = authenticationServices.createAccount(Some(id), request.body.as[Person])
     futurePerson.map {
@@ -64,6 +65,7 @@ class AuthenticationController @Inject() (
         if (personOption.isDefined && personOption.get._id.isDefined) {
           var returnedLocation = HttpConstants.headerFields.location -> (routes.PersonController.getPerson(personOption.get._id.get, None).absoluteURL())
           if (resultOk) {
+            // TODO Send email
             Ok.withHeaders(returnedLocation)
           } else {
             Conflict(Json.toJson(personOption.get)).withHeaders(returnedLocation)
@@ -113,6 +115,9 @@ class AuthenticationController @Inject() (
       val futureResult = authenticationServices.resetPassword(person)
       futureResult.map(resultOk => {
         if (resultOk) {
+          //          TODO See why it does not work
+          //          mailServices.createAndSendEmail()
+          //personWithSameEmail.email
           Ok
         } else {
           UnprocessableEntity
@@ -134,10 +139,10 @@ class AuthenticationController @Inject() (
     })
   }
 
-  def sendEmailValidation(email: String) = Action.async { implicit request => 
+  def sendEmailValidation(email: String) = Action.async { implicit request =>
     val futureResult = authenticationServices.sendEmailValidation(email)
     futureResult.map(ResultOk => {
-      if(ResultOk) {
+      if (ResultOk) {
         // TODO Send email
         Ok
       } else {
@@ -145,11 +150,10 @@ class AuthenticationController @Inject() (
       }
     })
   }
-  
+
   def changePassword = withToken(BodyParsers.parse.json) { authToken =>
     implicit request =>
       {
-        Logger.info(authToken.userId)
         val futureBoolean = authenticationServices.changePassword(authToken.userId, request.body.as[PasswordChange])
         futureBoolean.map(resultOk => {
           if (resultOk) {

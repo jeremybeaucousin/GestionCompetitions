@@ -34,7 +34,7 @@ class DocumentationServices @Inject() (
   final val jsonAddressExemple = (Json.toJson(addressExemple))
   final val addressesExemple = List[Address](addressExemple, addressExemple)
   final val jsonAddressesExemple = (Json.toJson(addressesExemple))
-
+  final val emailExemple = "nom.prenom@domaine.fr"
   final val personCompleteExemple = new Person(
     Some(StringUtils.EMPTY), // _ID
     Some(StringUtils.EMPTY), // FIRST_NAME
@@ -426,11 +426,53 @@ class DocumentationServices @Inject() (
     }
     availableOperations :+= getSignUpPersonOperation
 
+    def getSignUpPersonWithExistingPersonOperation = {
+
+      val signUpPersonWithExistingPersonOperation = Operation()
+      signUpPersonWithExistingPersonOperation.call = Some(routes.AuthenticationController.signupWithExistingPerson(_idExemple))
+      signUpPersonWithExistingPersonOperation.description = Some(messages(MessageConstants.documentation.authentication.signUpWithExistingDescription))
+
+      def getSignUpWithExistingPersonRequestParameters: Map[String, String] = {
+        var parameters: Map[String, String] = Map[String, String]()
+        parameters += (Person._ID -> messages(MessageConstants.documentation.authentication.signUpWithExistingDescriptionIdParameter))
+        parameters
+      }
+
+      var personWithPassword = jsonPersonWithRootFieldsExemple.asInstanceOf[JsObject]
+      personWithPassword += (Person.PASSWORD, JsString(StringUtils.EMPTY))
+      personWithPassword += (Person.ADDRESSES, Json.toJson(addressesExemple))
+
+      val signUpPersonWithExistingPersonRequest = RequestContents()
+      signUpPersonWithExistingPersonRequest.parameters = Some(getSignUpWithExistingPersonRequestParameters)
+      signUpPersonWithExistingPersonRequest.body = Some(personWithPassword)
+      signUpPersonWithExistingPersonOperation.request = Some(signUpPersonWithExistingPersonRequest)
+
+      def getSignUpWithExistingPersonResponseParameters: Map[String, String] = {
+        var parameters: Map[String, String] = Map[String, String]()
+        parameters += (HttpConstants.headerFields.location -> messages(MessageConstants.documentation.common.locationDescription))
+        parameters
+      }
+
+      val signUpWithExistingPersonResponse = RequestContents()
+      signUpWithExistingPersonResponse.body = Some(jsonPersonCompleteExemple)
+      signUpWithExistingPersonResponse.headers = Some(getSignUpWithExistingPersonResponseParameters)
+
+      def getSignUpWithExistingPersonCodes: Map[String, String] = {
+        var codes: Map[String, String] = Map[String, String]()
+        codes += (Http.Status.OK.toString() -> messages(MessageConstants.http.ok))
+        codes += (Http.Status.UNPROCESSABLE_ENTITY.toString() -> messages(MessageConstants.http.unprocessableEntity))
+        codes
+      }
+      signUpPersonWithExistingPersonOperation.codes = Some(getSignUpWithExistingPersonCodes)
+      signUpPersonWithExistingPersonOperation
+    }
+    availableOperations :+= getSignUpPersonWithExistingPersonOperation
+
     def getResetPasswordOperation = {
 
       val resetOperation = Operation()
       resetOperation.call = Some(routes.AuthenticationController.resetPassword())
-      resetOperation.description = Some(messages(MessageConstants.documentation.authentication.resetPassword))
+      resetOperation.description = Some(messages(MessageConstants.documentation.authentication.resetPasswordDescription))
 
       def getResetPasswordCodes: Map[String, String] = {
         var codes: Map[String, String] = Map[String, String]()
@@ -447,7 +489,7 @@ class DocumentationServices @Inject() (
 
       val validateAccountOperation = Operation()
       validateAccountOperation.call = Some(routes.AuthenticationController.validateAccount(encryptedEmailTokenExemple))
-      validateAccountOperation.description = Some(messages(MessageConstants.documentation.authentication.validateAccount))
+      validateAccountOperation.description = Some(messages(MessageConstants.documentation.authentication.validateAccountDescription))
 
       def getValidateAccountCodes: Map[String, String] = {
         var codes: Map[String, String] = Map[String, String]()
@@ -460,11 +502,38 @@ class DocumentationServices @Inject() (
     }
     availableOperations :+= getValidateAccountOperation
 
+    def getSendEmailValidationOperation = {
+
+      val sendEmailValidationOperation = Operation()
+      sendEmailValidationOperation.call = Some(routes.AuthenticationController.sendEmailValidation(emailExemple))
+      sendEmailValidationOperation.description = Some(messages(MessageConstants.documentation.authentication.sendEmailValidationDescription))
+
+      def getSendEmailValidationOperationRequestParameters: Map[String, String] = {
+        var parameters: Map[String, String] = Map[String, String]()
+        parameters += (Person._ID -> messages(MessageConstants.documentation.authentication.signUpWithExistingDescriptionIdParameter))
+        parameters
+      }
+
+      val changePasswordRequest = RequestContents()
+      changePasswordRequest.parameters = Some(getSendEmailValidationOperationRequestParameters)
+      sendEmailValidationOperation.request = Some(changePasswordRequest)
+
+      def getChangePasswordCodes: Map[String, String] = {
+        var codes: Map[String, String] = Map[String, String]()
+        codes += (Http.Status.OK.toString() -> messages(MessageConstants.http.ok))
+        codes += (Http.Status.NOT_FOUND.toString() -> messages(MessageConstants.http.notFound))
+        codes
+      }
+      sendEmailValidationOperation.codes = Some(getChangePasswordCodes)
+      sendEmailValidationOperation
+    }
+    availableOperations :+= getSendEmailValidationOperation
+
     def getChangePasswordOperation = {
 
       val changePasswordOperation = Operation()
       changePasswordOperation.call = Some(routes.AuthenticationController.changePassword())
-      changePasswordOperation.description = Some(messages(MessageConstants.documentation.authentication.changePassword))
+      changePasswordOperation.description = Some(messages(MessageConstants.documentation.authentication.changePasswordDescription))
 
       val changePasswordRequest = RequestContents()
       changePasswordRequest.body = Some(jsonPasswordChangeExemple)
@@ -508,7 +577,7 @@ class DocumentationServices @Inject() (
     }
     availableOperations :+= getListAddressesOperation
 
-    def getaddAddressOperation = {
+    def getAddAddressOperation = {
       val addAddressOperation = Operation()
       addAddressOperation.call = Some(routes.AuthenticationController.signin())
       addAddressOperation.description = Some(messages(MessageConstants.documentation.person.address.addAddressDescription))
@@ -527,7 +596,7 @@ class DocumentationServices @Inject() (
       addAddressOperation.codes = Some(addAddressCodes)
       addAddressOperation
     }
-    availableOperations :+= getaddAddressOperation
+    availableOperations :+= getAddAddressOperation
     //POST	/v1/persons/:id/addresses							v1.controllers.AddressController.addAddress(id: String)
     //GET		/v1/persons/:id/addresses/:index					v1.controllers.AddressController.getAddress(id: String, index: String)
     //PUT 	/v1/persons/:id/addresses/:index					v1.controllers.AddressController.editAddress(id: String, index: String)

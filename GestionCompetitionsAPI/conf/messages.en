@@ -75,10 +75,14 @@ documentation.person.addresse.deleteAddressDescription=Delete the address with t
 documentation.authentication.signInDescription=Allow to a user to authenticate on the server
 documentation.authentication.signOutDescription=Allow to a user to disconnect from the server
 documentation.authentication.signUpDescription=Allow the account creation
-documentation.authentication.resetPassword=Reset the password in generate a new one and send it by email
-documentation.authentication.validateAccount=Validate the email address of the user and activate his account
+documentation.authentication.signUpWithExistingDescription=Allow the account creation for a person already exist without account yet
+documentation.authentication.signUpWithExistingDescriptionIdParameter=The id of the person as saved in the database
+documentation.authentication.resetPasswordDescription=Reset the password in generate a new one and send it by email
+documentation.authentication.validateAccountDescription=Validate the email address of the user and activate his account
 documentation.authentication.validateAccountEmailTokenParameterDescription=The email address token sent by email that allow account validation
-documentation.authentication.changePassword=Allow the password to be changed
+documentation.authentication.validateAccountEmailTokenParameterDescription=The email address token sent by email that allow account validation
+documentation.authentication.sendEmailValidationDescription=Allow the user to ask an account validation email to be sent
+documentation.authentication.changePasswordDescription=Allow the password to be changed
 
 #Some not defined in french (Json Validation)
 error.password=A valid password is required between 8 and 15 characters
