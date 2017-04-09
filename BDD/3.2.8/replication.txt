@@ -1,0 +1,9 @@
+﻿# replication
+rs.initiate()
+rs.slaveOk()
+rs.status()
+rs.conf()
+rs.reconfig(rs.conf(), { force: true })
+rs.remove("JEJE-PORTABLE:27017")
+rs.add("JEJE-PORTABLE:27018")
+rs.add("JEJE-PORTABLE:27019")
