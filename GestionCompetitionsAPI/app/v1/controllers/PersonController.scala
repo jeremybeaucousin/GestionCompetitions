@@ -88,6 +88,8 @@ class PersonController @Inject() (
     val futurePerson = personServices.addPerson(request.body.as[Person])
     futurePerson.map {
       case (personOption, isNew) =>
+        Logger.info(personOption.toString())
+        Logger.info(isNew.toString())
         if (personOption.isDefined && personOption.get._id.isDefined) {
           var returnedLocation = HttpConstants.headerFields.location -> (routes.PersonController.getPerson(personOption.get._id.get, None).absoluteURL())
           if (isNew) {

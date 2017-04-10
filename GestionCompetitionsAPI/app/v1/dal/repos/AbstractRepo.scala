@@ -82,7 +82,8 @@ class AbstractRepoImpl[T] (val collection : Future[BSONCollection]) (
 
   override def select(id: String, fieldsOption: Option[Seq[String]]): Future[Option[T]] = {
     val projectionBson = MongoDbUtil.createProjectionBson(fieldsOption)
-    collection.flatMap(_.find(constructId(id)).projection(projectionBson).one[T](ReadPreference.secondaryPreferred))
+    // Cannot set read preferences on creation
+    collection.flatMap(_.find(constructId(id)).projection(projectionBson).one[T])
   }
 
   override def deleteFields(id: String, fields: List[String]): Future[Boolean] = {
