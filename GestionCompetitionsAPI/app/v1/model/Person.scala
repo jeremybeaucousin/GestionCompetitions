@@ -180,6 +180,7 @@ object Person {
     }
   }
 
+    // TODO TO externalize
   implicit object MapReader extends BSONDocumentReader[Map[String, String]] {
     def read(bson: BSONDocument): Map[String, String] = {
       val map = scala.collection.mutable.Map[String, String]()
