@@ -29,6 +29,7 @@ final object MessageConstants {
     private final val NEW_PASSWORDS_DOES_NOT_MATCH: String = "newPasswordsDoesNotMatch"
     private final val TOKEN_HAS_EXPIRED: String = "tokenHasExpired"
     private final val ACCOUNT_ALREADY_CREATED: String = "accountAlreadyCreated"
+    private final val LOGIN_OR_EMAIL_AND_PASSWORD_REQUIRED: String = "loginOrEmailAndPasswordRequired"
 
     def server: String = PREFIX + SERVER
     def client: String = PREFIX + CLIENT
@@ -47,6 +48,7 @@ final object MessageConstants {
     def newPasswordsDoesNotMatch: String = PREFIX + NEW_PASSWORDS_DOES_NOT_MATCH
     def tokenHasExpired: String = PREFIX + TOKEN_HAS_EXPIRED
     def accountAlreadyCreated: String = PREFIX + ACCOUNT_ALREADY_CREATED
+    def loginOrEmailAndPasswordRequired: String = PREFIX + LOGIN_OR_EMAIL_AND_PASSWORD_REQUIRED
   }
 
   final object Http {

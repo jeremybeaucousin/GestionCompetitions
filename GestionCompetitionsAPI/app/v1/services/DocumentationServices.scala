@@ -21,7 +21,7 @@ import v1.constantes.HttpConstants
 import v1.constantes.MessageConstants
 import v1.controllers.routes
 import v1.utils.MongoDbUtil
-import errors.FirstNameAndLastNameRequiredException
+import v1.errors.FirstNameAndLastNameRequiredException
 import v1.http.ApiToken
 import v1.utils.SecurityUtil
 import v1.model.PasswordChange

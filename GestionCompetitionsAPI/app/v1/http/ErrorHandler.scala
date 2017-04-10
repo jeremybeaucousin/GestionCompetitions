@@ -8,7 +8,7 @@ import scala.concurrent.Future
 
 import org.apache.http.HttpStatus
 
-import errors.BusinessException
+import v1.errors.BusinessException
 import javax.inject.Inject
 import javax.inject.Provider
 import javax.inject.Singleton

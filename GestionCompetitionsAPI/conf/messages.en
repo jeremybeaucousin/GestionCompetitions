@@ -18,6 +18,7 @@ error.passwordNotRecognized=The login or password does not match
 error.newPasswordsDoesNotMatch=The new passwords inputs does not match
 error.tokenHasExpired=Token has expired or not exists
 error.accountAlreadyCreated=Account is already created for this user
+error.loginOrEmailAndPasswordRequired=Login or address email and password are required
     
 #http
 http.ok=Eyerything is working

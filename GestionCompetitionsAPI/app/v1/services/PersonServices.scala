@@ -7,14 +7,12 @@ import scala.concurrent.Future
 import scala.concurrent.{ ExecutionContext, Future }
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
-import errors.HomonymNamesException
-import errors.HomonymNamesAndBirthDateException
 import play.api.i18n.Messages
 import reactivemongo.bson.BSONDocumentReader
 import reactivemongo.bson.BSONDocumentWriter
 import play.Logger
 import v1.utils.SecurityUtil
-import errors._
+import v1.errors._
 import v1.utils.OptUtils
 
 class PersonServices @Inject() (val personDAO: PersonDAO)(implicit val ec: ExecutionContext) {

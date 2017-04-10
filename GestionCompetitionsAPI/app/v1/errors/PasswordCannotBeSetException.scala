@@ -1,4 +1,4 @@
-package errors
+package v1.errors
 
 import v1.constantes.MessageConstants
 import javax.inject.Inject

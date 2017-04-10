@@ -7,8 +7,8 @@ import scala.concurrent.duration.Duration
 
 import org.joda.time.DateTime
 
-import errors.EmailPasswordLoginRequired
-import errors.LoginAlreadyRegisterdException
+import v1.errors.EmailPasswordLoginRequired
+import v1.errors.LoginAlreadyRegisterdException
 import javax.inject.Inject
 import javax.inject.Singleton
 import play.Logger
@@ -17,10 +17,10 @@ import v1.dal.PersonDAO
 import v1.model.Person
 import v1.utils.SecurityUtil
 import v1.model.PasswordChange
-import errors.PasswordNotRecognizedException
-import errors.PasswordsNotMatchException
-import errors.TokenHasExpiredException
-import errors.AccountAlreadyCreatedException
+import v1.errors.PasswordNotRecognizedException
+import v1.errors.PasswordsNotMatchException
+import v1.errors.TokenHasExpiredException
+import v1.errors.AccountAlreadyCreatedException
 
 @Singleton
 class AuthenticationServices @Inject() (

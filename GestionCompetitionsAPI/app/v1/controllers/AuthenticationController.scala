@@ -27,6 +27,8 @@ import v1.services.PersonServices
 import play.api.libs.json._
 import play.api.libs.json.Reads._
 import play.api.libs.functional.syntax._
+import v1.errors.EmailPasswordLoginRequired
+import v1.errors.LoginOrEmailAndPasswordRequiredException
 
 class AuthenticationController @Inject() (
   val documentationServices: DocumentationServices,
@@ -106,7 +108,7 @@ class AuthenticationController @Inject() (
         }
 
       } else {
-        Future(UnprocessableEntity)
+        throw new LoginOrEmailAndPasswordRequiredException
       }
 
     } else {

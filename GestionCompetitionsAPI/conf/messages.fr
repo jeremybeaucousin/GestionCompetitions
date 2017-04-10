@@ -18,6 +18,7 @@ error.passwordNotRecognized=l''identifiant oue le mot de passe ne correspondent 
 error.newPasswordsDoesNotMatch=Les nouveaux mot de passe saisies ne correspondent pas
 erros.tokenHasExpired=Le jeton a expiré ou n''existe plus
 error.accountAlreadyCreated=Le compte a déjà été créé pour cet utilisateur
+error.loginOrEmailAndPasswordRequired=L''identifiant ou l''addresse email et le mot de passe sont requis
 
 #http
 http.ok=Tout fonctionne

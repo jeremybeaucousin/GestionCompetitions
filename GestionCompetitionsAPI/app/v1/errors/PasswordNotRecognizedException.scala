@@ -1,4 +1,4 @@
-package errors
+package v1.errors
 
 import play.api.i18n.Messages
 import v1.constantes.MessageConstants
