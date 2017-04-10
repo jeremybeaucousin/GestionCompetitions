@@ -23,7 +23,9 @@ case class Taekwondoist(
     var emailTokenExpirationTime: Option[Date],
     var password: Option[String] = None,
     var encryptedPassword: Option[String] = None,
+    var displayContacts: Option[Boolean] = None,
     var addresses: Option[List[Address]] = None,
+    var phoneNumbers: Option[Map[String, String]] = None,
     var passportNumber: Option[Int] = None,
     var grade: Option[String] = None) {
 
@@ -40,7 +42,9 @@ case class Taekwondoist(
       emailTokenExpirationTime,
       password,
       encryptedPassword,
-      addresses)
+      displayContacts,
+      addresses,
+      phoneNumbers)
   }
 }
 

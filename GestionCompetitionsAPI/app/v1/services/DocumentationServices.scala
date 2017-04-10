@@ -47,7 +47,9 @@ class DocumentationServices @Inject() (
     Some(new Date), // EMAIL_TOKEN_EXPIRATION_TIME
     Some(StringUtils.EMPTY), // PASSWORD
     Some(StringUtils.EMPTY), // ENCRYPTED_PASSWORD
-    Some(addressesExemple)) // ADDRESSES
+    Some(true), // DISPLAY_CONTACTS
+    Some(addressesExemple),  // ADDRESSES
+    Some(Map[String, String]()))
 
   final val jsonPersonCompleteExemple = (Json.toJson(personCompleteExemple))
 

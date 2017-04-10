@@ -20,7 +20,9 @@ case class Person(
     var emailTokenExpirationTime: Option[Date] = None,
     var password: Option[String] = None,
     var encryptedPassword: Option[String] = None,
-    var addresses: Option[List[Address]] = None) {
+    var displayContacts: Option[Boolean] = None,
+    var addresses: Option[List[Address]] = None,
+    var phoneNumbers: Option[Map[String, String]] = None) {
 
   /**
    * The person can have been saved by a admin or by himself by creating an account
@@ -37,7 +39,7 @@ case class Person(
   def hasActiveAccount(): Boolean = {
     encryptedPassword.isDefined && !encryptedEmailToken.isDefined
   }
-  
+
   def emailTokenIsExpired = if (emailTokenExpirationTime.isDefined) emailTokenExpirationTime.get.before(new Date) else false
 
   def toTaekwondoist(): Taekwondoist = {
@@ -53,7 +55,9 @@ case class Person(
       emailTokenExpirationTime,
       password,
       encryptedPassword,
-      addresses)
+      displayContacts,
+      addresses,
+      phoneNumbers)
   }
 
   @Override
@@ -81,7 +85,9 @@ object Person {
   final val EMAIL_TOKEN_EXPIRATION_TIME = "emailTokenExpirationTime"
   final val PASSWORD = "password"
   final val ENCRYPTED_PASSWORD = "encryptedPassword"
+  final val DISPLAY_CONTACTS = "displayContacts"
   final val ADDRESSES: String = "addresses"
+  final val PHONE_NUMBERS = "phoneNumbers"
 
   /**
    * Convert a json into a Person, extract empty values when we this is informations that clients do not have to have
@@ -99,13 +105,14 @@ object Person {
     (JsPath \ StringUtils.EMPTY).readNullable[Date] and // EMAIL_TOKEN_EXPIRATION_TIME
     (JsPath \ PASSWORD).readNullable[String](pattern(ValidationConstants.regex.PASSWORD, MessageConstants.error.password)) and
     (JsPath \ StringUtils.EMPTY).readNullable[String] and // ENCRYPTED_PASSWORD
-    (JsPath \ ADDRESSES).readNullable[List[Address]])(Person.apply _)
+    (JsPath \ DISPLAY_CONTACTS).readNullable[Boolean] and
+    (JsPath \ ADDRESSES).readNullable[List[Address]] and
+    (JsPath \ PHONE_NUMBERS).readNullable[Map[String, String]])(Person.apply _)
 
   /**
    * Convert a Person into a json, some informations are not send back to the clients
    * @return
    */
-    // TODO had confidenciality information and test before send back information
   object PersonWrites extends Writes[Person] {
     def writes(person: Person): JsObject = {
       var json = Json.obj()
@@ -119,10 +126,17 @@ object Person {
         json += (BIRTH_DATE -> JsString(new DateTime(person.birthDate.get).toString()))
       if (person.login.isDefined)
         json += (LOGIN -> JsString(person.login.get))
-      if (person.email.isDefined)
-        json += (EMAIL -> JsString(person.email.get))
-      if (person.addresses.isDefined)
-        json += (ADDRESSES -> Json.toJson(person.addresses.get))
+      if (person.displayContacts.isDefined) {
+        json += (DISPLAY_CONTACTS -> JsBoolean(person.displayContacts.get))
+        if (person.displayContacts.get) {
+          if (person.email.isDefined)
+            json += (EMAIL -> JsString(person.email.get))
+          if (person.addresses.isDefined)
+            json += (ADDRESSES -> Json.toJson(person.addresses.get))
+          if (person.phoneNumbers.isDefined)
+            json += (PHONE_NUMBERS -> Json.toJson(person.phoneNumbers.get))
+        }
+      }
       json
     }
   }
@@ -141,16 +155,41 @@ object Person {
   }
 
   import reactivemongo.bson._
-  
+
   case class PersonWriter() extends BSONDocumentWriter[Person] {
-     def write(person: Person): BSONDocument = {
-       PersonWriter.write(person)
-     }
+    def write(person: Person): BSONDocument = {
+      PersonWriter.write(person)
+    }
   }
 
   case class PersonReader() extends BSONDocumentReader[Person] {
     def read(bson: BSONDocument): Person = {
       PersonReader.read(bson)
+    }
+  }
+
+  
+  // TODO TO externalize
+  implicit object MapWriter extends BSONDocumentWriter[Map[String, String]] {
+    def write(map: Map[String, String]): BSONDocument = {
+      var bson = BSONDocument()
+      map.foreach(tuple2 => {
+        bson ++= (tuple2._1 -> tuple2._2)
+      })
+      bson
+    }
+  }
+
+  implicit object MapReader extends BSONDocumentReader[Map[String, String]] {
+    def read(bson: BSONDocument): Map[String, String] = {
+      val map = scala.collection.mutable.Map[String, String]()
+      bson.elements.foreach(element => {
+        if (element._2.isInstanceOf[BSONString]) {
+          val stringValue = element._2.asInstanceOf[BSONString]
+          map += (element._1.toString() -> stringValue.value)
+        }
+      })
+      map.toMap
     }
   }
 
@@ -181,8 +220,12 @@ object Person {
         bson ++= (EMAIL_TOKEN_EXPIRATION_TIME -> person.emailTokenExpirationTime.get)
       if (person.encryptedPassword.isDefined)
         bson ++= (ENCRYPTED_PASSWORD -> person.encryptedPassword.get)
+      if (person.displayContacts.isDefined)
+        bson ++= (DISPLAY_CONTACTS -> person.displayContacts.get)
       if (person.addresses.isDefined)
         bson ++= (ADDRESSES -> person.addresses.get)
+      if (person.phoneNumbers.isDefined)
+        bson ++= (PHONE_NUMBERS -> person.phoneNumbers.get)
       bson
     }
   }
@@ -204,7 +247,9 @@ object Person {
       person.encryptedEmailToken = bson.getAs[String](ENCRYPTED_EMAIL_TOKEN)
       person.emailTokenExpirationTime = bson.getAs[Date](EMAIL_TOKEN_EXPIRATION_TIME)
       person.encryptedPassword = bson.getAs[String](ENCRYPTED_PASSWORD)
+      person.displayContacts = bson.getAs[Boolean](DISPLAY_CONTACTS)
       person.addresses = bson.getAs[List[Address]](ADDRESSES)
+      person.phoneNumbers = bson.getAs[Map[String, String]](PHONE_NUMBERS)
       person
     }
   }

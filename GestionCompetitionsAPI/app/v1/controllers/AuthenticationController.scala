@@ -80,6 +80,7 @@ class AuthenticationController @Inject() (
     val apiKeyOpt = request.headers.get(HttpConstants.headerFields.xApiKey)
     if (apiKeyOpt.isDefined && ApiToken.apiKeysExists(apiKeyOpt.get)) {
       val person = request.body.as[Person]
+      // TODO think about sending login and email in a generic field
       val futurePerson = authenticationServices.authenticate(person)
       val personFound = Await.result(futurePerson, Duration.Inf)
       if (personFound.isDefined && personFound.get._id.isDefined) {
