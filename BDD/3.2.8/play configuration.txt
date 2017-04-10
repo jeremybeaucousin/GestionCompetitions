@@ -1,0 +1,1 @@
+mongodb.uri = "mongodb://sportsEventsManagerApi:tkdhkd@localhost:27017,localhost:27018,localhost:27019/sportsEventsManager?authMode=scram-sha1"
