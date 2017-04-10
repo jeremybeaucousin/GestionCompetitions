@@ -1,0 +1,1 @@
+"D:\DataBases\MongoDB\bin\mongod" --config "conf\mongod.master.conf"
