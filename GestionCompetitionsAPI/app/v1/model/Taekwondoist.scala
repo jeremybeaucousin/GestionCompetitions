@@ -5,11 +5,10 @@ import play.api.Logger
 import play.api.libs.json._
 import reactivemongo.bson
 import reactivemongo.bson.BSONObjectID
-import v1.model.Person.PersonWrites
 import v1.model.Person.PersonWriter
 import v1.model.Person.PersonReader
-import org.apache.commons.lang3.StringUtils
 import v1.model.Person.PersonFormat
+import org.apache.commons.lang3.StringUtils
 
 case class Taekwondoist(
     var _id: Option[String] = None,
@@ -65,7 +64,7 @@ object Taekwondoist {
 
   implicit object TaekwondoistWrites extends Writes[Taekwondoist] {
     def writes(taekwondoist: Taekwondoist): JsObject = {
-      var json = PersonWrites.writes(taekwondoist.toPerson())
+      var json = PersonFormat.writes(taekwondoist.toPerson())
       if (taekwondoist.passportNumber.isDefined)
         json += (PASSEPORT_NUMBER -> JsNumber(taekwondoist.passportNumber.get))
       if (taekwondoist.grade.isDefined)

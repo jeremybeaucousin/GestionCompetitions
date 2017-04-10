@@ -73,7 +73,7 @@ documentation.person.addresse.editAddressDescription=Met à jour l''addresse ave
 documentation.person.addresse.deleteAddressDescription=Supprime l''addresse avec l''index renseigné dans les paramètres
 
 #Authentication
-documentation.authentication.signInDescription=Permet à un utilisateur de s'authentifier sur le serveur
+documentation.authentication.signInDescription=Permet à un utilisateur de s'authentifier sur le serveur avec son identifiant ou son addresse email
 documentation.authentication.signOutDescription=Permet à l''utilisateur de se déconnecter du serveur
 documentation.authentication.signUpDescription=Permet la création d'un compte
 documentation.authentication.signUpWithExistingDescription=Permet la création de compte pour une personne existante n'ayant pas encore de compte

@@ -80,29 +80,33 @@ class AuthenticationServices @Inject() (
     }
   }
 
-  def authenticate(person: Person)(implicit messages: Messages): Future[Option[Person]] = {
-    def handlePersonReturn(futurePerson: Future[Option[Person]]): Future[Option[Person]] = {
-      futurePerson.map(personFoundOption => {
-        if (personFoundOption.isDefined) {
-          val personFound = personFoundOption.get
-          if (personFound.encryptedPassword.isDefined && SecurityUtil.checkString(person.password.get, personFound.encryptedPassword.get)) {
-            Some(personFound)
+  def authenticate(login: String, password: String)(implicit messages: Messages): Future[Option[Person]] = {
+    val personSearch = Person()
+    personSearch.login = Some(login)
+    personSearch.email = Some(login)
+    val personWithLoginOption = Await.result(personServices.searchPersonWithLogin(personSearch), Duration.Inf)
+    if (personWithLoginOption.isDefined) {
+      val personWithLoginFound = personWithLoginOption.get
+      if (personWithLoginFound.encryptedPassword.isDefined && SecurityUtil.checkString(password, personWithLoginFound.encryptedPassword.get)) {
+        return Future(personWithLoginOption)
+      }
+    } else {
+      val futurePerson = personServices.searchPersonWithEmail(personSearch)
+      Logger.info(futurePerson.toString())
+      return futurePerson.map(personWithEmailOption => {
+        if (personWithEmailOption.isDefined) {
+          val personWithEmail = personWithEmailOption.get
+          if (personWithEmail.encryptedPassword.isDefined && SecurityUtil.checkString(password, personWithEmail.encryptedPassword.get)) {
+            personWithEmailOption
           } else {
             throw new PasswordNotRecognizedException
           }
         } else {
-          throw new PasswordNotRecognizedException
+          None
         }
       })
     }
-
-    if (person.login.isDefined) {
-      handlePersonReturn(personServices.searchPersonWithLogin(person))
-    } else if (person.email.isDefined) {
-      handlePersonReturn(personServices.searchPersonWithEmail(person))
-    } else {
-      Future(None)
-    }
+    Future(None)
   }
 
   def resetPassword(person: Person)(implicit messages: Messages): Future[Boolean] = {

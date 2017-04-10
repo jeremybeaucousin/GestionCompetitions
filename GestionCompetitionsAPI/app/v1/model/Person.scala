@@ -7,6 +7,8 @@ import org.joda.time.DateTime
 import v1.constantes.MessageConstants
 import v1.constantes.ValidationConstants
 import play.Logger
+import v1.model.MapToBsonFormatter.MapWriter
+import v1.model.MapToBsonFormatter.MapReader
 
 case class Person(
     var _id: Option[String] = None,
@@ -155,44 +157,10 @@ object Person {
   }
 
   import reactivemongo.bson._
-
-  case class PersonWriter() extends BSONDocumentWriter[Person] {
-    def write(person: Person): BSONDocument = {
-      PersonWriter.write(person)
-    }
-  }
-
-  case class PersonReader() extends BSONDocumentReader[Person] {
-    def read(bson: BSONDocument): Person = {
-      PersonReader.read(bson)
-    }
-  }
-
   
-  // TODO TO externalize
-  implicit object MapWriter extends BSONDocumentWriter[Map[String, String]] {
-    def write(map: Map[String, String]): BSONDocument = {
-      var bson = BSONDocument()
-      map.foreach(tuple2 => {
-        bson ++= (tuple2._1 -> tuple2._2)
-      })
-      bson
-    }
-  }
-
-    // TODO TO externalize
-  implicit object MapReader extends BSONDocumentReader[Map[String, String]] {
-    def read(bson: BSONDocument): Map[String, String] = {
-      val map = scala.collection.mutable.Map[String, String]()
-      bson.elements.foreach(element => {
-        if (element._2.isInstanceOf[BSONString]) {
-          val stringValue = element._2.asInstanceOf[BSONString]
-          map += (element._1.toString() -> stringValue.value)
-        }
-      })
-      map.toMap
-    }
-  }
+  implicit val mapWriter = MapWriter
+  
+  implicit val mapReader = MapReader
 
   /**
    * Convert a Person into a Bson for MongoDb, only the encrypted password is stored

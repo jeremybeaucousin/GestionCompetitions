@@ -24,6 +24,9 @@ import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 import v1.services.MailServices
 import v1.services.PersonServices
+import play.api.libs.json._
+import play.api.libs.json.Reads._
+import play.api.libs.functional.syntax._
 
 class AuthenticationController @Inject() (
   val documentationServices: DocumentationServices,
@@ -79,24 +82,31 @@ class AuthenticationController @Inject() (
   def signin = Action.async(BodyParsers.parse.json) { implicit request =>
     val apiKeyOpt = request.headers.get(HttpConstants.headerFields.xApiKey)
     if (apiKeyOpt.isDefined && ApiToken.apiKeysExists(apiKeyOpt.get)) {
-      val person = request.body.as[Person]
-      // TODO think about sending login and email in a generic field
-      val futurePerson = authenticationServices.authenticate(person)
-      val personFound = Await.result(futurePerson, Duration.Inf)
-      if (personFound.isDefined && personFound.get._id.isDefined) {
-        val futureApiToken = ApiToken.create(apiKeyOpt.get, personFound.get._id.get)
-        futureApiToken.map(apiToken => {
-          if (apiToken != null) {
-            Ok(
-              Json.obj(
-                ApiToken.TOKEN_FIELD -> apiToken.token,
-                ApiToken.DURATION_FIELD -> ApiToken.API_TOKEN_DURATION))
-          } else {
-            Unauthorized
-          }
-        })
+      val signInReads: Reads[Tuple2[String, String]] = (
+        (JsPath \ Person.LOGIN).read[String] and
+        (JsPath \ Person.PASSWORD).read[String]).apply((login, password) => (login, password))
+      val signInInputs = signInReads.reads(request.body).asOpt
+      if (signInInputs.isDefined) {
+        val futurePerson = authenticationServices.authenticate(signInInputs.get._1, signInInputs.get._2)
+        val personFound = Await.result(futurePerson, Duration.Inf)
+        if (personFound.isDefined && personFound.get._id.isDefined) {
+          val futureApiToken = ApiToken.create(apiKeyOpt.get, personFound.get._id.get)
+          futureApiToken.map(apiToken => {
+            if (apiToken != null) {
+              Ok(
+                Json.obj(
+                  ApiToken.TOKEN_FIELD -> apiToken.token,
+                  ApiToken.DURATION_FIELD -> ApiToken.API_TOKEN_DURATION))
+            } else {
+              Unauthorized
+            }
+          })
+        } else {
+          Future(Unauthorized)
+        }
+
       } else {
-        Future(null)
+        Future(UnprocessableEntity)
       }
 
     } else {

@@ -333,13 +333,13 @@ class DocumentationServices @Inject() (
         parameters
       }
 
-      val signInpersonJson = Json.obj(
-        Person.EMAIL -> StringUtils.EMPTY,
+      val signInPersonJson = Json.obj(
+        Person.LOGIN -> StringUtils.EMPTY,
         Person.PASSWORD -> StringUtils.EMPTY)
 
       val signInRequest = RequestContents()
       signInRequest.headers = Some(getSignInParameters)
-      signInRequest.body = Some(signInpersonJson)
+      signInRequest.body = Some(signInPersonJson)
       signInOperation.request = Some(signInRequest)
 
       val jsonResponse = Json.obj(

@@ -28,25 +28,29 @@ class PersonServices @Inject() (val personDAO: PersonDAO)(implicit val ec: Execu
   }
 
   def searchPersonWithEmail(person: Person): Future[Option[Person]] = {
-    val personWithEmainOnly = Person()
-    personWithEmainOnly.email = person.email
-    var futurePersons = personDAO.searchPersons(Some(personWithEmainOnly), None, None, None, None, None)
-    futurePersons.map(personsWithSameEmail => {
-      personsWithSameEmail.find(personWithSameEmail => personWithSameEmail.email.get.equals(person.email.get))
-    })
+    if (person.email.isDefined) {
+      val personWithEmainOnly = Person()
+      personWithEmainOnly.email = person.email
+      var futurePersons = personDAO.searchPersons(Some(personWithEmainOnly), None, None, None, None, None)
+      futurePersons.map(personsWithSameEmail => {
+        personsWithSameEmail.find(personWithSameEmail => personWithSameEmail.email.get.equals(person.email.get))
+      })
+    } else {
+      Future(None)
+    }
   }
 
   def searchPersonWithLogin(person: Person): Future[Option[Person]] = {
-    val personWithLoginOnly = Person()
-    personWithLoginOnly.login = person.login
-    var futurePersons = personDAO.searchPersons(Some(personWithLoginOnly), None, None, None, None, None)
-    futurePersons.map(personsWithSameLogin => {
-      if (!personsWithSameLogin.isEmpty) {
+    if (person.login.isDefined) {
+      val personWithLoginOnly = Person()
+      personWithLoginOnly.login = person.login
+      var futurePersons = personDAO.searchPersons(Some(personWithLoginOnly), None, None, None, None, None)
+      futurePersons.map(personsWithSameLogin => {
         personsWithSameLogin.find(personWithSameLogin => personWithSameLogin.login.get.equals(person.login.get))
-      } else {
-        None
-      }
-    })
+      })
+    } else {
+      Future(None)
+    }
   }
 
   def getPerson(id: String, fieldsOption: Option[Seq[String]]): Future[Option[Person]] = {
