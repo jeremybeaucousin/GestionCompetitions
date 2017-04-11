@@ -91,6 +91,23 @@ object Person {
   final val ADDRESSES: String = "addresses"
   final val PHONE_NUMBERS = "phoneNumbers"
 
+  private val phoneNumbersReads: Reads[Map[String, String]] = new Reads[Map[String, String]] {
+    override def reads(json: JsValue): JsResult[Map[String, String]] = {
+      def phoneReads(key: String): Reads[String] = (JsPath \ key).read[String](pattern(ValidationConstants.regex.PHONE_NUMBER, MessageConstants.error.phoneNumber))
+      val jsonObject = json.asInstanceOf[JsObject]
+      val map = scala.collection.mutable.Map[String, String]()
+      jsonObject.fields.foreach(element => {
+        val key = element._1
+        val phoneNumberResult: JsResult[String] = json.validate[String](phoneReads(key))
+        phoneNumberResult match {
+          case value: JsSuccess[String] => map += (key -> value.get)
+          case error: JsError           => return error
+        }
+      })
+      JsSuccess(map.toMap[String, String])
+    }
+  }
+
   /**
    * Convert a json into a Person, extract empty values when we this is informations that clients do not have to have
    * @return
@@ -109,7 +126,7 @@ object Person {
     (JsPath \ StringUtils.EMPTY).readNullable[String] and // ENCRYPTED_PASSWORD
     (JsPath \ DISPLAY_CONTACTS).readNullable[Boolean] and
     (JsPath \ ADDRESSES).readNullable[List[Address]] and
-    (JsPath \ PHONE_NUMBERS).readNullable[Map[String, String]])(Person.apply _)
+    (JsPath \ PHONE_NUMBERS).readNullable[Map[String, String]](phoneNumbersReads))(Person.apply _)
 
   /**
    * Convert a Person into a json, some informations are not send back to the clients
@@ -157,9 +174,9 @@ object Person {
   }
 
   import reactivemongo.bson._
-  
+
   implicit val mapWriter = MapWriter
-  
+
   implicit val mapReader = MapReader
 
   /**

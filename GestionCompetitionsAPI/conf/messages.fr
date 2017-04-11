@@ -88,5 +88,6 @@ documentation.authentication.changePasswordDescription=Permet de changer le mot 
 #Some not defined in french (Json Validation)
 error.minLength=La longueur minimum est de {0}
 error.email=Une addresse mail valide est requise
-error.password=Une mot de passe valide est requis entre 8 et 15 caractères
+error.password=Un mot de passe valide est requis entre 8 et 15 caractères
+error.phoneNumber=Un numéro de téléphone valide est requis
 error.postalCode=Un code postal valide est requis

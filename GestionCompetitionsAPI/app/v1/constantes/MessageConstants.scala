@@ -17,6 +17,7 @@ final object MessageConstants {
     private final val SAME_NAMES_HOMONYM: String = "sameNamesHomonym"
     private final val SAME_NAMES_AND_BIRTH_HOMONYM: String = "sameNamesAndbirthDateHomonym"
     private final val PASSWORD: String = "password"
+    private final val PHONE_NUMBER: String = "phoneNumber"
     private final val POSTALCODE: String = "postalCode"
     private final val EMAIL_ALREADY_REGISTERED: String = "emailAlreadyRegistered"
     private final val FIRST_NAME_AND_LAST_NAME_REQUIRED: String = "firstNameAndLastNameRequired"
@@ -37,6 +38,7 @@ final object MessageConstants {
     def sameNamesAndbirthDateHomonym: String = PREFIX + SAME_NAMES_AND_BIRTH_HOMONYM
     def emailAlreadyRegistered: String = PREFIX + EMAIL_ALREADY_REGISTERED
     def password: String = PREFIX + PASSWORD
+    def phoneNumber: String = PREFIX + PHONE_NUMBER
     def postalCode: String = PREFIX + POSTALCODE
     def firstNameAndLastNameRequired: String = PREFIX + FIRST_NAME_AND_LAST_NAME_REQUIRED
     def loginCannotBeSet: String = PREFIX + LOGIN_CANNOT_BE_SET

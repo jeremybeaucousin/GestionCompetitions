@@ -88,4 +88,5 @@ documentation.authentication.changePasswordDescription=Allow the password to be 
 
 #Some not defined in french (Json Validation)
 error.password=A valid password is required between 8 and 15 characters
+error.phoneNumber=A valid phone number is required
 error.postalCode=A valid postal code is required
