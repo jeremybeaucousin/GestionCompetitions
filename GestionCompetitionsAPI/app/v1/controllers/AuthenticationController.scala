@@ -29,14 +29,76 @@ import play.api.libs.json.Reads._
 import play.api.libs.functional.syntax._
 import v1.errors.EmailPasswordLoginRequired
 import v1.errors.LoginOrEmailAndPasswordRequiredException
+import play.api.libs.oauth.OAuthCalculator
+import play.api.libs.ws.WSClient
 
 class AuthenticationController @Inject() (
   val documentationServices: DocumentationServices,
   val authenticationServices: AuthenticationServices,
   val mailServices: MailServices,
+  val wsClient: WSClient,
   val messagesApi: MessagesApi)
-    extends Controller with I18nSupport with Secured {
+    extends Controller with I18nSupport with Secured with SecuredOAuth {
 
+  // TODO exemple
+  def timeline = Action.async { implicit request =>
+    sessionTokenPair match {
+      case Some(credentials) => {
+        wsClient.url("https://api.twitter.com/1.1/statuses/home_timeline.json")
+          .sign(OAuthCalculator(KEY, credentials))
+          .get
+          .map(result => Ok(result.json))
+      }
+      case _ => Future.successful(Redirect(routes.AuthenticationController.signin()))
+    }
+  }
+
+  // TODO To implement
+  def signin2 = Action.async(BodyParsers.parse.json) { implicit request =>
+
+    sessionTokenPair match {
+      case Some(credentials) => {
+        wsClient.url("https://api.twitter.com/1.1/statuses/home_timeline.json")
+          .sign(OAuthCalculator(KEY, credentials))
+          .get
+          .map(result => Ok(result.json))
+      }
+      case _ => Future.successful(Redirect(routes.AuthenticationController.signin()))
+    }
+    
+    val apiKeyOpt = request.headers.get(HttpConstants.headerFields.xApiKey)
+    if (apiKeyOpt.isDefined && ApiToken.apiKeysExists(apiKeyOpt.get)) {
+      val signInReads: Reads[Tuple2[String, String]] = (
+        (JsPath \ Person.LOGIN).read[String] and
+        (JsPath \ Person.PASSWORD).read[String]).apply((login, password) => (login, password))
+      val signInInputs = signInReads.reads(request.body).asOpt
+      if (signInInputs.isDefined) {
+        val futurePerson = authenticationServices.authenticate(signInInputs.get._1, signInInputs.get._2)
+        val personFound = Await.result(futurePerson, Duration.Inf)
+        if (personFound.isDefined && personFound.get._id.isDefined) {
+          val futureApiToken = ApiToken.create(apiKeyOpt.get, personFound.get._id.get)
+          futureApiToken.map(apiToken => {
+            if (apiToken != null) {
+              Ok(
+                Json.obj(
+                  ApiToken.TOKEN_FIELD -> apiToken.token,
+                  ApiToken.DURATION_FIELD -> ApiToken.API_TOKEN_DURATION))
+            } else {
+              Unauthorized
+            }
+          })
+        } else {
+          Future(Unauthorized)
+        }
+
+      } else {
+        throw new LoginOrEmailAndPasswordRequiredException
+      }
+
+    } else {
+      Future(Unauthorized)
+    }
+  }
   def index = Action.async { implicit request =>
     val rootUrl: String = routes.AuthenticationController.index.url
     val title: String = messagesApi(MessageConstants.title.documentation, rootUrl)

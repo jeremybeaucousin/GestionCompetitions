@@ -1,6 +1,7 @@
 package v1.controllers
 
 import play.api.mvc._
+import play.api.mvc.Results._
 import v1.model.Person
 import v1.constantes.HttpConstants
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
@@ -20,34 +21,35 @@ trait Secured {
     if (apiTokenOpt.isDefined) {
       routes.AuthenticationController.signout()
     }
-    Results.Unauthorized
+    Unauthorized
   }
 
   def withToken(apiToken: => ApiToken => Request[AnyContent] => Future[Result]): Action[AnyContent] = {
-    Logger.info("withToken()")
     withToken(BodyParsers.parse.default)(apiToken)
   }
 
   def withToken[A](bodyParser: BodyParser[A])(apiToken: => ApiToken => Request[A] => Future[Result]) = {
-    Action.async(bodyParser)(request => {
-      Logger.info("withToken(bodyParser)")
-      val apiKeyOption = (apiKeyOpt(request))
-      val authTokenOption = (authTokenOpt(request))
-      if (apiKeyOption.isDefined && ApiToken.apiKeysExists(apiKeyOption.get) && authTokenOption.isDefined) {
-        val futureApiToken = ApiToken.findByTokenAndApiKey(authTokenOption.get, apiKeyOption.get)
-        val apiTokenOpt = Await.result(futureApiToken, Duration.Inf)
-        if (apiTokenOpt.isDefined && !apiTokenOpt.get.isExpired) {
-          val apiTokenFound = apiTokenOpt.get
-          val futureNewApiToken = ApiToken.create(apiTokenFound.apiKey, apiTokenFound.userId)
-          val newApiToken = Await.result(futureApiToken, Duration.Inf)
-          (apiToken(newApiToken.get)(request))
-        } else {
-          Future(onUnauthorized(request, apiTokenOpt))
-        }
+    Action.async(bodyParser) { request =>
+      {
+        Logger.info("withToken(bodyParser)")
+        val apiKeyOption = (apiKeyOpt(request))
+        val authTokenOption = (authTokenOpt(request))
+        if (apiKeyOption.isDefined && ApiToken.apiKeysExists(apiKeyOption.get) && authTokenOption.isDefined) {
+          val futureApiToken = ApiToken.findByTokenAndApiKey(authTokenOption.get, apiKeyOption.get)
+          val apiTokenOpt = Await.result(futureApiToken, Duration.Inf)
+          if (apiTokenOpt.isDefined && !apiTokenOpt.get.isExpired) {
+            val apiTokenFound = apiTokenOpt.get
+            val futureNewApiToken = ApiToken.create(apiTokenFound.apiKey, apiTokenFound.userId)
+            val newApiToken = Await.result(futureApiToken, Duration.Inf)
+            apiToken(newApiToken.get)(request)
+          } else {
+            Future(onUnauthorized(request, apiTokenOpt))
+          }
 
-      } else {
-        Future(onUnauthorized(request, None))
+        } else {
+          Future(onUnauthorized(request, None))
+        }
       }
-    })
+    }
   }
 }

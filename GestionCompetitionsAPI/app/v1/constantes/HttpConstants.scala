@@ -7,6 +7,11 @@ final object HttpConstants {
     final val offset: String = "offset"
     final val limit: String = "limit"
   }
+  
+  final object SessionFields{
+    final val TOKEN = "token"
+    final val SECRET = "secret"
+  }
 
   final object HeaderFields {
     final val xApiKey = "X-Api-Key"
