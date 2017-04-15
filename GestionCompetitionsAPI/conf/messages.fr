@@ -73,6 +73,13 @@ documentation.person.addresse.getAddressDescription=Retourne l''addresse avec l'
 documentation.person.addresse.editAddressDescription=Met à jour l''addresse avec l''index renseigné dans les paramètres
 documentation.person.addresse.deleteAddressDescription=Supprime l''addresse avec l''index renseigné dans les paramètres
 
+#Persons phone
+documentation.person.addresse.listPhonesDescription=Retourne les numéros de téléphone enregistrées en base de données avec l''identifiant de la personne renseigné en paramètres
+documentation.person.addresse.addPhoneDescription=Ajoute un nouveau numéro de téléphone à la base de données
+documentation.person.addresse.getPhoneDescription=Retourne le nouveau numéro de téléphone avec la clé renseigné dans les paramètres
+documentation.person.addresse.editPhoneDescription=Met à jour le nouveau numéro de téléphone renseigné dans les paramètres
+documentation.person.addresse.deletePhoneDescription=Supprime le nouveau numéro de téléphone avec la clé renseigné dans les paramètres
+
 #Authentication
 documentation.authentication.signInDescription=Permet à un utilisateur de s'authentifier sur le serveur avec son identifiant ou son addresse email
 documentation.authentication.signOutDescription=Permet à l''utilisateur de se déconnecter du serveur

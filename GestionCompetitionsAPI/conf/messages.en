@@ -73,6 +73,13 @@ documentation.person.addresse.getAddressDescription=Return the address with the 
 documentation.person.addresse.editAddressDescription=Update the address with the index set in parameters 
 documentation.person.addresse.deleteAddressDescription=Delete the address with the index set in parameters
 
+#Persons phone
+documentation.person.phonee.listPhonesDescription=Return the phones numbers of the person identifier set in parameters
+documentation.person.phonee.addPhoneDescription=Add a new phone number for the person to the database
+documentation.person.phonee.getPhoneDescription=Return the phone number with the key set in parameters
+documentation.person.phonee.editPhoneDescription=Update the phone number with the key set in parameters 
+documentation.person.phonee.deletePhoneDescription=Delete the phone number with the key set in parameters
+
 #Authentication
 documentation.authentication.signInDescription=Allow to a user to authenticate on the server with is login or his email address
 documentation.authentication.signOutDescription=Allow to a user to disconnect from the server

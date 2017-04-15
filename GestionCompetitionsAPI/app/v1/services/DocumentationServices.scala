@@ -34,6 +34,13 @@ class DocumentationServices @Inject() (
   final val jsonAddressExemple = (Json.toJson(addressExemple))
   final val addressesExemple = List[Address](addressExemple, addressExemple)
   final val jsonAddressesExemple = (Json.toJson(addressesExemple))
+
+  final val phoneHomeKeyExemple = "Home" 
+  final val phoneExemple = (phoneHomeKeyExemple -> "0123456789")
+  final val jsonPhoneExemple = Json.obj(phoneExemple._1 -> phoneExemple._2)
+  final val phonesExemple = Map[String, String](phoneExemple, phoneExemple)
+  final val jsonPhonesExemple = Json.toJson(phonesExemple)
+
   final val emailExemple = "nom.prenom@domaine.fr"
   final val personCompleteExemple = new Person(
     Some(StringUtils.EMPTY), // _ID
@@ -48,7 +55,7 @@ class DocumentationServices @Inject() (
     Some(StringUtils.EMPTY), // PASSWORD
     Some(StringUtils.EMPTY), // ENCRYPTED_PASSWORD
     Some(true), // DISPLAY_CONTACTS
-    Some(addressesExemple),  // ADDRESSES
+    Some(addressesExemple), // ADDRESSES
     Some(Map[String, String]()))
 
   final val jsonPersonCompleteExemple = (Json.toJson(personCompleteExemple))
@@ -688,4 +695,138 @@ class DocumentationServices @Inject() (
 
     availableOperations
   }
+
+  def getPersonPhonesOperations(implicit messages: Messages): Seq[Operation] = {
+    var availableOperations: Seq[Operation] = Seq[Operation]()
+
+    def getListPhoneesOperation = {
+      val listPhoneesOperation = Operation()
+      listPhoneesOperation.call = Some(routes.PhoneController.index(_idExemple))
+      listPhoneesOperation.description = Some(messages(MessageConstants.documentation.person.phone.listPhonesDescription))
+
+      val listPhoneesResponse = RequestContents()
+      listPhoneesResponse.body = Some(jsonPhonesExemple)
+      listPhoneesOperation.response = Some(listPhoneesResponse)
+
+      def listPhoneesPersonsCodes: Map[String, String] = {
+        var codes: Map[String, String] = Map[String, String]()
+        codes += (Http.Status.OK.toString() -> messages(MessageConstants.http.ok))
+        codes += (Http.Status.FORBIDDEN.toString() -> messages(MessageConstants.http.forbidden))
+        codes
+      }
+
+      listPhoneesOperation.codes = Some(listPhoneesPersonsCodes)
+      listPhoneesOperation
+    }
+    availableOperations :+= getListPhoneesOperation
+
+    def getAddPhoneOperation = {
+      val addPhoneOperation = Operation()
+      addPhoneOperation.call = Some(routes.PhoneController.addPhone(_idExemple))
+      addPhoneOperation.description = Some(messages(MessageConstants.documentation.person.phone.addPhoneDescription))
+
+      val listPhoneesRequest = RequestContents()
+      listPhoneesRequest.body = Some(jsonPhoneExemple)
+      addPhoneOperation.request = Some(listPhoneesRequest)
+
+      def addPhoneCodes: Map[String, String] = {
+        var codes: Map[String, String] = Map[String, String]()
+        codes += (Http.Status.OK.toString() -> messages(MessageConstants.http.ok))
+        codes += (Http.Status.FORBIDDEN.toString() -> messages(MessageConstants.http.forbidden))
+        codes
+      }
+
+      addPhoneOperation.codes = Some(addPhoneCodes)
+      addPhoneOperation
+    }
+    availableOperations :+= getAddPhoneOperation
+
+    def getGetPhoneOperation = {
+      val getPhoneOperation = Operation()
+      getPhoneOperation.call = Some(routes.PhoneController.getPhone(_idExemple, indexExemple))
+      getPhoneOperation.description = Some(messages(MessageConstants.documentation.person.phone.getPhoneDescription))
+
+      def getPhoneOperationRequestParameters: Map[String, String] = {
+        var parameters: Map[String, String] = Map[String, String]()
+        parameters += (MongoDbUtil.INDEX -> messages(MessageConstants.documentation.common.arrayIndexDescription))
+        parameters
+      }
+
+      val getPhoneRequest = RequestContents()
+      getPhoneRequest.parameters = Some(getPhoneOperationRequestParameters)
+      getPhoneOperation.request = Some(getPhoneRequest)
+
+      val getPhoneResponse = RequestContents()
+      getPhoneResponse.body = Some(jsonPhoneExemple)
+      getPhoneOperation.response = Some(getPhoneResponse)
+
+      def getPhoneCodes: Map[String, String] = {
+        var codes: Map[String, String] = Map[String, String]()
+        codes += (Http.Status.OK.toString() -> messages(MessageConstants.http.ok))
+        codes += (Http.Status.FORBIDDEN.toString() -> messages(MessageConstants.http.forbidden))
+        codes
+      }
+      getPhoneOperation.codes = Some(getPhoneCodes)
+      getPhoneOperation
+    }
+    availableOperations :+= getGetPhoneOperation
+
+    def getEditPhoneOperation = {
+      val editPhoneOperation = Operation()
+      editPhoneOperation.call = Some(routes.PhoneController.editPhone(_idExemple, indexExemple))
+      editPhoneOperation.description = Some(messages(MessageConstants.documentation.person.phone.editPhoneDescription))
+
+      def editPhoneOperationRequestParameters: Map[String, String] = {
+        var parameters: Map[String, String] = Map[String, String]()
+        parameters += (MongoDbUtil.INDEX -> messages(MessageConstants.documentation.common.arrayIndexDescription))
+        parameters
+      }
+
+      val editPhoneRequest = RequestContents()
+      editPhoneRequest.parameters = Some(editPhoneOperationRequestParameters)
+      editPhoneRequest.body = Some(jsonPhoneExemple)
+      editPhoneOperation.request = Some(editPhoneRequest)
+
+      def editPhoneCodes: Map[String, String] = {
+        var codes: Map[String, String] = Map[String, String]()
+        codes += (Http.Status.OK.toString() -> messages(MessageConstants.http.ok))
+        codes += (Http.Status.UNPROCESSABLE_ENTITY.toString() -> messages(MessageConstants.http.unprocessableEntity))
+        codes += (Http.Status.FORBIDDEN.toString() -> messages(MessageConstants.http.forbidden))
+        codes
+      }
+      editPhoneOperation.codes = Some(editPhoneCodes)
+      editPhoneOperation
+    }
+    availableOperations :+= getEditPhoneOperation
+
+    def getDeletePhoneOperation = {
+      val deletePhoneOperation = Operation()
+      deletePhoneOperation.call = Some(routes.PhoneController.deletePhone(_idExemple, indexExemple))
+      deletePhoneOperation.description = Some(messages(MessageConstants.documentation.person.phone.deletePhoneDescription))
+
+      def deletePhoneOperationRequestParameters: Map[String, String] = {
+        var parameters: Map[String, String] = Map[String, String]()
+        parameters += (MongoDbUtil.INDEX -> messages(MessageConstants.documentation.common.arrayIndexDescription))
+        parameters
+      }
+
+      val deletePhoneRequest = RequestContents()
+      deletePhoneRequest.parameters = Some(deletePhoneOperationRequestParameters)
+      deletePhoneOperation.request = Some(deletePhoneRequest)
+
+      def deletePhoneCodes: Map[String, String] = {
+        var codes: Map[String, String] = Map[String, String]()
+        codes += (Http.Status.OK.toString() -> messages(MessageConstants.http.ok))
+        codes += (Http.Status.FORBIDDEN.toString() -> messages(MessageConstants.http.forbidden))
+        codes += (Http.Status.NOT_FOUND.toString() -> messages(MessageConstants.http.notFound))
+        codes
+      }
+      deletePhoneOperation.codes = Some(deletePhoneCodes)
+      deletePhoneOperation
+    }
+    availableOperations :+= getDeletePhoneOperation
+
+    availableOperations
+  }
+
 }

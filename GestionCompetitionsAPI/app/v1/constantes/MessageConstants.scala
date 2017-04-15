@@ -165,6 +165,22 @@ final object MessageConstants {
         def deleteAddressDescription: String = PREFIX + DELETE_ADDRESS_DESCRIPTION
       }
       final val address = Address
+      
+            final object Phone {
+        private final val PREFIX = Person.PREFIX + "phonee."
+        private final val LIST_PHONES_DESCRIPTION = "listPhonesDescription"
+        private final val ADD_PHONE_DESCRIPTION = "addPhoneDescription"
+        private final val GET_PHONE_DESCRIPTION = "getPhoneDescription"
+        private final val EDIT_PHONE_DESCRIPTION = "editPhoneDescription"
+        private final val DELETE_PHONE_DESCRIPTION = "deletePhoneDescription"
+
+        def listPhonesDescription: String = PREFIX + LIST_PHONES_DESCRIPTION
+        def addPhoneDescription: String = PREFIX + ADD_PHONE_DESCRIPTION
+        def getPhoneDescription: String = PREFIX + GET_PHONE_DESCRIPTION
+        def editPhoneDescription: String = PREFIX + EDIT_PHONE_DESCRIPTION
+        def deletePhoneDescription: String = PREFIX + DELETE_PHONE_DESCRIPTION
+      }
+      final val phone = Phone
     }
 
     final object Authentication {

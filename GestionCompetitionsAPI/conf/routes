@@ -31,3 +31,12 @@ POST	/v1/persons/:id/addresses						v1.controllers.AddressController.addAddress(
 GET		/v1/persons/:id/addresses/:index				v1.controllers.AddressController.getAddress(id: String, index: String)
 PUT 	/v1/persons/:id/addresses/:index				v1.controllers.AddressController.editAddress(id: String, index: String)
 DELETE	/v1/persons/:id/addresses/:index				v1.controllers.AddressController.deleteAddress(id: String, index: String)
+
+# Phones
+GET		/v1/persons/:id/phones							v1.controllers.PhoneController.index(id: String)
+GET		/v1/persons/:id/phones							v1.controllers.PhoneController.listPhones(id: String)
+POST	/v1/persons/:id/phones							v1.controllers.PhoneController.addPhone(id: String)
+GET		/v1/persons/:id/phones/:key						v1.controllers.PhoneController.getPhone(id: String, key: String)
+PUT 	/v1/persons/:id/phones/:key						v1.controllers.PhoneController.editPhone(id: String, key: String)
+DELETE	/v1/persons/:id/phones/:key						v1.controllers.PhoneController.deletePhone(id: String, key: String)
+
