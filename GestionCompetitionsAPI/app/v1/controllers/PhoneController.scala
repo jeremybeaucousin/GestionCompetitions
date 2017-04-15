@@ -26,7 +26,7 @@ class PhoneController @Inject() (
   def index(id: String) = Action.async { implicit request =>
     val rootUrl: String = routes.PhoneController.index(MongoDbUtil._ID).url
     val title: String = messagesApi(MessageConstants.title.documentation, rootUrl)
-    val availableOperations: Seq[Operation] = documentationServices.getPersonAddressesOperations
+    val availableOperations: Seq[Operation] = documentationServices.getPersonPhonesOperations
     Future.successful(Ok(v1.views.html.documentation(title, availableOperations)))
   }
 
