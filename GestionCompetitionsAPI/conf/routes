@@ -25,18 +25,16 @@ PUT 	/v1/persons/:id									v1.controllers.PersonController.editPerson(id: Stri
 DELETE	/v1/persons/:id									v1.controllers.PersonController.deletePerson(id: String)
 
 # Addresses
-GET		/v1/persons/:id/addresses						v1.controllers.AddressController.index(id: String)
-GET		/v1/persons/:id/addresses						v1.controllers.AddressController.listAddresses(id: String)
-POST	/v1/persons/:id/addresses						v1.controllers.AddressController.addAddress(id: String)
-GET		/v1/persons/:id/addresses/:index				v1.controllers.AddressController.getAddress(id: String, index: String)
-PUT 	/v1/persons/:id/addresses/:index				v1.controllers.AddressController.editAddress(id: String, index: String)
-DELETE	/v1/persons/:id/addresses/:index				v1.controllers.AddressController.deleteAddress(id: String, index: String)
+GET		/v1/persons/:userId/addresses					v1.controllers.AddressController.index(userId: String, sort: Option[Seq[String]], fields: Option[Seq[String]])
+GET		/v1/persons/:userId/addresses/:index			v1.controllers.AddressController.getAddress(userId: String, index: Int, fields: Option[Seq[String]])
+POST	/v1/persons/:userId/addresses					v1.controllers.AddressController.addAddress(userId: String)
+PUT 	/v1/persons/:userId/addresses/:index			v1.controllers.AddressController.editAddress(userId: String, index: Int)
+DELETE	/v1/persons/:userId/addresses/:index			v1.controllers.AddressController.deleteAddress(userId: String, index: Int)
 
 # Phones
-GET		/v1/persons/:id/phones							v1.controllers.PhoneController.index(id: String)
-GET		/v1/persons/:id/phones							v1.controllers.PhoneController.listPhones(id: String)
-POST	/v1/persons/:id/phones							v1.controllers.PhoneController.addPhone(id: String)
-GET		/v1/persons/:id/phones/:key						v1.controllers.PhoneController.getPhone(id: String, key: String)
-PUT 	/v1/persons/:id/phones/:key						v1.controllers.PhoneController.editPhone(id: String, key: String)
-DELETE	/v1/persons/:id/phones/:key						v1.controllers.PhoneController.deletePhone(id: String, key: String)
+GET		/v1/persons/:userId/phones						v1.controllers.PhoneController.index(userId: String)
+GET		/v1/persons/:userId/phones/:key					v1.controllers.PhoneController.getPhone(userId: String, key: String)
+POST	/v1/persons/:userId/phones						v1.controllers.PhoneController.addPhone(userId: String)
+PUT 	/v1/persons/:userId/phones/:key					v1.controllers.PhoneController.editPhone(userId: String, key: String)
+DELETE	/v1/persons/:userId/phones/:key					v1.controllers.PhoneController.deletePhone(userId: String, key: String)
 

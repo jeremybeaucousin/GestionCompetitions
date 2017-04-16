@@ -16,6 +16,8 @@ import v1.model.Operation
 import play.Logger
 import org.apache.commons.lang3.StringUtils
 import v1.utils.MongoDbUtil
+import play.api.libs.json.Json
+import v1.constantes.HttpConstants
 
 class AddressController @Inject() (
   val documentationServices: DocumentationServices,
@@ -23,31 +25,71 @@ class AddressController @Inject() (
   val messagesApi: MessagesApi)
     extends Controller with I18nSupport with Secured {
 
-  def index(id: String) = Action.async { implicit request =>
-    val rootUrl: String = routes.AddressController.index(MongoDbUtil._ID).url
+  def index(userId: String, sort: Option[Seq[String]], fields: Option[Seq[String]]) = Action.async { implicit request =>
+    val rootUrl: String = routes.AddressController.index(MongoDbUtil._ID, None, None).url
     val title: String = messagesApi(MessageConstants.title.documentation, rootUrl)
     val availableOperations: Seq[Operation] = documentationServices.getPersonAddressesOperations
-    Future.successful(Ok(v1.views.html.documentation(title, availableOperations)))
+    render.async {
+      case Accepts.Html() => Future.successful(Ok(v1.views.html.documentation(title, availableOperations)))
+      case Accepts.Json() => listAddresses(userId, sort, fields).apply(request)
+    }
   }
 
-  def listAddresses(id: String) = Action.async { implicit request =>
-    Future(Ok)
+  def listAddresses(userId: String, sort: Option[Seq[String]], fields: Option[Seq[String]]) = Action.async { implicit request =>
+    val futureAddresses = personServices.addresses.getAddresses(userId, sort, fields)
+    futureAddresses.map(addresses => {
+      if (addresses.isEmpty) {
+        NoContent
+      } else {
+        Ok(Json.toJson(addresses))
+      }
+    })
   }
 
-  def addAddress(id: String) = Action.async { implicit request =>
-    Future(Ok)
+  def getAddress(userId: String, index: Int, fields: Option[Seq[String]]) = Action.async { implicit request =>
+    // TODO Manage returns
+    val futureAddress = personServices.addresses.getAddress(userId, index, fields)
+    futureAddress.map(addressOption => {
+      if (addressOption.isDefined) {
+        Ok(Json.toJson(addressOption))
+      } else {
+        NotFound
+      }
+    })
   }
 
-  def getAddress(id: String, index: String) = Action.async { implicit request =>
-    Future(Ok)
+  def addAddress(userId: String) = Action.async { implicit request =>
+    val futureAddress = personServices.addresses.addAddress(userId)
+    futureAddress.map(indexOption => {
+      if (indexOption.isDefined) {
+        var returnedLocation = HttpConstants.headerFields.location -> (routes.AddressController.getAddress(userId, indexOption.get, None).absoluteURL())
+        Created.withHeaders(returnedLocation)
+      } else {
+        UnprocessableEntity
+      }
+    })
   }
 
-  def editAddress(id: String, index: String) = Action.async { implicit request =>
-    Future(Ok)
+  def editAddress(userId: String, index: Int) = Action.async { implicit request =>
+    val futurBoolean = personServices.addresses.editAddress(userId, index, null)
+    futurBoolean.map { resultsOk =>
+      if (resultsOk) {
+        Ok
+      } else {
+        NotFound
+      }
+    }
   }
 
-  def deleteAddress(id: String, index: String) = Action.async { implicit request =>
-    Future(Ok)
+  def deleteAddress(userId: String, index: Int) = Action.async { implicit request =>
+     val futurBoolean = personServices.addresses.deleteAddress(userId, index)
+    futurBoolean.map { resultsOk =>
+      if (resultsOk) {
+        Ok
+      } else {
+        NotFound
+      }
+    }
   }
 
 }

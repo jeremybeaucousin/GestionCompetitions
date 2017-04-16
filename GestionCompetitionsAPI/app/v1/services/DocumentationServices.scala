@@ -35,7 +35,7 @@ class DocumentationServices @Inject() (
   final val addressesExemple = List[Address](addressExemple, addressExemple)
   final val jsonAddressesExemple = (Json.toJson(addressesExemple))
 
-  final val phoneHomeKeyExemple = "Home" 
+  final val phoneHomeKeyExemple = "Home"
   final val phoneExemple = (phoneHomeKeyExemple -> "0123456789")
   final val jsonPhoneExemple = Json.obj(phoneExemple._1 -> phoneExemple._2)
   final val phonesExemple = Map[String, String](phoneExemple, phoneExemple)
@@ -80,26 +80,26 @@ class DocumentationServices @Inject() (
   final val sortExemple = Seq[String]("+" + Person.FIRST_NAME, "-" + Person.LAST_NAME)
   final val fieldsExemple = Seq[String](Person._ID, Person.FIRST_NAME, Person.LAST_NAME)
   final val encryptedEmailTokenExemple = SecurityUtil.encryptString(SecurityUtil.generateString(10)).replaceAll("/", "")
-  final val indexExemple = "0"
+  final val indexExemple = 0
+
+  def getSortDescription(implicit messages: Messages): (String, String) = {
+    (HttpConstants.queryFields.sort -> messages(MessageConstants.documentation.common.sortDescription))
+  }
+
+  def getFieldsDescription(implicit messages: Messages): (String, String) = {
+    (HttpConstants.queryFields.fields -> messages(MessageConstants.documentation.common.fieldsDescription))
+  }
+
+  def getOffsetDescription(implicit messages: Messages): (String, String) = {
+    (HttpConstants.queryFields.offset -> messages(MessageConstants.documentation.common.offsetDescription))
+  }
+
+  def getLimitDescription(implicit messages: Messages): (String, String) = {
+    (HttpConstants.queryFields.limit -> messages(MessageConstants.documentation.common.limitDescription))
+  }
 
   def getPersonOperations(implicit messages: Messages): Seq[Operation] = {
     var availableOperations: Seq[Operation] = Seq[Operation]()
-
-    def getSortDescription: (String, String) = {
-      (HttpConstants.queryFields.sort -> messages(MessageConstants.documentation.common.sortDescription))
-    }
-
-    def getFieldsDescription: (String, String) = {
-      (HttpConstants.queryFields.fields -> messages(MessageConstants.documentation.common.fieldsDescription))
-    }
-
-    def getOffsetDescription: (String, String) = {
-      (HttpConstants.queryFields.offset -> messages(MessageConstants.documentation.common.offsetDescription))
-    }
-
-    def getLimitDescription: (String, String) = {
-      (HttpConstants.queryFields.limit -> messages(MessageConstants.documentation.common.limitDescription))
-    }
 
     def getListPersonsOperation: Operation = {
       val listPersonsOperation = Operation()
@@ -111,7 +111,7 @@ class DocumentationServices @Inject() (
           Some(0)))
       listPersonsOperation.description = Some(messages(MessageConstants.documentation.person.listPersonsDescription))
 
-      def getGetPersonsRequestParameters: Map[String, String] = {
+      def getListPersonsRequestParameters: Map[String, String] = {
         var parameters: Map[String, String] = Map[String, String]()
         parameters += getSortDescription
         parameters += getFieldsDescription
@@ -121,7 +121,7 @@ class DocumentationServices @Inject() (
       }
 
       val listPersonsRequest = RequestContents()
-      listPersonsRequest.parameters = Some(getGetPersonsRequestParameters)
+      listPersonsRequest.parameters = Some(getListPersonsRequestParameters)
       listPersonsOperation.request = Some(listPersonsRequest)
 
       def getGetPersonsResponseParameters: Map[String, String] = {
@@ -568,8 +568,22 @@ class DocumentationServices @Inject() (
 
     def getListAddressesOperation = {
       val listAddressesOperation = Operation()
-      listAddressesOperation.call = Some(routes.AddressController.index(_idExemple))
+      listAddressesOperation.call = Some(routes.AddressController.index(_idExemple, Some(sortExemple), Some(fieldsExemple)))
       listAddressesOperation.description = Some(messages(MessageConstants.documentation.person.address.listAddressesDescription))
+
+      def getListAddressesRequestParameters: Map[String, String] = {
+        var parameters: Map[String, String] = Map[String, String]()
+        parameters += (Person._ID -> messages(MessageConstants.documentation.person.getPersonIdParameterDescription))
+        parameters += getSortDescription
+        parameters += getFieldsDescription
+        parameters += getOffsetDescription
+        parameters += getLimitDescription
+        parameters
+      }
+
+      val listAddressesRequest = RequestContents()
+      listAddressesRequest.parameters = Some(getListAddressesRequestParameters)
+      listAddressesOperation.request = Some(listAddressesRequest)
 
       val listAddressesResponse = RequestContents()
       listAddressesResponse.body = Some(jsonAddressesExemple)
@@ -587,35 +601,16 @@ class DocumentationServices @Inject() (
     }
     availableOperations :+= getListAddressesOperation
 
-    def getAddAddressOperation = {
-      val addAddressOperation = Operation()
-      addAddressOperation.call = Some(routes.AddressController.addAddress(_idExemple))
-      addAddressOperation.description = Some(messages(MessageConstants.documentation.person.address.addAddressDescription))
-
-      val listAddressesRequest = RequestContents()
-      listAddressesRequest.body = Some(jsonAddressExemple)
-      addAddressOperation.request = Some(listAddressesRequest)
-
-      def addAddressCodes: Map[String, String] = {
-        var codes: Map[String, String] = Map[String, String]()
-        codes += (Http.Status.OK.toString() -> messages(MessageConstants.http.ok))
-        codes += (Http.Status.FORBIDDEN.toString() -> messages(MessageConstants.http.forbidden))
-        codes
-      }
-
-      addAddressOperation.codes = Some(addAddressCodes)
-      addAddressOperation
-    }
-    availableOperations :+= getAddAddressOperation
-
     def getGetAddressOperation = {
       val getAddressOperation = Operation()
-      getAddressOperation.call = Some(routes.AddressController.getAddress(_idExemple, indexExemple))
+      getAddressOperation.call = Some(routes.AddressController.getAddress(_idExemple, indexExemple, Some(fieldsExemple)))
       getAddressOperation.description = Some(messages(MessageConstants.documentation.person.address.getAddressDescription))
 
       def getAddressOperationRequestParameters: Map[String, String] = {
         var parameters: Map[String, String] = Map[String, String]()
+        parameters += (Person._ID -> messages(MessageConstants.documentation.person.getPersonIdParameterDescription))
         parameters += (MongoDbUtil.INDEX -> messages(MessageConstants.documentation.common.arrayIndexDescription))
+        parameters += getFieldsDescription
         parameters
       }
 
@@ -638,6 +633,34 @@ class DocumentationServices @Inject() (
     }
     availableOperations :+= getGetAddressOperation
 
+    def getAddAddressOperation = {
+      val addAddressOperation = Operation()
+      addAddressOperation.call = Some(routes.AddressController.addAddress(_idExemple))
+      addAddressOperation.description = Some(messages(MessageConstants.documentation.person.address.addAddressDescription))
+
+      def getAddAddressRequestParameters: Map[String, String] = {
+        var parameters: Map[String, String] = Map[String, String]()
+        parameters += (Person._ID -> messages(MessageConstants.documentation.person.getPersonIdParameterDescription))
+        parameters
+      }
+
+      val addAddressRequest = RequestContents()
+      addAddressRequest.parameters = Some(getAddAddressRequestParameters)
+      addAddressRequest.body = Some(jsonAddressExemple)
+      addAddressOperation.request = Some(addAddressRequest)
+
+      def addAddressCodes: Map[String, String] = {
+        var codes: Map[String, String] = Map[String, String]()
+        codes += (Http.Status.OK.toString() -> messages(MessageConstants.http.ok))
+        codes += (Http.Status.FORBIDDEN.toString() -> messages(MessageConstants.http.forbidden))
+        codes
+      }
+
+      addAddressOperation.codes = Some(addAddressCodes)
+      addAddressOperation
+    }
+    availableOperations :+= getAddAddressOperation
+
     def getEditAddressOperation = {
       val editAddressOperation = Operation()
       editAddressOperation.call = Some(routes.AddressController.editAddress(_idExemple, indexExemple))
@@ -645,6 +668,7 @@ class DocumentationServices @Inject() (
 
       def editAddressOperationRequestParameters: Map[String, String] = {
         var parameters: Map[String, String] = Map[String, String]()
+        parameters += (Person._ID -> messages(MessageConstants.documentation.person.getPersonIdParameterDescription))
         parameters += (MongoDbUtil.INDEX -> messages(MessageConstants.documentation.common.arrayIndexDescription))
         parameters
       }
@@ -673,6 +697,7 @@ class DocumentationServices @Inject() (
 
       def deleteAddressOperationRequestParameters: Map[String, String] = {
         var parameters: Map[String, String] = Map[String, String]()
+        parameters += (Person._ID -> messages(MessageConstants.documentation.person.getPersonIdParameterDescription))
         parameters += (MongoDbUtil.INDEX -> messages(MessageConstants.documentation.common.arrayIndexDescription))
         parameters
       }
@@ -704,7 +729,18 @@ class DocumentationServices @Inject() (
       listPhoneesOperation.call = Some(routes.PhoneController.index(_idExemple))
       listPhoneesOperation.description = Some(messages(MessageConstants.documentation.person.phone.listPhonesDescription))
 
+      def getListPhonesRequestParameters: Map[String, String] = {
+        var parameters: Map[String, String] = Map[String, String]()
+        parameters += (Person._ID -> messages(MessageConstants.documentation.person.getPersonIdParameterDescription))
+        parameters += getSortDescription
+        parameters += getFieldsDescription
+        parameters += getOffsetDescription
+        parameters += getLimitDescription
+        parameters
+      }
+
       val listPhoneesResponse = RequestContents()
+      listPhoneesResponse.parameters = Some(getListPhonesRequestParameters)
       listPhoneesResponse.body = Some(jsonPhonesExemple)
       listPhoneesOperation.response = Some(listPhoneesResponse)
 
@@ -720,34 +756,14 @@ class DocumentationServices @Inject() (
     }
     availableOperations :+= getListPhoneesOperation
 
-    def getAddPhoneOperation = {
-      val addPhoneOperation = Operation()
-      addPhoneOperation.call = Some(routes.PhoneController.addPhone(_idExemple))
-      addPhoneOperation.description = Some(messages(MessageConstants.documentation.person.phone.addPhoneDescription))
-
-      val listPhoneesRequest = RequestContents()
-      listPhoneesRequest.body = Some(jsonPhoneExemple)
-      addPhoneOperation.request = Some(listPhoneesRequest)
-
-      def addPhoneCodes: Map[String, String] = {
-        var codes: Map[String, String] = Map[String, String]()
-        codes += (Http.Status.OK.toString() -> messages(MessageConstants.http.ok))
-        codes += (Http.Status.FORBIDDEN.toString() -> messages(MessageConstants.http.forbidden))
-        codes
-      }
-
-      addPhoneOperation.codes = Some(addPhoneCodes)
-      addPhoneOperation
-    }
-    availableOperations :+= getAddPhoneOperation
-
     def getGetPhoneOperation = {
       val getPhoneOperation = Operation()
-      getPhoneOperation.call = Some(routes.PhoneController.getPhone(_idExemple, indexExemple))
+      getPhoneOperation.call = Some(routes.PhoneController.getPhone(_idExemple, phoneHomeKeyExemple))
       getPhoneOperation.description = Some(messages(MessageConstants.documentation.person.phone.getPhoneDescription))
 
       def getPhoneOperationRequestParameters: Map[String, String] = {
         var parameters: Map[String, String] = Map[String, String]()
+        parameters += (Person._ID -> messages(MessageConstants.documentation.person.getPersonIdParameterDescription))
         parameters += (MongoDbUtil.INDEX -> messages(MessageConstants.documentation.common.arrayIndexDescription))
         parameters
       }
@@ -771,13 +787,42 @@ class DocumentationServices @Inject() (
     }
     availableOperations :+= getGetPhoneOperation
 
+    def getAddPhoneOperation = {
+      val addPhoneOperation = Operation()
+      addPhoneOperation.call = Some(routes.PhoneController.addPhone(_idExemple))
+      addPhoneOperation.description = Some(messages(MessageConstants.documentation.person.phone.addPhoneDescription))
+
+      def getAddPhoneRequestParameters: Map[String, String] = {
+        var parameters: Map[String, String] = Map[String, String]()
+        parameters += (Person._ID -> messages(MessageConstants.documentation.person.getPersonIdParameterDescription))
+        parameters
+      }
+
+      val addPhoneRequest = RequestContents()
+      addPhoneRequest.parameters = Some(getAddPhoneRequestParameters)
+      addPhoneRequest.body = Some(jsonPhoneExemple)
+      addPhoneOperation.request = Some(addPhoneRequest)
+
+      def addPhoneCodes: Map[String, String] = {
+        var codes: Map[String, String] = Map[String, String]()
+        codes += (Http.Status.OK.toString() -> messages(MessageConstants.http.ok))
+        codes += (Http.Status.FORBIDDEN.toString() -> messages(MessageConstants.http.forbidden))
+        codes
+      }
+
+      addPhoneOperation.codes = Some(addPhoneCodes)
+      addPhoneOperation
+    }
+    availableOperations :+= getAddPhoneOperation
+
     def getEditPhoneOperation = {
       val editPhoneOperation = Operation()
-      editPhoneOperation.call = Some(routes.PhoneController.editPhone(_idExemple, indexExemple))
+      editPhoneOperation.call = Some(routes.PhoneController.editPhone(_idExemple, phoneHomeKeyExemple))
       editPhoneOperation.description = Some(messages(MessageConstants.documentation.person.phone.editPhoneDescription))
 
       def editPhoneOperationRequestParameters: Map[String, String] = {
         var parameters: Map[String, String] = Map[String, String]()
+        parameters += (Person._ID -> messages(MessageConstants.documentation.person.getPersonIdParameterDescription))
         parameters += (MongoDbUtil.INDEX -> messages(MessageConstants.documentation.common.arrayIndexDescription))
         parameters
       }
@@ -801,11 +846,12 @@ class DocumentationServices @Inject() (
 
     def getDeletePhoneOperation = {
       val deletePhoneOperation = Operation()
-      deletePhoneOperation.call = Some(routes.PhoneController.deletePhone(_idExemple, indexExemple))
+      deletePhoneOperation.call = Some(routes.PhoneController.deletePhone(_idExemple, phoneHomeKeyExemple))
       deletePhoneOperation.description = Some(messages(MessageConstants.documentation.person.phone.deletePhoneDescription))
 
       def deletePhoneOperationRequestParameters: Map[String, String] = {
         var parameters: Map[String, String] = Map[String, String]()
+        parameters += (Person._ID -> messages(MessageConstants.documentation.person.getPersonIdParameterDescription))
         parameters += (MongoDbUtil.INDEX -> messages(MessageConstants.documentation.common.arrayIndexDescription))
         parameters
       }
@@ -828,5 +874,4 @@ class DocumentationServices @Inject() (
 
     availableOperations
   }
-
 }

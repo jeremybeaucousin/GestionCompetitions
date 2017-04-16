@@ -23,30 +23,32 @@ class PhoneController @Inject() (
   val messagesApi: MessagesApi)
     extends Controller with I18nSupport with Secured {
 
-  def index(id: String) = Action.async { implicit request =>
+  def index(userId: String) = Action.async { implicit request =>
     val rootUrl: String = routes.PhoneController.index(MongoDbUtil._ID).url
     val title: String = messagesApi(MessageConstants.title.documentation, rootUrl)
     val availableOperations: Seq[Operation] = documentationServices.getPersonPhonesOperations
+    
+    
     Future.successful(Ok(v1.views.html.documentation(title, availableOperations)))
   }
 
-  def listPhones(id: String) = Action.async { implicit request =>
+  def listPhones(userId: String, sort: Option[Seq[String]], fields: Option[Seq[String]]) = Action.async { implicit request =>
     Future(Ok)
   }
 
-  def addPhone(id: String) = Action.async { implicit request =>
+  def addPhone(userId: String) = Action.async { implicit request =>
     Future(Ok)
   }
 
-  def getPhone(id: String, key: String) = Action.async { implicit request =>
+  def getPhone(userId: String, key: String) = Action.async { implicit request =>
     Future(Ok)
   }
 
-  def editPhone(id: String, key: String) = Action.async { implicit request =>
+  def editPhone(userId: String, key: String) = Action.async { implicit request =>
     Future(Ok)
   }
 
-  def deletePhone(id: String, key: String) = Action.async { implicit request =>
+  def deletePhone(userId: String, key: String) = Action.async { implicit request =>
     Future(Ok)
   }
 

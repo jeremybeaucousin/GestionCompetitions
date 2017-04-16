@@ -74,9 +74,9 @@ class PersonController @Inject() (
   def getPerson(id: String, fieldsOption: Option[Seq[String]]) = Action.async {
     { implicit request =>
       val futurePerson: Future[Option[Person]] = personServices.getPerson(id, fieldsOption)
-      futurePerson.map { person =>
-        if (person.isDefined) {
-          Ok(Json.toJson(person))
+      futurePerson.map { personOption =>
+        if (personOption.isDefined) {
+          Ok(Json.toJson(personOption))
         } else {
           NotFound
         }
@@ -104,7 +104,7 @@ class PersonController @Inject() (
   }
 
   def editPerson(id: String) = Action.async(BodyParsers.parse.json) { implicit request =>
-    val futurBoolean: Future[Boolean] = personServices.editPerson(id, request.body.as[Person])
+    val futurBoolean = personServices.editPerson(id, request.body.as[Person])
     futurBoolean.map { resultsOk =>
       if (resultsOk) {
         Ok
@@ -115,7 +115,7 @@ class PersonController @Inject() (
   }
 
   def deletePerson(id: String) = Action.async { implicit request =>
-    val futurBoolean: Future[Boolean] = personServices.deletePerson(id)
+    val futurBoolean = personServices.deletePerson(id)
     futurBoolean.map { resultsOk =>
       if (resultsOk) {
         Ok

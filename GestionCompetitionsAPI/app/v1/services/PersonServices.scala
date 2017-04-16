@@ -14,6 +14,7 @@ import play.Logger
 import v1.utils.SecurityUtil
 import v1.errors._
 import v1.utils.OptUtils
+import v1.model.Address
 
 class PersonServices @Inject() (val personDAO: PersonDAO)(implicit val ec: ExecutionContext) {
 
@@ -21,7 +22,13 @@ class PersonServices @Inject() (val personDAO: PersonDAO)(implicit val ec: Execu
     personDAO.getTotalCount(personOption, searchInValues)
   }
 
-  def searchPersons(personOption: Option[Person], searchInValues: Option[Boolean], sortOption: Option[Seq[String]], fieldsOption: Option[Seq[String]], offsetOption: Option[Int], limitOption: Option[Int]): Future[List[Person]] = {
+  def searchPersons(
+    personOption: Option[Person],
+    searchInValues: Option[Boolean],
+    sortOption: Option[Seq[String]],
+    fieldsOption: Option[Seq[String]],
+    offsetOption: Option[Int],
+    limitOption: Option[Int]): Future[List[Person]] = {
     personDAO.searchPersons(personOption, searchInValues, sortOption, fieldsOption, offsetOption, limitOption)
   }
 
@@ -187,4 +194,32 @@ class PersonServices @Inject() (val personDAO: PersonDAO)(implicit val ec: Execu
     personDAO.deletePerson(id)
   }
 
+  // TODO Call DAO
+  object Addresses {
+
+    def getAddresses(
+      userId: String,
+      sort: Option[Seq[String]],
+      fields: Option[Seq[String]]): Future[List[Address]] = {
+
+      Future(null)
+    }
+
+    def addAddress(userId: String): Future[Option[Int]] = {
+      Future(null)
+    }
+
+    def getAddress(userId: String, index: Int, fields: Option[Seq[String]]): Future[Option[Address]] = {
+      Future(null)
+    }
+
+    def editAddress(userId: String, index: Int, address: Address): Future[Boolean] = {
+      Future(false)
+    }
+
+    def deleteAddress(userId: String, index: Int): Future[Boolean] = {
+      Future(false)
+    }
+  }
+  final val addresses = Addresses
 }
