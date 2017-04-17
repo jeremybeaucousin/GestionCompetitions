@@ -37,6 +37,7 @@ class AddressController @Inject() (
     }
   }
 
+  // TODO Sort do not work yet
   def listAddresses(userId: String, sort: Option[Seq[String]], fields: Option[Seq[String]]) = Action.async { implicit request =>
     val futureAddresses = personServices.addresses.getAddresses(userId, sort, fields)
     futureAddresses.map(addresses => {
