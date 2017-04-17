@@ -221,16 +221,7 @@ class PersonServices @Inject() (val personDAO: PersonDAO)(implicit val ec: Execu
       userId: String,
       sortOption: Option[Seq[String]],
       fieldsOption: Option[Seq[String]]): Future[Option[List[Address]]] = {
-      var fieldsWithAddressAndAdressFieldsOnly = Seq[String]()
-      fieldsWithAddressAndAdressFieldsOnly = fieldsWithAddressAndAdressFieldsOnly :+ Person.ADDRESSES
-      if (fieldsOption.isDefined) {
-        fieldsOption.get.foreach(field => {
-          if (v1.model.Address.isAddressField(field)) {
-            fieldsWithAddressAndAdressFieldsOnly = fieldsWithAddressAndAdressFieldsOnly :+ field
-          }
-        })
-      }
-      personDAO.address.getAddresses(userId, sortOption, fieldsWithAddressAndAdressFieldsOnly)
+      personDAO.address.getAddresses(userId, sortOption, fieldsOption)
     }
 
     def addAddress(userId: String): Future[Option[Int]] = {

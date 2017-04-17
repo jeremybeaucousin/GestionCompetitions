@@ -1,1 +1,0 @@
-mongo localhost:27017/sportsEventsManager -u admin -p admin_tkdhkd --authenticationDatabase admin

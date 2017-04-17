@@ -80,23 +80,34 @@ class PersonDAO @Inject() (val reactiveMongoApi: ReactiveMongoApi)(
     def getAddresses(
       userId: String,
       sort: Option[Seq[String]],
-      fields: Seq[String]): Future[Option[List[Address]]] = {
+      fieldsOption: Option[Seq[String]]): Future[Option[List[Address]]] = {
       val personSearch = Person()
       personSearch._id = Some(userId)
-      var fieldsWithId = Seq[String]()
-      fieldsWithId = fieldsWithId ++: fields
-      fieldsWithId = fieldsWithId :+ Person._ID
-      personRepo.find(Some(personSearch), Some(false), sort, Some(fieldsWithId), None, None).map {
+      var fieldsWithAddressAndId = Seq[String]()
+      fieldsWithAddressAndId = fieldsWithAddressAndId :+ Person._ID
+      fieldsWithAddressAndId = fieldsWithAddressAndId :+ Person.ADDRESSES
+      
+      if (fieldsOption.isDefined) {
+        fieldsOption.get.foreach(field => {
+          if (v1.model.Address.isAddressField(field)) {
+            fieldsWithAddressAndId = fieldsWithAddressAndId :+ s"${Person.ADDRESSES}.$field"
+          }
+        })
+      }
+      personRepo.find(Some(personSearch), Some(false), sort, Some(fieldsWithAddressAndId), None, None).map {
         case (persons) => {
           if (!persons.isEmpty) {
             val personOption = persons.find(personFound => {
-              personFound._id.get.equals(personSearch._id.get)
-              })
+              personFound._id.isDefined && (personFound._id.get.equals(personSearch._id.get))
+            })
             if (personOption.isDefined) {
-              return Future(personOption.get.addresses)
+              personOption.get.addresses
+            } else {
+              None
             }
+          } else {
+            None
           }
-          None
         }
       }
     }

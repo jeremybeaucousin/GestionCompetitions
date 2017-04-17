@@ -38,7 +38,6 @@ class AddressController @Inject() (
   def listAddresses(userId: String, sort: Option[Seq[String]], fields: Option[Seq[String]]) = Action.async { implicit request =>
     val futureAddresses = personServices.addresses.getAddresses(userId, sort, fields)
     futureAddresses.map(addresses => {
-      Logger.info(addresses.toString())
       if (!addresses.isDefined || addresses.isEmpty) {
         NoContent
       } else {

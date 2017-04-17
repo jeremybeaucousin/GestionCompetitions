@@ -69,6 +69,7 @@ class AbstractRepoImpl[T] (val collection : Future[BSONCollection]) (
     
     val sortBson = MongoDbUtil.createSortBson(sortOption)
     val projectionBson = MongoDbUtil.createProjectionBson(fieldsOption)
+    Logger.info(BSONDocument.pretty(projectionBson))
     val query = collection.map(_.find(valuesSearch).projection(projectionBson))
     val cursor = query.map(_.options(QueryOpts(skipN = MongoDbUtil.getSafeOffset(offsetOption))).sort(sortBson).cursor[T](ReadPreference.secondaryPreferred))
     cursor.flatMap(_.collect[List](limitOption.getOrElse(0)))

@@ -60,10 +60,10 @@ object MongoDbUtil {
 
   def createProjectionBson(fields: Option[Seq[String]]): BSONDocument = {
     var projectionBson = BSONDocument()
-    val regex = """([\w]+)""".r
+    val regex = """([\w\.?]+)""".r
     if (fields.isDefined) {
       // the fields can be filled with an empty string "" when fields is empty (ex : "fields=")
-      if (!fields.get.isEmpty && !fields.get(0).isEmpty())
+      if (!fields.get.isEmpty && !fields.get.contains(_ID))
         projectionBson ++= (_ID -> 0)
       fields.get.map(field => {
         if (regex.pattern.matcher(field).matches) {
