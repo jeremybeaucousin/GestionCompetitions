@@ -91,6 +91,26 @@ object Person {
   final val ADDRESSES: String = "addresses"
   final val PHONE_NUMBERS = "phoneNumbers"
 
+  final val personFields = Seq[String](
+    _ID,
+    FIRST_NAME,
+    LAST_NAME,
+    BIRTH_DATE,
+    LOGIN,
+    EMAIL,
+    ROLE,
+    ENCRYPTED_EMAIL_TOKEN,
+    EMAIL_TOKEN_EXPIRATION_TIME,
+    PASSWORD,
+    ENCRYPTED_PASSWORD,
+    DISPLAY_CONTACTS,
+    ADDRESSES,
+    PHONE_NUMBERS)
+
+  def isPersonField(field: String) = {
+    personFields.contains(field)
+  }
+
   private val phoneNumbersReads: Reads[Map[String, String]] = new Reads[Map[String, String]] {
     override def reads(json: JsValue): JsResult[Map[String, String]] = {
       def phoneReads(key: String): Reads[String] = (JsPath \ key).read[String](pattern(ValidationConstants.regex.PHONE_NUMBER, MessageConstants.error.phoneNumber))

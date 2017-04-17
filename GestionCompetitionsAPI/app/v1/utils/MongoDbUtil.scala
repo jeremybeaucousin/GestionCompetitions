@@ -102,7 +102,7 @@ object MongoDbUtil {
       val fieldName = element._1
       val fieldValue = element._2
       // if the value of the current field is an object we begin rebuild
-      if (fieldValue.isInstanceOf[BSONDocument] || fieldValue.isInstanceOf[BSONArray] || _ID.equals(fieldName)) {
+      if (fieldValue.isInstanceOf[BSONDocument] || fieldValue.isInstanceOf[BSONArray]) {
         newDocument = newDocument.remove(fieldName)
       } else if (fieldValue.isInstanceOf[BSONString]) {
         val stringValue = fieldValue.asInstanceOf[BSONString]

@@ -38,7 +38,8 @@ class AddressController @Inject() (
   def listAddresses(userId: String, sort: Option[Seq[String]], fields: Option[Seq[String]]) = Action.async { implicit request =>
     val futureAddresses = personServices.addresses.getAddresses(userId, sort, fields)
     futureAddresses.map(addresses => {
-      if (addresses.isEmpty) {
+      Logger.info(addresses.toString())
+      if (!addresses.isDefined || addresses.isEmpty) {
         NoContent
       } else {
         Ok(Json.toJson(addresses))
@@ -47,7 +48,6 @@ class AddressController @Inject() (
   }
 
   def getAddress(userId: String, index: Int, fields: Option[Seq[String]]) = Action.async { implicit request =>
-    // TODO Manage returns
     val futureAddress = personServices.addresses.getAddress(userId, index, fields)
     futureAddress.map(addressOption => {
       if (addressOption.isDefined) {

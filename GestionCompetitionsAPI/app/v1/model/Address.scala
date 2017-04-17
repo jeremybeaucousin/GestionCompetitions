@@ -23,6 +23,17 @@ object Address {
   final val POSTAL_CODE: String = "postalCode"
   final val CITY: String = "city"
 
+  final val addressFields = Seq[String](
+    NAME,
+    NUMBER,
+    STREET_NAME,
+    POSTAL_CODE,
+    CITY)
+
+  def isAddressField(field: String) = {
+    addressFields.contains(field)
+  }
+
   //    val personReads: Reads[Person] = (
   //    (JsPath \ _ID).readNullable[String](minLength[String](24) keepAnd maxLength[String](24)) and
   //    (JsPath \ FIRST_NAME).readNullable[String](minLength[String](2)) and

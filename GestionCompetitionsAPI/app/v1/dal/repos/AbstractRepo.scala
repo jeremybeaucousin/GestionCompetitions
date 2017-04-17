@@ -66,7 +66,7 @@ class AbstractRepoImpl[T] (val collection : Future[BSONCollection]) (
     limitOption: Option[Int])(implicit ec: ExecutionContext): Future[List[T]] = {
     val personSearch: BSONDocument = if (personOption.isDefined) MongoDbUtil.constructBSONDocumentWithRootFields(BSON.write(personOption.get)) else BSONDocument()
     val valuesSearch: BSONDocument = if (searchInValues.isDefined && searchInValues.get) MongoDbUtil.createSearchInValuesBson(personSearch) else personSearch
-
+    
     val sortBson = MongoDbUtil.createSortBson(sortOption)
     val projectionBson = MongoDbUtil.createProjectionBson(fieldsOption)
     val query = collection.map(_.find(valuesSearch).projection(projectionBson))
@@ -96,8 +96,8 @@ class AbstractRepoImpl[T] (val collection : Future[BSONCollection]) (
     }
   }
 
-  override def update(id: String, person: T): Future[Boolean] = {
-    val rebuildDocument = MongoDbUtil.constructBSONDocumentWithRootFields(BSON.write(person))
+  override def update(id: String, document: T): Future[Boolean] = {
+    val rebuildDocument = MongoDbUtil.constructBSONDocumentWithRootFields(BSON.write(document))
     val futureWriteResult = collection.flatMap(_.update(constructId(id), BSONDocument("$set" -> rebuildDocument)))
     handleWriteResult(futureWriteResult)
   }

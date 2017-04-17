@@ -29,7 +29,8 @@ class PersonServices @Inject() (val personDAO: PersonDAO)(implicit val ec: Execu
     fieldsOption: Option[Seq[String]],
     offsetOption: Option[Int],
     limitOption: Option[Int]): Future[List[Person]] = {
-    personDAO.searchPersons(personOption, searchInValues, sortOption, fieldsOption, offsetOption, limitOption)
+    val personFielsdOnly = personFieldsOnly(fieldsOption)
+    personDAO.searchPersons(personOption, searchInValues, sortOption, personFielsdOnly, offsetOption, limitOption)
   }
 
   def searchPersonWithEmail(person: Person): Future[Option[Person]] = {
@@ -59,7 +60,8 @@ class PersonServices @Inject() (val personDAO: PersonDAO)(implicit val ec: Execu
   }
 
   def getPerson(id: String, fieldsOption: Option[Seq[String]]): Future[Option[Person]] = {
-    personDAO.getPerson(id, fieldsOption)
+    val personFielsdOnly = personFieldsOnly(fieldsOption)
+    personDAO.getPerson(id, personFielsdOnly)
   }
 
   /**
@@ -132,6 +134,12 @@ class PersonServices @Inject() (val personDAO: PersonDAO)(implicit val ec: Execu
         }
       }
     }
+    
+    // display by default person contacts
+    if(!person.displayContacts.isDefined) {
+      person.displayContacts = Some(true)
+    }
+    
     val futurePerson = personDAO.addPerson(person)
     futurePerson.map(personOption => {
       (personOption, true)
@@ -194,15 +202,35 @@ class PersonServices @Inject() (val personDAO: PersonDAO)(implicit val ec: Execu
     personDAO.deletePerson(id)
   }
 
+  private def personFieldsOnly(fieldsOption: Option[Seq[String]]) = {
+    var personfieldsOnly = Seq[String]()
+    if (fieldsOption.isDefined) {
+      fieldsOption.get.foreach(field => {
+        if (Person.isPersonField(field)) {
+          personfieldsOnly = personfieldsOnly :+ field
+        }
+      })
+    }
+    Some(personfieldsOnly)
+  }
+
   // TODO Call DAO
   object Addresses {
 
     def getAddresses(
       userId: String,
-      sort: Option[Seq[String]],
-      fields: Option[Seq[String]]): Future[List[Address]] = {
-
-      Future(null)
+      sortOption: Option[Seq[String]],
+      fieldsOption: Option[Seq[String]]): Future[Option[List[Address]]] = {
+      var fieldsWithAddressAndAdressFieldsOnly = Seq[String]()
+      fieldsWithAddressAndAdressFieldsOnly = fieldsWithAddressAndAdressFieldsOnly :+ Person.ADDRESSES
+      if (fieldsOption.isDefined) {
+        fieldsOption.get.foreach(field => {
+          if (v1.model.Address.isAddressField(field)) {
+            fieldsWithAddressAndAdressFieldsOnly = fieldsWithAddressAndAdressFieldsOnly :+ field
+          }
+        })
+      }
+      personDAO.address.getAddresses(userId, sortOption, fieldsWithAddressAndAdressFieldsOnly)
     }
 
     def addAddress(userId: String): Future[Option[Int]] = {
