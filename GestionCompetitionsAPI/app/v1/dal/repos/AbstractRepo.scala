@@ -50,12 +50,11 @@ trait AbstractRepo[T] {
   def save(_id: String, person: T): Future[Boolean]
 }
 
-class AbstractRepoImpl[T] (val collection : Future[BSONCollection]) (
-    implicit ec: ExecutionContext,
-    bSONDocumentWriter :BSONDocumentWriter[T], 
-    bSONDocumentReader: BSONDocumentReader[T])
+class AbstractRepoImpl[T](val collection: Future[BSONCollection])(
+  implicit ec: ExecutionContext,
+  bSONDocumentWriter: BSONDocumentWriter[T],
+  bSONDocumentReader: BSONDocumentReader[T])
     extends AbstractRepo[T] {
-
 
   override def find(
     personOption: Option[T],
@@ -66,7 +65,7 @@ class AbstractRepoImpl[T] (val collection : Future[BSONCollection]) (
     limitOption: Option[Int])(implicit ec: ExecutionContext): Future[List[T]] = {
     val personSearch: BSONDocument = if (personOption.isDefined) MongoDbUtil.constructBSONDocumentWithRootFields(BSON.write(personOption.get)) else BSONDocument()
     val valuesSearch: BSONDocument = if (searchInValues.isDefined && searchInValues.get) MongoDbUtil.createSearchInValuesBson(personSearch) else personSearch
-    
+
     val sortBson = MongoDbUtil.createSortBson(sortOption)
     val projectionBson = MongoDbUtil.createProjectionBson(fieldsOption)
     Logger.info(BSONDocument.pretty(projectionBson))
@@ -84,13 +83,13 @@ class AbstractRepoImpl[T] (val collection : Future[BSONCollection]) (
   override def select(id: String, fieldsOption: Option[Seq[String]]): Future[Option[T]] = {
     val projectionBson = MongoDbUtil.createProjectionBson(fieldsOption)
     // Cannot set read preferences on creation
-    collection.flatMap(_.find(constructId(id)).projection(projectionBson).one[T])
+    collection.flatMap(_.find(MongoDbUtil.constructId(id)).projection(projectionBson).one[T])
   }
 
   override def deleteFields(id: String, fields: List[String]): Future[Boolean] = {
     if (!fields.isEmpty) {
       val rebuildForUnset = MongoDbUtil.constructBSONDocumentWithForUnset(fields)
-      val futureWriteResult = collection.flatMap(_.update(constructId(id), BSONDocument("$unset" -> rebuildForUnset)))
+      val futureWriteResult = collection.flatMap(_.update(MongoDbUtil.constructId(id), BSONDocument("$unset" -> rebuildForUnset)))
       handleWriteResult(futureWriteResult)
     } else {
       Future(false)
@@ -99,12 +98,12 @@ class AbstractRepoImpl[T] (val collection : Future[BSONCollection]) (
 
   override def update(id: String, document: T): Future[Boolean] = {
     val rebuildDocument = MongoDbUtil.constructBSONDocumentWithRootFields(BSON.write(document))
-    val futureWriteResult = collection.flatMap(_.update(constructId(id), BSONDocument("$set" -> rebuildDocument)))
+    val futureWriteResult = collection.flatMap(_.update(MongoDbUtil.constructId(id), BSONDocument("$set" -> rebuildDocument)))
     handleWriteResult(futureWriteResult)
   }
 
   override def remove(id: String): Future[Boolean] = {
-    val futureWriteResult = collection.flatMap(_.remove(constructId(id)))
+    val futureWriteResult = collection.flatMap(_.remove(MongoDbUtil.constructId(id)))
     handleWriteResult(futureWriteResult)
 
   }
@@ -117,8 +116,11 @@ class AbstractRepoImpl[T] (val collection : Future[BSONCollection]) (
     handleWriteResult(futureWriteResult)
   }
 
-  private def constructId(id: String): BSONDocument = {
-    BSONDocument("_id" -> id)
+  def addDocumentToSubArray[U](id: String, arrayName: String, document: U)(implicit bSONDocumentWriter: BSONDocumentWriter[U]) = {
+    val rebuildDocument = MongoDbUtil.constructBSONDocumentWithRootFields(BSON.write(document))
+    val documentToAdd = BSONDocument(arrayName -> rebuildDocument)
+    val futureWriteResult = collection.flatMap(_.update(MongoDbUtil.constructId(id), BSONDocument("$addToSet" -> documentToAdd)))
+    handleWriteResult(futureWriteResult)
   }
 
   def handleWriteResult(futureWriteResult: Future[WriteResult]): Future[Boolean] = {

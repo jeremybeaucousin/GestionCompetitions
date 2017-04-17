@@ -134,12 +134,12 @@ class PersonServices @Inject() (val personDAO: PersonDAO)(implicit val ec: Execu
         }
       }
     }
-    
+
     // display by default person contacts
-    if(!person.displayContacts.isDefined) {
+    if (!person.displayContacts.isDefined) {
       person.displayContacts = Some(true)
     }
-    
+
     val futurePerson = personDAO.addPerson(person)
     futurePerson.map(personOption => {
       (personOption, true)
@@ -221,11 +221,11 @@ class PersonServices @Inject() (val personDAO: PersonDAO)(implicit val ec: Execu
       userId: String,
       sortOption: Option[Seq[String]],
       fieldsOption: Option[Seq[String]]): Future[Option[List[Address]]] = {
-      personDAO.address.getAddresses(userId, sortOption, fieldsOption)
+      personDAO.address.getAddresses(userId, addressFieldsOnly(sortOption), fieldsOption)
     }
 
-    def addAddress(userId: String): Future[Option[Int]] = {
-      Future(null)
+    def addAddress(userId: String, address: Address): Future[Option[Int]] = {
+      personDAO.address.addAddress(userId, address)
     }
 
     def getAddress(userId: String, index: Int, fields: Option[Seq[String]]): Future[Option[Address]] = {
@@ -238,6 +238,16 @@ class PersonServices @Inject() (val personDAO: PersonDAO)(implicit val ec: Execu
 
     def deleteAddress(userId: String, index: Int): Future[Boolean] = {
       Future(false)
+    }
+
+    private def addressFieldsOnly(fieldsOption: Option[Seq[String]]) = {
+      var addressfieldsOnly = Seq[String]()
+      if (fieldsOption.isDefined) {
+        fieldsOption.get.foreach(field => {
+          addressfieldsOnly = addressfieldsOnly :+ field
+        })
+      }
+      Some(addressfieldsOnly)
     }
   }
   final val addresses = Addresses

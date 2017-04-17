@@ -18,6 +18,8 @@ import org.apache.commons.lang3.StringUtils
 import v1.utils.MongoDbUtil
 import play.api.libs.json.Json
 import v1.constantes.HttpConstants
+import v1.model.Address
+import play.api.mvc.BodyParsers
 
 class AddressController @Inject() (
   val documentationServices: DocumentationServices,
@@ -57,9 +59,10 @@ class AddressController @Inject() (
     })
   }
 
-  def addAddress(userId: String) = Action.async { implicit request =>
-    val futureAddress = personServices.addresses.addAddress(userId)
-    futureAddress.map(indexOption => {
+  def addAddress(userId: String) = Action.async(BodyParsers.parse.json) { implicit request =>
+    val address = request.body.as[Address]
+    val futureIndex = personServices.addresses.addAddress(userId, address)
+    futureIndex.map(indexOption => {
       if (indexOption.isDefined) {
         var returnedLocation = HttpConstants.headerFields.location -> (routes.AddressController.getAddress(userId, indexOption.get, None).absoluteURL())
         Created.withHeaders(returnedLocation)
@@ -81,7 +84,7 @@ class AddressController @Inject() (
   }
 
   def deleteAddress(userId: String, index: Int) = Action.async { implicit request =>
-     val futurBoolean = personServices.addresses.deleteAddress(userId, index)
+    val futurBoolean = personServices.addresses.deleteAddress(userId, index)
     futurBoolean.map { resultsOk =>
       if (resultsOk) {
         Ok

@@ -22,6 +22,10 @@ object MongoDbUtil {
     BSONObjectID.generate
   }
 
+  def constructId(id: String): BSONDocument = {
+    BSONDocument("_id" -> id)
+  }
+  
   def createSearchInValuesBson(searchValues: BSONDocument): BSONDocument = {
     var searchInValues = BSONDocument()
     // Browse fields of the document

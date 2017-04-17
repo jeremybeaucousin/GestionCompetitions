@@ -86,7 +86,7 @@ class PersonDAO @Inject() (val reactiveMongoApi: ReactiveMongoApi)(
       var fieldsWithAddressAndId = Seq[String]()
       fieldsWithAddressAndId = fieldsWithAddressAndId :+ Person._ID
       fieldsWithAddressAndId = fieldsWithAddressAndId :+ Person.ADDRESSES
-      
+
       if (fieldsOption.isDefined) {
         fieldsOption.get.foreach(field => {
           if (v1.model.Address.isAddressField(field)) {
@@ -112,8 +112,21 @@ class PersonDAO @Inject() (val reactiveMongoApi: ReactiveMongoApi)(
       }
     }
 
-    def addAddress(userId: String): Future[Option[Int]] = {
-      Future(null)
+    def addAddress(userId: String, address: Address): Future[Option[Int]] = {
+      val futureResult = personRepo.addDocumentToSubArray(userId, Person.ADDRESSES, address)
+      val hasNoError = Await.result(futureResult, Duration.Inf)
+      if (hasNoError) {
+        val futurePerson = personRepo.select(userId, None)
+        futurePerson.map(personModified => {
+          if(personModified.isDefined && personModified.get.addresses.isDefined) {
+            Some(personModified.get.addresses.get.indexOf(address))
+          } else {
+            None
+          }
+        })
+      } else {
+        Future(None)
+      }
     }
 
     def getAddress(userId: String, index: Int, fields: Option[Seq[String]]): Future[Option[Address]] = {
