@@ -219,9 +219,8 @@ class PersonServices @Inject() (val personDAO: PersonDAO)(implicit val ec: Execu
 
     def getAddresses(
       userId: String,
-      sortOption: Option[Seq[String]],
       fieldsOption: Option[Seq[String]]): Future[Option[List[Address]]] = {
-      personDAO.address.getAddresses(userId, addressFieldsOnly(sortOption), fieldsOption)
+      personDAO.address.getAddresses(userId, addressFieldsOnly(fieldsOption))
     }
 
     def addAddress(userId: String, address: Address): Future[Option[Int]] = {

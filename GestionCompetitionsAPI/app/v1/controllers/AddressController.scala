@@ -27,19 +27,19 @@ class AddressController @Inject() (
   val messagesApi: MessagesApi)
     extends Controller with I18nSupport with Secured {
 
-  def index(userId: String, sort: Option[Seq[String]], fields: Option[Seq[String]]) = Action.async { implicit request =>
-    val rootUrl: String = routes.AddressController.index(MongoDbUtil._ID, None, None).url
+  def index(userId: String, fields: Option[Seq[String]]) = Action.async { implicit request =>
+    val rootUrl: String = routes.AddressController.index(MongoDbUtil._ID, None).url
     val title: String = messagesApi(MessageConstants.title.documentation, rootUrl)
     val availableOperations: Seq[Operation] = documentationServices.getPersonAddressesOperations
     render.async {
       case Accepts.Html() => Future.successful(Ok(v1.views.html.documentation(title, availableOperations)))
-      case Accepts.Json() => listAddresses(userId, sort, fields).apply(request)
+      case Accepts.Json() => listAddresses(userId, fields).apply(request)
     }
   }
 
   // TODO Sort do not work yet
-  def listAddresses(userId: String, sort: Option[Seq[String]], fields: Option[Seq[String]]) = Action.async { implicit request =>
-    val futureAddresses = personServices.addresses.getAddresses(userId, sort, fields)
+  def listAddresses(userId: String, fields: Option[Seq[String]]) = Action.async { implicit request =>
+    val futureAddresses = personServices.addresses.getAddresses(userId, fields)
     futureAddresses.map(addresses => {
       if (!addresses.isDefined || addresses.isEmpty) {
         NoContent

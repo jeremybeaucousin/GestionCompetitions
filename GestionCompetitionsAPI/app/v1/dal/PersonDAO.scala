@@ -79,7 +79,6 @@ class PersonDAO @Inject() (val reactiveMongoApi: ReactiveMongoApi)(
   object Address {
     def getAddresses(
       userId: String,
-      sort: Option[Seq[String]],
       fieldsOption: Option[Seq[String]]): Future[Option[List[Address]]] = {
       val personSearch = Person()
       personSearch._id = Some(userId)
@@ -94,7 +93,7 @@ class PersonDAO @Inject() (val reactiveMongoApi: ReactiveMongoApi)(
           }
         })
       }
-      personRepo.find(Some(personSearch), Some(false), sort, Some(fieldsWithAddressAndId), None, None).map {
+      personRepo.find(Some(personSearch), Some(false), None, Some(fieldsWithAddressAndId), None, None).map {
         case (persons) => {
           if (!persons.isEmpty) {
             val personOption = persons.find(personFound => {
@@ -113,7 +112,7 @@ class PersonDAO @Inject() (val reactiveMongoApi: ReactiveMongoApi)(
     }
 
     def addAddress(userId: String, address: Address): Future[Option[Int]] = {
-      val futureResult = personRepo.addDocumentToSubArray(userId, Person.ADDRESSES, address)
+      val futureResult = personRepo.addDocumentToSubArray(userId, Person.ADDRESSES, address, v1.model.Address.NAME)
       val hasNoError = Await.result(futureResult, Duration.Inf)
       if (hasNoError) {
         val futurePerson = personRepo.select(userId, None)

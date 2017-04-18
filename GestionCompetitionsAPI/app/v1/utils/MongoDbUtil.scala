@@ -17,6 +17,19 @@ object MongoDbUtil {
   final val _ID = "_id"
   final val INDEX = "index"
   final val PERSONS_COLLECTION = "persons"
+  final val SET = "$set"
+  final val UNSET = "$unset"
+  final val ADD_TO_SET = "$addToSet"
+  final val PUSH = "$push"
+  final val EACH = "$each"
+  final val SORT = "$sort"
+
+  
+  object Ordering extends Enumeration {
+    type Ordering = Value
+    final val ASCENDING = Value(1)
+    final val DESCENDING = Value(-1)
+  }
 
   def generateId(): BSONObjectID = {
     BSONObjectID.generate
@@ -25,7 +38,7 @@ object MongoDbUtil {
   def constructId(id: String): BSONDocument = {
     BSONDocument("_id" -> id)
   }
-  
+
   def createSearchInValuesBson(searchValues: BSONDocument): BSONDocument = {
     var searchInValues = BSONDocument()
     // Browse fields of the document
@@ -93,12 +106,12 @@ object MongoDbUtil {
   // TODO Optimise with constructBSONDocumentWithForUnset
   def constructBSONDocumentWithForUnset(fields: List[String]): BSONDocument = {
     var bsonObject = BSONDocument()
-    fields.foreach(field =>{
-      bsonObject  ++= (field -> StringUtils.EMPTY)
+    fields.foreach(field => {
+      bsonObject ++= (field -> StringUtils.EMPTY)
     })
     bsonObject
   }
-  
+
   def constructBSONDocumentWithRootFields(document: BSONDocument): BSONDocument = {
     var newDocument = document.copy()
     // Browse fields of the document

@@ -25,7 +25,7 @@ PUT 	/v1/persons/:id									v1.controllers.PersonController.editPerson(id: Stri
 DELETE	/v1/persons/:id									v1.controllers.PersonController.deletePerson(id: String)
 
 # Addresses
-GET		/v1/persons/:userId/addresses					v1.controllers.AddressController.index(userId: String, sort: Option[Seq[String]], fields: Option[Seq[String]])
+GET		/v1/persons/:userId/addresses					v1.controllers.AddressController.index(userId: String, fields: Option[Seq[String]])
 GET		/v1/persons/:userId/addresses/:index			v1.controllers.AddressController.getAddress(userId: String, index: Int, fields: Option[Seq[String]])
 POST	/v1/persons/:userId/addresses					v1.controllers.AddressController.addAddress(userId: String)
 PUT 	/v1/persons/:userId/addresses/:index			v1.controllers.AddressController.editAddress(userId: String, index: Int)

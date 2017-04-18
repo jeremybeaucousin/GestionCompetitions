@@ -568,7 +568,7 @@ class DocumentationServices @Inject() (
 
     def getListAddressesOperation = {
       val listAddressesOperation = Operation()
-      listAddressesOperation.call = Some(routes.AddressController.index(_idExemple, Some(sortExemple), Some(fieldsExemple)))
+      listAddressesOperation.call = Some(routes.AddressController.index(_idExemple, Some(fieldsExemple)))
       listAddressesOperation.description = Some(messages(MessageConstants.documentation.person.address.listAddressesDescription))
 
       def getListAddressesRequestParameters: Map[String, String] = {

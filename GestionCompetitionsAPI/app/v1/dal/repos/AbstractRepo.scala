@@ -13,6 +13,9 @@ import reactivemongo.bson.BSONDocumentReader
 import reactivemongo.bson.BSONDocumentWriter
 import v1.utils.MongoDbUtil
 import play.Logger
+import scala.concurrent.Await
+import scala.concurrent.duration.Duration
+import reactivemongo.bson.BSONArray
 
 trait AbstractRepo[T] {
 
@@ -89,7 +92,7 @@ class AbstractRepoImpl[T](val collection: Future[BSONCollection])(
   override def deleteFields(id: String, fields: List[String]): Future[Boolean] = {
     if (!fields.isEmpty) {
       val rebuildForUnset = MongoDbUtil.constructBSONDocumentWithForUnset(fields)
-      val futureWriteResult = collection.flatMap(_.update(MongoDbUtil.constructId(id), BSONDocument("$unset" -> rebuildForUnset)))
+      val futureWriteResult = collection.flatMap(_.update(MongoDbUtil.constructId(id), BSONDocument(MongoDbUtil.UNSET -> rebuildForUnset)))
       handleWriteResult(futureWriteResult)
     } else {
       Future(false)
@@ -98,7 +101,7 @@ class AbstractRepoImpl[T](val collection: Future[BSONCollection])(
 
   override def update(id: String, document: T): Future[Boolean] = {
     val rebuildDocument = MongoDbUtil.constructBSONDocumentWithRootFields(BSON.write(document))
-    val futureWriteResult = collection.flatMap(_.update(MongoDbUtil.constructId(id), BSONDocument("$set" -> rebuildDocument)))
+    val futureWriteResult = collection.flatMap(_.update(MongoDbUtil.constructId(id), BSONDocument(MongoDbUtil.SET -> rebuildDocument)))
     handleWriteResult(futureWriteResult)
   }
 
@@ -116,10 +119,28 @@ class AbstractRepoImpl[T](val collection: Future[BSONCollection])(
     handleWriteResult(futureWriteResult)
   }
 
-  def addDocumentToSubArray[U](id: String, arrayName: String, document: U)(implicit bSONDocumentWriter: BSONDocumentWriter[U]) = {
+  def addDocumentToSubArray[U](id: String, arrayName: String, document: U, sortField: String)(implicit bSONDocumentWriter: BSONDocumentWriter[U]): Future[Boolean] = {
     val rebuildDocument = MongoDbUtil.constructBSONDocumentWithRootFields(BSON.write(document))
     val documentToAdd = BSONDocument(arrayName -> rebuildDocument)
-    val futureWriteResult = collection.flatMap(_.update(MongoDbUtil.constructId(id), BSONDocument("$addToSet" -> documentToAdd)))
+    val futureWriteResult = collection.flatMap(_.update(MongoDbUtil.constructId(id), BSONDocument(MongoDbUtil.ADD_TO_SET -> documentToAdd)))
+    val futureResult = handleWriteResult(futureWriteResult)
+    futureResult.flatMap(hasNoError => {
+      if (hasNoError) {
+        sortArray(id, arrayName, sortField, MongoDbUtil.Ordering.ASCENDING)
+      } else {
+        Future(false)
+      }
+    })
+
+  }
+
+  def sortArray(id: String, arrayName: String, sortField: String, ordering: MongoDbUtil.Ordering.Value) = {
+    val sortFieldDocument = BSONDocument(sortField -> ordering.id)
+    val sortDocument = BSONDocument(
+      MongoDbUtil.EACH -> BSONArray(),
+      MongoDbUtil.SORT -> sortFieldDocument)
+    val arrayToSort = BSONDocument(arrayName -> sortDocument)
+    val futureWriteResult = collection.flatMap(_.update(MongoDbUtil.constructId(id), BSONDocument(MongoDbUtil.PUSH -> arrayToSort)))
     handleWriteResult(futureWriteResult)
   }
 
