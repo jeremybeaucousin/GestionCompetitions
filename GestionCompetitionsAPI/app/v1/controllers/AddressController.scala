@@ -72,8 +72,9 @@ class AddressController @Inject() (
     })
   }
 
-  def editAddress(userId: String, index: Int) = Action.async { implicit request =>
-    val futurBoolean = personServices.addresses.editAddress(userId, index, null)
+  def editAddress(userId: String, index: Int) = Action.async(BodyParsers.parse.json) { implicit request =>
+    val address = request.body.as[Address]
+    val futurBoolean = personServices.addresses.editAddress(userId, index, address)
     futurBoolean.map { resultsOk =>
       if (resultsOk) {
         Ok

@@ -17,6 +17,7 @@ import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 import reactivemongo.bson.BSONArray
 import reactivemongo.bson.BSONNull
+import v1.model.Address
 
 trait AbstractRepo[T] {
 
@@ -133,21 +134,41 @@ class AbstractRepoImpl[T](val collection: Future[BSONCollection])(
       }
     })
   }
-  
-   def deleteDocumentFromSubArray[U](id: String, arrayName: String, index: Int): Future[Boolean] = {
-     val documentToUnset = BSONDocument(s"$arrayName.$index" -> 1) 
-     val futureWriteResultUnset = collection.flatMap(_.update(MongoDbUtil.constructId(id), BSONDocument(MongoDbUtil.UNSET -> documentToUnset)))
-      val futureResultUnset = handleWriteResult(futureWriteResultUnset)
-      futureResultUnset.flatMap(hasNoError => {
+
+  def updateDocumentFromSubArray[U](id: String, arrayName: String, index: Int, document: U, sortField: String)(implicit bSONDocumentWriter: BSONDocumentWriter[U]): Future[Boolean] = {
+    val rebuildDocument = MongoDbUtil.constructBSONDocumentWithRootFields(BSON.write(document))
+    var subDocumentUpdate = BSONDocument()
+    // Browse fields of the document
+    rebuildDocument.elements.foreach(element => {
+      val fieldName = element._1
+      val fieldValue = element._2
+      subDocumentUpdate ++= (s"$arrayName.$index.$fieldName" -> fieldValue)
+    })
+    val futureWriteResult = collection.flatMap(_.update(MongoDbUtil.constructId(id), BSONDocument(MongoDbUtil.SET -> subDocumentUpdate)))
+    val futureResult = handleWriteResult(futureWriteResult)
+    futureResult.flatMap(hasNoError => {
       if (hasNoError) {
-        val documentToDelete = BSONDocument(arrayName -> BSONNull) 
+        sortArray(id, arrayName, sortField, MongoDbUtil.Ordering.ASCENDING)
+      } else {
+        Future(false)
+      }
+    })
+  }
+
+  def deleteDocumentFromSubArray[U](id: String, arrayName: String, index: Int): Future[Boolean] = {
+    val documentToUnset = BSONDocument(s"$arrayName.$index" -> 1)
+    val futureWriteResultUnset = collection.flatMap(_.update(MongoDbUtil.constructId(id), BSONDocument(MongoDbUtil.UNSET -> documentToUnset)))
+    val futureResultUnset = handleWriteResult(futureWriteResultUnset)
+    futureResultUnset.flatMap(hasNoError => {
+      if (hasNoError) {
+        val documentToDelete = BSONDocument(arrayName -> BSONNull)
         val futureWriteResult = collection.flatMap(_.update(MongoDbUtil.constructId(id), BSONDocument(MongoDbUtil.PULL -> documentToDelete)))
         handleWriteResult(futureWriteResult)
       } else {
         Future(false)
       }
     })
-   }
+  }
 
   def sortArray(id: String, arrayName: String, sortField: String, ordering: MongoDbUtil.Ordering.Value) = {
     val sortFieldDocument = BSONDocument(sortField -> ordering.id)

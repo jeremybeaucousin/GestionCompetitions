@@ -133,7 +133,7 @@ class PersonDAO @Inject() (val reactiveMongoApi: ReactiveMongoApi)(
     }
 
     def editAddress(userId: String, index: Int, address: Address): Future[Boolean] = {
-      Future(false)
+      personRepo.updateDocumentFromSubArray(userId, v1.model.Person.ADDRESSES, index, address, v1.model.Address.NAME)
     }
 
     def deleteAddress(userId: String, index: Int): Future[Boolean] = {
