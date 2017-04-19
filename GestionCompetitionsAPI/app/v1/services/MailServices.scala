@@ -19,7 +19,6 @@ class MailServices @Inject() (val mailer: MailerClient)(implicit val ec: Executi
     val email = Email(subject = "subject", from = "jeremy.beaucousin@gmail.com", to = List("jeremy.beaucousin@gmail.com"), bodyHtml = bodyHtml, bodyText = Some("Hello"), replyTo = None)
     mailer.send(email)
     // TODO uncomment
-    //Logger.info(email.toString())
     //    val mail = MailerPlugin.email
     //    mail.setSubject("subject")
     //    mail.setFrom("jeremy.beaucousin@gmail.com")

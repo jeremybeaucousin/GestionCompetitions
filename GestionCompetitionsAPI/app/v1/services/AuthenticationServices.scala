@@ -92,7 +92,6 @@ class AuthenticationServices @Inject() (
       }
     } else {
       val futurePerson = personServices.searchPersonWithEmail(personSearch)
-      Logger.info(futurePerson.toString())
       return futurePerson.map(personWithEmailOption => {
         if (personWithEmailOption.isDefined) {
           val personWithEmail = personWithEmailOption.get
@@ -116,7 +115,6 @@ class AuthenticationServices @Inject() (
       val personWithSameEmail = personWithSameEmailOption.get
       val newPassword = SecurityUtil.generateString(15)
       val newEncryptedPassword = SecurityUtil.encryptString(newPassword)
-      Logger.info(newPassword.toString())
       val personUpdate = Person()
       personUpdate.password = Some(newPassword)
       personUpdate.encryptedPassword = Some(newEncryptedPassword)
@@ -159,7 +157,6 @@ class AuthenticationServices @Inject() (
   }
 
   def changePassword(userId: String, passwordChange: PasswordChange)(implicit messages: Messages): Future[Boolean] = {
-    Logger.info(userId)
     val futurePerson = personServices.getPerson(userId, None)
     val personOption = Await.result(futurePerson, Duration.Inf)
     if (personOption.isDefined) {

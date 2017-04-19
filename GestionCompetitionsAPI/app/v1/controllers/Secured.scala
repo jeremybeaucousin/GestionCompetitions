@@ -31,7 +31,6 @@ trait Secured {
   def withToken[A](bodyParser: BodyParser[A])(apiToken: => ApiToken => Request[A] => Future[Result]) = {
     Action.async(bodyParser) { request =>
       {
-        Logger.info("withToken(bodyParser)")
         val apiKeyOption = (apiKeyOpt(request))
         val authTokenOption = (authTokenOpt(request))
         if (apiKeyOption.isDefined && ApiToken.apiKeysExists(apiKeyOption.get) && authTokenOption.isDefined) {

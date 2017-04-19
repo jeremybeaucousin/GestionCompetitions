@@ -128,8 +128,16 @@ class PersonDAO @Inject() (val reactiveMongoApi: ReactiveMongoApi)(
       }
     }
 
-    def getAddress(userId: String, index: Int, fields: Option[Seq[String]]): Future[Option[Address]] = {
-      Future(null)
+    def getAddress(userId: String, index: Int, fieldsOption: Option[Seq[String]]): Future[Option[Address]] = {
+      val futureAddresses = getAddresses(userId, fieldsOption)
+      futureAddresses.map(addressesOption => {
+        if(addressesOption.isDefined && index < addressesOption.get.size) {
+          val addresses = addressesOption.get
+           Some(addresses(index))
+        } else {
+          None
+        }
+      })
     }
 
     def editAddress(userId: String, index: Int, address: Address): Future[Boolean] = {

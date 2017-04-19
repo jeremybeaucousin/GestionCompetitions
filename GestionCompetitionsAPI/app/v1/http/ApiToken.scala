@@ -55,10 +55,7 @@ object ApiToken {
       }
       val newApiToken = ApiToken(generateToken, apiKey, expirationTime = getExpirationTime, userId)
       tokenStore = tokenStore :+ newApiToken
-      Logger.info(tokenStore.size.toString())
       tokenStore.foreach(apiToken => {
-        Logger.info(apiToken.userId.toString())
-        Logger.info(apiToken.token.toString())
       })
       newApiToken
     })
@@ -70,10 +67,7 @@ object ApiToken {
       if (apiTokenFound.isDefined) {
         tokenStore = SeqUtil.removeElementFromSeq(apiTokenFound.get, tokenStore)
       }
-      Logger.info(tokenStore.size.toString())
       tokenStore.foreach(apiToken => {
-        Logger.info(apiToken.userId.toString())
-        Logger.info(apiToken.token.toString())
       })
     })
   }
