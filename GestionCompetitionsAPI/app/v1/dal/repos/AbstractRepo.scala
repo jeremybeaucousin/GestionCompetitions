@@ -16,6 +16,7 @@ import play.Logger
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 import reactivemongo.bson.BSONArray
+import reactivemongo.bson.BSONNull
 
 trait AbstractRepo[T] {
 
@@ -131,8 +132,22 @@ class AbstractRepoImpl[T](val collection: Future[BSONCollection])(
         Future(false)
       }
     })
-
   }
+  
+   def deleteDocumentFromSubArray[U](id: String, arrayName: String, index: Int): Future[Boolean] = {
+     val documentToUnset = BSONDocument(s"$arrayName.$index" -> 1) 
+     val futureWriteResultUnset = collection.flatMap(_.update(MongoDbUtil.constructId(id), BSONDocument(MongoDbUtil.UNSET -> documentToUnset)))
+      val futureResultUnset = handleWriteResult(futureWriteResultUnset)
+      futureResultUnset.flatMap(hasNoError => {
+      if (hasNoError) {
+        val documentToDelete = BSONDocument(arrayName -> BSONNull) 
+        val futureWriteResult = collection.flatMap(_.update(MongoDbUtil.constructId(id), BSONDocument(MongoDbUtil.PULL -> documentToDelete)))
+        handleWriteResult(futureWriteResult)
+      } else {
+        Future(false)
+      }
+    })
+   }
 
   def sortArray(id: String, arrayName: String, sortField: String, ordering: MongoDbUtil.Ordering.Value) = {
     val sortFieldDocument = BSONDocument(sortField -> ordering.id)

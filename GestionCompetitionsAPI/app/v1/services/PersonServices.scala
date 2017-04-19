@@ -228,15 +228,15 @@ class PersonServices @Inject() (val personDAO: PersonDAO)(implicit val ec: Execu
     }
 
     def getAddress(userId: String, index: Int, fields: Option[Seq[String]]): Future[Option[Address]] = {
-      Future(null)
+      personDAO.address.getAddress(userId, index, fields)
     }
 
     def editAddress(userId: String, index: Int, address: Address): Future[Boolean] = {
-      Future(false)
+      personDAO.address.editAddress(userId, index, address)
     }
 
     def deleteAddress(userId: String, index: Int): Future[Boolean] = {
-      Future(false)
+      personDAO.address.deleteAddress(userId, index)
     }
 
     private def addressFieldsOnly(fieldsOption: Option[Seq[String]]) = {

@@ -16,11 +16,16 @@ import org.apache.commons.lang3.StringUtils
 object MongoDbUtil {
   final val _ID = "_id"
   final val INDEX = "index"
+  
+  // Collections
   final val PERSONS_COLLECTION = "persons"
+  
+  // Operations
   final val SET = "$set"
   final val UNSET = "$unset"
   final val ADD_TO_SET = "$addToSet"
   final val PUSH = "$push"
+  final val PULL = "$pull"
   final val EACH = "$each"
   final val SORT = "$sort"
 

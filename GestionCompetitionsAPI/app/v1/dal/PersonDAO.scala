@@ -137,7 +137,7 @@ class PersonDAO @Inject() (val reactiveMongoApi: ReactiveMongoApi)(
     }
 
     def deleteAddress(userId: String, index: Int): Future[Boolean] = {
-      Future(false)
+       personRepo.deleteDocumentFromSubArray(userId, v1.model.Person.ADDRESSES, index)
     }
   }
 
